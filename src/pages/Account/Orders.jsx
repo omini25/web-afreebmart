@@ -207,19 +207,19 @@ export default function Orders() {
                                                                     </a>
                                                                 )}
                                                             </Menu.Item>
-                                                            <Menu.Item>
-                                                                {({active}) => (
-                                                                    <a
-                                                                        href={`/tracking-order/${order.id}`}
-                                                                        className={classNames(
-                                                                            active ? 'bg-gray-100 text-gray-900' : 'text-gray-700',
-                                                                            'block px-4 py-2 text-sm'
-                                                                        )}
-                                                                    >
-                                                                        Track Order
-                                                                    </a>
-                                                                )}
-                                                            </Menu.Item>
+                                                            {/*<Menu.Item>*/}
+                                                            {/*    {({active}) => (*/}
+                                                            {/*        <a*/}
+                                                            {/*            href={`/tracking-order/${order.id}`}*/}
+                                                            {/*            className={classNames(*/}
+                                                            {/*                active ? 'bg-gray-100 text-gray-900' : 'text-gray-700',*/}
+                                                            {/*                'block px-4 py-2 text-sm'*/}
+                                                            {/*            )}*/}
+                                                            {/*        >*/}
+                                                            {/*            Track Order*/}
+                                                            {/*        </a>*/}
+                                                            {/*    )}*/}
+                                                            {/*</Menu.Item>*/}
                                                         </div>
                                                     </Menu.Items>
                                                 </Transition>
@@ -235,13 +235,13 @@ export default function Orders() {
                                                     <span className="sr-only">{order.id}</span>
                                                 </a>
 
-                                                <a
-                                                    href={`/tracking-order/${order.id}`}
-                                                    className="flex items-center justify-center rounded-md border border-gray-300 bg-white px-2.5 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-secondary focus:ring-offset-2"
-                                                >
-                                                    <span>Track Order</span>
-                                                    <span className="sr-only">for order {order.id}</span>
-                                                </a>
+                                                {/*<a*/}
+                                                {/*    href={`/tracking-order/${order.id}`}*/}
+                                                {/*    className="flex items-center justify-center rounded-md border border-gray-300 bg-white px-2.5 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-secondary focus:ring-offset-2"*/}
+                                                {/*>*/}
+                                                {/*    <span>Track Order</span>*/}
+                                                {/*    <span className="sr-only">for order {order.id}</span>*/}
+                                                {/*</a>*/}
                                             </div>
                                         </div>
 

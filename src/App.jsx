@@ -25,6 +25,7 @@ import SubCategory from "./pages/Products/SubCategory.jsx";
 import OrderDetails from "./pages/Account/OrderDetails.jsx";
 import Invoice from "./pages/Account/Invoice.jsx";
 import Search from "./pages/Products/Search.jsx"
+import 'react-toastify/dist/ReactToastify.css';
 
 const App = () => {
     return (
@@ -57,7 +58,7 @@ const App = () => {
                 <Route path="/tracking-order/:orderId" element={<TrackingOrder />} />
                 <Route path="/address" element={<Addresses />} />
                 <Route path="*" element={<NotFound />} />
-                <Route path="/invoice/:paymentId" element={<Invoice />} />
+                <Route path="/invoice/:invoiceId" element={<Invoice />} />
 
             </Routes>
         </Router>
