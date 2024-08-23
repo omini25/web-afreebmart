@@ -1,9 +1,17 @@
 import React, { useState } from 'react';
 import { useSelector } from "react-redux";
-import { MagnifyingGlassIcon, ShoppingCartIcon, UserIcon, Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline';
+import {
+    MagnifyingGlassIcon,
+    ShoppingCartIcon,
+    UserIcon,
+    Bars3Icon,
+    XMarkIcon,
+    HeartIcon
+} from '@heroicons/react/24/outline';
 import afreeblogo from '../assets/images/afreemart-logo.png';
 import {Link, useNavigate} from "react-router-dom";
 import {ChevronDownIcon} from "@heroicons/react/20/solid";
+import {toast} from "react-toastify";
 
 function classNames(...classes) {
     return classes.filter(Boolean).join(' ')
@@ -12,6 +20,7 @@ function classNames(...classes) {
 export default function Header() {
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const [hoveredCategory, setHoveredCategory] = useState(null);
+    const [hoveredVendor, setHoveredVendor] = useState(null);
     const [cartHovered, setCartHovered] = useState(false);
     const [userMenuHovered, setUserMenuHovered] = useState(false);
     const user = useSelector(state => state.user);
@@ -28,6 +37,13 @@ export default function Header() {
     const handleSearchSubmit = () => {
         setSearchModalOpen(false); // Close the modal
         navigate(`/search?q=${searchTerm}`); // Navigate to the search page
+    };
+
+    const handleRemoveFromCart = (productId) => {
+        // 1. Update cartProducts in localStorage
+        const updatedCart = cartProducts.filter(item => item.id !== productId);
+        localStorage.setItem('cart', JSON.stringify(updatedCart));
+        
     };
 
     const navigation = {
@@ -233,18 +249,66 @@ export default function Header() {
 
                             </div>
 
-                            <div className="space-y-6 border-t border-gray-200 px-4 py-6">
-                                <div className="flow-root">
-                                    <a href="#" className="-m-2 block p-2 font-medium text-gray-900">
-                                        Sign in
-                                    </a>
+                            {localStorage.getItem('isLoggedIn') === 'true' ? (
+
+                                <div className="space-y-6 border-t border-gray-200 px-4 py-6">
+                                    <div className="flow-root">
+                                        <a href="#" className="-m-2 block p-2 font-medium text-gray-900">
+                                            Dashboard
+                                        </a>
+                                    </div>
+                                    <div className="flow-root">
+                                        <a href="#" className="-m-2 block p-2 font-medium text-gray-900">
+                                            Orders
+                                        </a>
+                                    </div>
+                                    <div className="flow-root">
+                                        <a href="#" className="-m-2 block p-2 font-medium text-gray-900">
+                                            Group Orders
+                                        </a>
+                                    </div>
+
+                                    <div className="flow-root">
+                                        <a href="#" className="-m-2 block p-2 font-medium text-gray-900">
+                                            Account
+                                        </a>
+                                    </div>
+
+                                    <div className="flow-root">
+                                        <a
+                                            href="#"
+                                            className="-m-2 block p-2 font-medium text-red-600"
+                                            onClick={(e) => {
+                                                e.preventDefault();
+
+                                                // 1. Clear localStorage
+                                                localStorage.removeItem('user');
+                                                localStorage.setItem('isLoggedIn', 'false');
+
+                                                toast.success('Logged out successfully!');
+
+                                                navigate('/');
+                                            }}
+                                        >
+                                            Logout
+                                        </a>
+                                    </div>
                                 </div>
-                                <div className="flow-root">
-                                    <a href="#" className="-m-2 block p-2 font-medium text-gray-900">
-                                        Create account
-                                    </a>
+
+                            ) : (
+                                <div className="space-y-6 border-t border-gray-200 px-4 py-6">
+                                    <div className="flow-root">
+                                        <a href="#" className="-m-2 block p-2 font-medium text-gray-900">
+                                            Sign in
+                                        </a>
+                                    </div>
+                                    <div className="flow-root">
+                                        <a href="#" className="-m-2 block p-2 font-medium text-gray-900">
+                                            Create account
+                                        </a>
+                                    </div>
                                 </div>
-                            </div>
+                            )}
                         </div>
                     </div>
                 </div>
@@ -257,13 +321,25 @@ export default function Header() {
                         <div className="mx-auto flex h-10 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
 
                             {/* Conditional rendering based on user state */}
-                            {user.isLoggedIn ? (
+                            {localStorage.getItem('isLoggedIn') === 'true' ? (
                                 <div className="hidden lg:flex lg:flex-1 lg:items-center lg:justify-end lg:space-x-6">
-                                    <a href="/Account/Account" className="text-sm font-medium text-white hover:text-gray-100">
+                                <a href="/Account/Account" className="text-sm font-medium text-white hover:text-gray-100">
                                     Account
                                     </a>
                                     <span className="h-6 w-px bg-gray-600" aria-hidden="true"/>
-                                    <a href="/logout" className="text-sm font-medium text-white hover:text-gray-100">
+                                    <a href="/logout" className="text-sm font-medium text-white hover:text-gray-100"
+                                       onClick={(e) => {
+                                           e.preventDefault();
+
+                                           // 1. Clear localStorage
+                                           localStorage.removeItem('user');
+                                           localStorage.setItem('isLoggedIn', 'false');
+
+                                           toast.success('Logged out successfully!');
+
+                                           navigate('/');
+                                       }}
+                                    >
                                         Logout
                                     </a>
                                 </div>
@@ -291,7 +367,7 @@ export default function Header() {
                                         <a href="/">
                                             <span className="sr-only">Afreebmart</span>
                                             <img
-                                                className="h-8 w-auto"
+                                                className="h-12 w-auto"
                                                 src={afreeblogo}
                                                 alt="Afreebmart Logo"
                                             />
@@ -313,7 +389,7 @@ export default function Header() {
                                                             <button
                                                                 className={classNames(
                                                                     hoveredCategory === categoryIdx
-                                                                        ? 'border-indigo-600 text-indigo-600'
+                                                                        ? 'border-primary text-primary'
                                                                         : 'border-transparent text-gray-700 hover:text-gray-800',
                                                                     'relative z-10 -mb-px flex items-center border-b-2 pt-px text-sm font-medium transition-colors duration-200 ease-out'
                                                                 )}
@@ -413,6 +489,61 @@ export default function Header() {
                                                         {page.name}
                                                     </a>
                                                 ))}
+
+                                                {navigation.vendors.map((vendor, vendorIdx) => (
+                                                    <div
+                                                        key={vendor.name}
+                                                        className="flex"
+                                                        onMouseEnter={() => setHoveredVendor(vendorIdx)}
+                                                        onMouseLeave={() => setHoveredVendor(null)}
+                                                    >
+                                                        <div className="relative flex">
+                                                            <button
+                                                                className={classNames(
+                                                                    hoveredVendor === vendorIdx
+                                                                        ? 'border-primary text-primary'
+                                                                        : 'border-transparent text-gray-700 hover:text-gray-800',
+                                                                    'relative z-10 -mb-px flex items-center border-b-2 pt-px text-sm font-medium transition-colors duration-200 ease-out'
+                                                                )}
+                                                            >
+                                                                {vendor.name}
+                                                            </button>
+                                                        </div>
+
+                                                        {hoveredVendor === vendorIdx && (
+                                                            <div className="absolute inset-x-0 top-full text-gray-500 sm:text-sm bg-white">
+                                                                <div className="absolute inset-0 top-1/2 bg-white shadow" aria-hidden="true" />
+
+                                                                <div className="relative bg-white">
+                                                                    <div className="mx-auto max-w-7xl px-8">
+                                                                        <div className="grid grid-cols-2 items-start gap-x-8 gap-y-10 pb-12 pt-10">
+                                                                            <div className="grid grid-cols-2 gap-x-8 gap-y-10">
+                                                                                <div>
+
+                                                                                    <ul
+                                                                                        role="list"
+                                                                                        aria-labelledby={`desktop-featured-heading-${vendorIdx}`}
+                                                                                        className="mt-6 space-y-6 sm:mt-4 sm:space-y-4"
+                                                                                    >
+                                                                                        {vendor.featured.map((item) => (
+                                                                                            <li key={item.name} className="flex">
+                                                                                                <a href={item.href} className="hover:text-gray-800">
+                                                                                                    {item.name}
+                                                                                                </a>
+                                                                                            </li>
+                                                                                        ))}
+                                                                                    </ul>
+                                                                                </div>
+
+                                                                            </div>
+
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                ))}
                                             </div>
                                         </div>
                                     </div>
@@ -474,7 +605,7 @@ export default function Header() {
                                         <img
                                             src={afreeblogo}
                                             alt="Afreebmart Logo"
-                                            className="h-8 w-auto"
+                                            className="h-10 w-auto"
                                         />
                                     </a>
 
@@ -487,42 +618,94 @@ export default function Header() {
                                                             type="text"
                                                             placeholder="Search..."
                                                             className="w-full pl-10 pr-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
+                                                            value={searchTerm} // Bind input value to searchTerm state
+                                                            onChange={(e) => setSearchTerm(e.target.value)} // Update searchTerm on input change
+                                                            onKeyDown={(e) => { // Handle Enter key press
+                                                                if (e.key === 'Enter') {
+                                                                    handleSearchSubmit();
+                                                                }
+                                                            }}
                                                         />
-                                                        <MagnifyingGlassIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+                                                        <MagnifyingGlassIcon
+                                                            className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400"/>
                                                     </div>
                                                 </div>
 
-                                                {/* Cart */}
-                                                <div className="flex relative"
+
+                                                <div className=" flex relative">
+                                                    <Link
+                                                        to="/wishlist"> {/* Assuming your wishlist route is /wishlist */}
+                                                        <button className="group  flex items-center pt-2 pb-2 -ml-5">
+                                                            <HeartIcon
+                                                                className="h-6 w-6 flex-shrink-0 text-gray-400 group-hover:text-gray-500"
+                                                                aria-hidden="true"/>
+                                                            <span
+                                                                className="sr-only">Wishlist</span> {/* For screen readers */}
+                                                        </button>
+                                                    </Link>
+                                                </div>
+
+                                                {/* Cart Mobile */}
+                                                <div className="flex relative lg:hidden">
+                                                    <Link to="/cart"> {/* Assuming your cart page route is /cart */}
+                                                        <button className="group flex items-center pt-2 pb-2 -ml-3">
+                                                            <ShoppingCartIcon
+                                                                className="h-6 w-6 flex-shrink-0 text-gray-400 group-hover:text-gray-500"
+                                                                aria-hidden="true"
+                                                            />
+                                                            <span
+                                                                className=" text-sm font-medium text-gray-700 group-hover:text-gray-800">
+                                                                {cartProducts.length}
+                                                              </span>
+                                                            <span className="sr-only">items in cart, view bag</span>
+                                                        </button>
+                                                    </Link>
+                                                    {/* Remove the cartHovered section */}
+                                                </div>
+
+                                                {/* Cart  Desktop*/}
+                                                <div className="flex relative hidden sm:block"
                                                      onMouseEnter={() => setCartHovered(true)}
                                                      onMouseLeave={() => setCartHovered(false)}>
-                                                    <button className="group -m-2 flex items-center p-2">
+                                                    <button className="group flex items-center pt-2 pb-2">
                                                         <ShoppingCartIcon
                                                             className="h-6 w-6 flex-shrink-0 text-gray-400 group-hover:text-gray-500"
                                                             aria-hidden="true"
                                                         />
-                                                        <span className="ml-2 text-sm font-medium text-gray-700 group-hover:text-gray-800">
+                                                        <span
+                                                            className="ml-1 text-sm font-medium text-gray-700 group-hover:text-gray-800">
                                                             {cartProducts.length}
                                                         </span>
                                                         <span className="sr-only">items in cart, view bag</span>
                                                     </button>
                                                     {cartHovered && (
-                                                        <div className="absolute right-0 mt-10 w-80 bg-white shadow-lg z-10 rounded-lg">
+                                                        <div
+                                                            className="absolute right-0 mt-10 w-80 bg-white shadow-lg z-10 rounded-lg">
                                                             <div className="p-4">
                                                                 <h2 className="text-lg font-semibold mb-4">Shopping
                                                                     Cart</h2>
                                                                 {cartProducts.length > 0 ? (
                                                                     <ul className="divide-y divide-gray-200">
                                                                         {cartProducts.map((product) => (
-                                                                            <li key={product.id} className="py-4 flex">
-                                                                                <img src={product.image}
-                                                                                     alt={product.name}
-                                                                                     className="h-16 w-16 rounded-md object-cover mr-4"/>
+                                                                            <li key={product.id}
+                                                                                className="py-4 flex relative">
+                                                                                <img
+                                                                                    src={product.image}
+                                                                                    alt={product.name}
+                                                                                    className="h-16 w-16 rounded-md object-cover mr-4"
+                                                                                />
                                                                                 <div className="flex-1">
                                                                                     <h3 className="text-sm font-medium">{product.name}</h3>
                                                                                     <p className="text-sm text-gray-500">${product.price}</p>
                                                                                     <p className="text-sm text-gray-500">{product.quantity}</p>
                                                                                 </div>
+                                                                                <button
+                                                                                    className="absolute top-2 right-2"
+                                                                                    onClick={() => handleRemoveFromCart(product.id)} // Call remove function
+                                                                                >
+                                                                                    <XMarkIcon
+                                                                                        className="h-4 w-4 text-gray-500 hover:text-red-500"/>
+                                                                                </button>
                                                                             </li>
                                                                         ))}
                                                                     </ul>
@@ -545,10 +728,23 @@ export default function Header() {
                                                 </div>
                                             </div>
 
-                                            <span className="mx-4 h-6 w-px bg-gray-200 lg:mx-6" aria-hidden="true" />
+                                            <span className="mx-4 h-6 w-px bg-gray-200 lg:mx-6" aria-hidden="true"/>
+
+                                            <div className=" flow-root relative lg:hidden">
+                                                <Link
+                                                    to="/dashboard">
+                                                    <button className="group  flex items-center pt-2 pb-2">
+                                                        <UserIcon
+                                                            className="h-6 w-6 flex-shrink-0 text-gray-400 group-hover:text-gray-500"
+                                                            aria-hidden="true"/>
+                                                        <span
+                                                            className="sr-only">Account</span>
+                                                    </button>
+                                                </Link>
+                                            </div>
 
                                             {/* User account */}
-                                            <div className="flow-root relative"
+                                            <div className="flow-root relative hidden sm:block"
                                                  onMouseEnter={() => setUserMenuHovered(true)}
                                                  onMouseLeave={() => setUserMenuHovered(false)}>
                                                 <button className="group -m-2 flex items-center p-2">
@@ -559,19 +755,42 @@ export default function Header() {
                                                     <span className="sr-only">User menu</span>
                                                 </button>
                                                 {userMenuHovered && (
-                                                    <div className="absolute right-0 mt-2 w-48 bg-white shadow-lg z-10 rounded-lg">
+                                                    <div
+                                                        className="absolute right-0 mt-2 w-48 bg-white shadow-lg z-10 rounded-lg">
                                                         <div className="py-1">
-                                                            {user.isLoggedIn ? (
+                                                            {localStorage.getItem('isLoggedIn') === 'true' ? (
                                                                 <>
-                                                                    <a href="/Account/Account" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">My Account</a>
-                                                                    <a href="/Account/Account" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Wishlist</a>
-                                                                    <a href="/Account/Orders" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Orders</a>
-                                                                    <a href="/logout" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Logout</a>
+                                                                    <a href="/dashboard"
+                                                                       className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">My
+                                                                        Account</a>
+                                                                    <a href="/orders"
+                                                                       className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Orders</a>
+                                                                    <a href="/group-orders"
+                                                                       className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Group
+                                                                        Orders</a>
+                                                                    <a href="/logout"
+                                                                       className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                                                                       onClick={(e) => {
+                                                                           e.preventDefault();
+
+                                                                           // 1. Clear localStorage
+                                                                           localStorage.removeItem('user');
+                                                                           localStorage.setItem('isLoggedIn', 'false');
+
+                                                                           toast.success('Logged out successfully!');
+
+                                                                           navigate('/');
+                                                                       }}
+                                                                    >Logout</a>
                                                                 </>
                                                             ) : (
                                                                 <>
-                                                                    <a href="/login" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Sign In</a>
-                                                                    <a href="/register" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Create Account</a>
+                                                                    <a href="/login"
+                                                                       className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Sign
+                                                                        In</a>
+                                                                    <a href="/register"
+                                                                       className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Create
+                                                                        Account</a>
                                                                 </>
                                                             )}
                                                         </div>

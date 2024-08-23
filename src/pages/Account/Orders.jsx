@@ -132,7 +132,7 @@ export default function Orders() {
                         </div>
                     </div>
 
-                    <section aria-labelledby="recent-heading" className="mt-16">
+                    <section aria-labelledby="recent-heading" className="mt-8">
                         <h2 id="recent-heading" className="sr-only">
                             Recent orders
                         </h2>

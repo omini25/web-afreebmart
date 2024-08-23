@@ -3,7 +3,6 @@ import wbImage from "../assets/images/wb.png";
 import slide2 from "../assets/images/afreebmart-slide2.png";
 import slide3 from "../assets/images/afreebmart-slide3.png";
 
-
 export const Hero = () => {
     const [currentSlide, setCurrentSlide] = useState(0);
 
@@ -41,8 +40,8 @@ export const Hero = () => {
     };
 
     return (
-        <div className="relative overflow-hidden h-screen">
-            <div className="h-full relative">
+        <div className="relative overflow-hidden">
+            <div className="h-[50vh] md:h-[60vh] lg:h-[70vh] relative">
                 {heroData.map((item, index) => (
                     <div
                         key={index}
@@ -59,11 +58,11 @@ export const Hero = () => {
                             <div className="absolute inset-0 bg-gray-500 opacity-20" />
                         </div>
                         <div className="relative h-full flex flex-col items-center justify-center px-6 text-center">
-                            <h1 className="text-4xl font-bold tracking-tight text-primary lg:text-6xl">{item.title}</h1>
-                            <p className="mt-4 text-xl text-white">{item.description}</p>
+                            <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight text-primary">{item.title}</h1>
+                            <p className="mt-4 text-lg md:text-xl text-white">{item.description}</p>
                             <a
                                 href="/shop"
-                                className="mt-8 inline-block rounded-md border border-transparent bg-primary px-8 py-3 text-base font-medium text-gray-900 hover:bg-gray-100"
+                                className="mt-6 md:mt-8 inline-block rounded-md border border-transparent bg-primary px-6 py-2 md:px-8 md:py-3 text-base font-medium text-gray-900 hover:bg-gray-100"
                             >
                                 {item.buttonText}
                             </a>
@@ -76,7 +75,7 @@ export const Hero = () => {
                     <button
                         key={index}
                         onClick={() => goToSlide(index)}
-                        className={`w-3 h-3 rounded-full ${
+                        className={`w-2 h-2 md:w-3 md:h-3 rounded-full ${
                             index === currentSlide ? 'bg-white' : 'bg-white bg-opacity-50'
                         }`}
                         aria-label={`Go to slide ${index + 1}`}

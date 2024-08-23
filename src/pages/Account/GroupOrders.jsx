@@ -1,4 +1,4 @@
-import {Fragment, useEffect, useState} from 'react'
+import { Fragment, useEffect, useState } from 'react'
 import { Menu, Transition } from '@headlessui/react'
 import {
     CreditCardIcon,
@@ -10,11 +10,12 @@ import {
 import { CheckCircleIcon } from '@heroicons/react/20/solid'
 import Header from "../../components/Header.jsx";
 import axios from "axios";
-import {server} from "../../Server.js";
-import {assetServer} from "../../assetServer.js";
-import {Link} from "react-router-dom";
-import {useShoppingHooks} from "../../redux/useShoppingHooks.js";
-import {toast} from "react-toastify";
+import { server } from "../../Server.js";
+import { assetServer } from "../../assetServer.js";
+import { Link } from "react-router-dom";
+import { useShoppingHooks } from "../../redux/useShoppingHooks.js";
+import { toast } from "react-toastify";
+import { Dialog } from '@headlessui/react'
 
 
 const secondaryNavigation = [
@@ -26,25 +27,6 @@ const secondaryNavigation = [
     { name: 'Account', href: '/account', icon: UserCircleIcon, current: false },
 ]
 
-const products = [
-    {
-        id: 1,
-        name: 'Nomad Tumbler',
-        description:
-            'This durable and portable insulated tumbler will keep your beverage at the perfect temperature during your next adventure.',
-        href: '#',
-        price: '35.00',
-        status: 'Preparing to ship',
-        step: 1,
-        date: 'March 24, 2021',
-        datetime: '2021-03-24',
-        address: ['Floyd Miles', '7363 Cynthia Pass', 'Toronto, ON N3Y 4H8'],
-        email: 'f•••@example.com',
-        phone: '1•••••••••40',
-        imageSrc: 'https://tailwindui.com/img/ecommerce-images/confirmation-page-03-product-01.jpg',
-        imageAlt: 'Insulated bottle with white base and black snap lid.',
-    },
-]
 
 
 function classNames(...classes) {
@@ -57,20 +39,86 @@ export default function GroupOrders() {
     const user = JSON.parse(localStorage.getItem('user')) || {};
     const { addProductToCart } = useShoppingHooks();
 
-    useEffect(() => {
-        const fetchOrders = async () => {
-            try {
-                const response = await axios(`${server}/order/${user.id}`);
-                const data = response.data.orders;
-                setOrders(data);
-            } catch (error) {
-                console.error('Error fetching orders:', error);
-            }
-            setIsLoading(false);
-        };
+    // New state variables for modals
+    const [createGroupOpen, setCreateGroupOpen] = useState(false);
+    const [joinGroupOpen, setJoinGroupOpen] = useState(false);
+    const [addUsersOpen, setAddUsersOpen] = useState(false);
+    const [deleteGroupOpen, setDeleteGroupOpen] = useState(false);
+    const [selectedGroupId, setSelectedGroupId] = useState(null);
 
+    // New state variables for form inputs
+    const [newGroupName, setNewGroupName] = useState('');
+    const [joinGroupId, setJoinGroupId] = useState('');
+    const [addUserEmail, setAddUserEmail] = useState('');
+
+    const fetchOrders = async () => {
+        try {
+            const response = await axios(`${server}/user/group/${user.id}`);
+            const data = response.data.groups;
+            setOrders(data);
+        } catch (error) {
+            console.error('Error fetching orders:', error);
+        }
+        setIsLoading(false);
+    };
+
+    useEffect(() => {
         fetchOrders();
     }, []);
+
+    const handleCreateGroup = async (e) => {
+        e.preventDefault();
+        try {
+            await axios.post(`${server}/user/group`, { name: newGroupName, userId: user.id });
+            setCreateGroupOpen(false);
+            setNewGroupName('');
+            toast.success('Group created successfully!');
+            fetchOrders();
+        } catch (error) {
+            console.error('Error creating group:', error);
+            toast.error('Failed to create group');
+        }
+    };
+
+    const handleJoinGroup = async (e) => {
+        e.preventDefault();
+        try {
+            await axios.post(`${server}/user/join`, { groupId: joinGroupId, userId: user.id });
+            setJoinGroupOpen(false);
+            setJoinGroupId('');
+            toast.success('Joined group successfully!');
+            fetchOrders();
+        } catch (error) {
+            console.error('Error joining group:', error);
+            toast.error('Failed to join group');
+        }
+    };
+
+    const handleAddUser = async (e) => {
+        e.preventDefault();
+        try {
+            await axios.post(`${server}/group/addUser`, { groupId: selectedGroupId, email: addUserEmail });
+            setAddUsersOpen(false);
+            setAddUserEmail('');
+            toast.success('User added successfully!');
+            fetchOrders();
+        } catch (error) {
+            console.error('Error adding user:', error);
+            toast.error('Failed to add user');
+        }
+    };
+
+    const handleDeleteGroup = async (ordersId) => {
+        try {
+            await axios.delete(`${server}/user/group/${ordersId}`);
+            setDeleteGroupOpen(false);
+            toast.success('Group deleted successfully!');
+            fetchOrders();
+        } catch (error) {
+            console.error('Error deleting group:', error);
+            toast.error('Failed to delete group');
+        }
+    };
 
     if (isLoading) return (
         <div className="flex items-center justify-center h-screen">
@@ -147,89 +195,239 @@ export default function GroupOrders() {
                 <main className="py-24">
                     <div className="mx-auto max-w-7xl sm:px-2 lg:px-8">
                         <div className="mx-auto max-w-2xl px-4 lg:max-w-4xl lg:px-0">
-                            <h1 className="text-2xl font-bold tracking-tight text-gray-900 sm:text-3xl">Order
-                                history</h1>
+                            <h1 className="text-2xl font-bold tracking-tight text-gray-900 sm:text-3xl">
+                                Groups
+                                <div className="flex justify-end">
+                                    {/* Create Group Modal */}
+
+                                    <button
+                                        onClick={() => setCreateGroupOpen(true)}
+                                        className="px-4 py-2 text-sm font-medium text-white bg-blue-500 rounded-md hover:bg-blue-600"
+                                    >
+                                        Create Group
+                                    </button>
+
+                                    <Dialog open={createGroupOpen} onClose={() => setCreateGroupOpen(false)}>
+                                        <div className="fixed inset-0 bg-black/30" aria-hidden="true"/>
+                                        <div className="fixed inset-0 flex items-center justify-center p-4">
+                                            <Dialog.Panel className="mx-auto max-w-sm rounded bg-white p-6">
+                                                <Dialog.Title className="text-lg font-medium leading-6 text-gray-900">Create
+                                                    Group</Dialog.Title>
+                                                <form onSubmit={handleCreateGroup}>
+                                                    <input
+                                                        type="text"
+                                                        value={newGroupName}
+                                                        onChange={(e) => setNewGroupName(e.target.value)}
+                                                        placeholder="Group Name"
+                                                        className="mt-2 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+                                                        required
+                                                    />
+
+                                                    <button type="submit"
+                                                            className="mt-4 w-full px-4 py-2 text-sm font-medium text-white bg-blue-500 rounded-md hover:bg-blue-600">
+                                                        Create
+                                                    </button>
+                                                </form>
+                                            </Dialog.Panel>
+                                        </div>
+                                    </Dialog>
+
+                                    {/* Join Group Modal */}
+
+                                    <button
+                                        onClick={() => setJoinGroupOpen(true)}
+                                        className="ml-2 px-4 py-2 text-sm font-medium text-white bg-green-500 rounded-md hover:bg-green-600"
+                                    >
+                                        Join Group
+                                    </button>
+
+
+                                    <Dialog open={joinGroupOpen} onClose={() => setJoinGroupOpen(false)}>
+                                        <div className="fixed inset-0 bg-black/30" aria-hidden="true"/>
+                                        <div className="fixed inset-0 flex items-center justify-center p-4">
+                                            <Dialog.Panel className="mx-auto max-w-sm rounded bg-white p-6">
+                                                <Dialog.Title className="text-lg font-medium leading-6 text-gray-900">Join
+                                                    Group</Dialog.Title>
+                                                <form onSubmit={handleJoinGroup}>
+                                                    <input
+                                                        type="text"
+                                                        value={joinGroupId}
+                                                        onChange={(e) => setJoinGroupId(e.target.value)}
+                                                        placeholder="Group ID"
+                                                        className="mt-2 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+                                                        required
+                                                    />
+                                                    <button type="submit"
+                                                            className="mt-4 w-full px-4 py-2 text-sm font-medium text-white bg-green-500 rounded-md hover:bg-green-600">
+                                                        Join
+                                                    </button>
+                                                </form>
+                                            </Dialog.Panel>
+                                        </div>
+                                    </Dialog>
+                                </div>
+                            </h1>
                         </div>
                     </div>
 
                     <div className="bg-white">
-                        <div className="mx-auto max-w-2xl pt-4 sm:px-6 sm:py-24 lg:max-w-7xl lg:px-8">
-                            <div
-                                className="space-y-2 px-4 sm:flex sm:items-baseline sm:justify-between sm:space-y-0 sm:px-0">
-                                <div className="flex sm:items-baseline sm:space-x-4">
-                                    <h1 className="text-2xl font-bold tracking-tight text-gray-900 sm:text-3xl">Order
-                                        #54879</h1>
-                                    <a href="#"
-                                       className="hidden text-sm font-medium text-indigo-600 hover:text-indigo-500 sm:block">
-                                        View invoice
-                                        <span aria-hidden="true"> &rarr;</span>
-                                    </a>
-                                </div>
-                                <p className="text-sm text-gray-600">
-                                    Order placed{' '}
-                                    <time dateTime="2021-03-22" className="font-medium text-gray-900">
-                                        March 22, 2021
-                                    </time>
-                                </p>
-                                <a href="#"
-                                   className="text-sm font-medium text-indigo-600 hover:text-indigo-500 sm:hidden">
-                                    View invoice
-                                    <span aria-hidden="true"> &rarr;</span>
-                                </a>
-                            </div>
+                        <div className="mx-auto max-w-2xl sm:px-6 mt-4 lg:max-w-7xl lg:px-8">
+
 
                             {/* Products */}
                             <div className="mt-6">
                                 <h2 className="sr-only">Products purchased</h2>
 
                                 <div className="space-y-8">
-                                    {products.map((product) => (
+                                    {orders.map((product) => (
+
                                         <div
                                             key={product.id}
                                             className="border-b border-t border-gray-200 bg-white shadow-sm sm:rounded-lg sm:border"
                                         >
+                                            <div
+                                                className="space-y-2 px-16 sm:flex sm:items-baseline sm:justify-between sm:space-y-0 sm:px-0 ">
+                                                <div className="flex sm:items-baseline sm:space-x-4">
+                                                <h1 className="text-2xl font-bold tracking-tight text-gray-900 sm:text-3xl">{product.name}
+                                                        {' '}#{product.group_id}</h1>
+                                                </div>
+                                                <p className="text-sm text-gray-600">
+                                                    Date Created{' '}
+                                                    <time dateTime="2021-03-22" className="font-medium text-gray-900">
+                                                        {new Date(product.created_at).toLocaleDateString('en-US', {
+                                                            month: 'numeric',
+                                                            day: 'numeric',
+                                                            year: '2-digit'
+                                                        })}
+                                                    </time>
+                                                </p>
+                                                <a href="#"
+                                                   className="text-sm font-medium text-primary hover:text-secondary sm:hidden">
+                                                    View invoice
+                                                    <span aria-hidden="true"> &rarr;</span>
+                                                </a>
+                                            </div>
+
                                             <div
                                                 className="px-4 py-6 sm:px-6 lg:grid lg:grid-cols-12 lg:gap-x-8 lg:p-8">
                                                 <div className="sm:flex lg:col-span-7">
                                                     <div
                                                         className="aspect-h-1 aspect-w-1 w-full flex-shrink-0 overflow-hidden rounded-lg sm:aspect-none sm:h-40 sm:w-40">
                                                         <img
-                                                            src={product.imageSrc}
-                                                            alt={product.imageAlt}
+                                                            src={`${assetServer}/images/products/${product.product_image}`}
+                                                            alt={product.product_name}
                                                             className="h-full w-full object-cover object-center sm:h-full sm:w-full"
                                                         />
                                                     </div>
 
                                                     <div className="mt-6 sm:ml-6 sm:mt-0">
                                                         <h3 className="text-base font-medium text-gray-900">
-                                                            <a href={product.href}>{product.name}</a>
+                                                            <a href="#">{product.product_name}</a>
                                                         </h3>
-                                                        <p className="mt-2 text-sm font-medium text-gray-900">${product.price}</p>
-                                                        <p className="mt-3 text-sm text-gray-500">{product.description}</p>
+                                                        <p className="mt-2 text-sm font-medium text-gray-900">${product.product_price}</p>
+                                                        <p className="mt-3 text-sm text-gray-500">{product.product_description}</p>
                                                     </div>
                                                 </div>
 
                                                 <div className="mt-6 lg:col-span-5 lg:mt-0">
                                                     <dl className="grid grid-cols-2 gap-x-6 text-sm">
                                                         <div>
-                                                            <dt className="font-medium text-gray-900">Delivery address
+                                                            <dt className="font-medium text-gray-900">Group Information
                                                             </dt>
                                                             <dd className="mt-3 text-gray-500">
-                                                                <span className="block">{product.address[0]}</span>
-                                                                <span className="block">{product.address[1]}</span>
-                                                                <span className="block">{product.address[2]}</span>
+                                                                <span className="block">Status: {product.status}</span>
+                                                                <span className="block">Role: {product.role}</span>
+                                                                <span
+                                                                    className="block">Users: {product.users_count}</span>
                                                             </dd>
                                                         </div>
                                                         <div>
-                                                            <dt className="font-medium text-gray-900">Shipping updates
+                                                            <dt className="font-medium text-gray-900">Group Action
                                                             </dt>
                                                             <dd className="mt-3 space-y-3 text-gray-500">
-                                                                <p>{product.email}</p>
-                                                                <p>{product.phone}</p>
-                                                                <button type="button"
-                                                                        className="font-medium text-indigo-600 hover:text-indigo-500">
-                                                                    Edit
+                                                                <button
+                                                                    type="button"
+                                                                    onClick={() => {
+                                                                        setSelectedGroupId(product.group_id);
+                                                                        setAddUsersOpen(true);
+                                                                    }}
+                                                                    className="font-medium text-primary hover:text-secondary"
+                                                                >
+                                                                    Add Users
                                                                 </button>
+
+                                                                <Dialog open={addUsersOpen}
+                                                                        onClose={() => setAddUsersOpen(false)}>
+                                                                    <div className="fixed inset-0 bg-black/30"
+                                                                         aria-hidden="true"/>
+                                                                    <div
+                                                                        className="fixed inset-0 flex items-center justify-center p-4">
+                                                                        <Dialog.Panel
+                                                                            className="mx-auto max-w-sm rounded bg-white p-6">
+                                                                            <Dialog.Title
+                                                                                className="text-lg font-medium leading-6 text-gray-900">Add
+                                                                                User to Group</Dialog.Title>
+                                                                            <form onSubmit={handleAddUser}>
+                                                                                <input
+                                                                                    type="email"
+                                                                                    value={addUserEmail}
+                                                                                    onChange={(e) => setAddUserEmail(e.target.value)}
+                                                                                    placeholder="User Email"
+                                                                                    className="mt-2 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+                                                                                    required
+                                                                                />
+                                                                                <button type="submit"
+                                                                                        className="mt-4 w-full px-4 py-2 text-sm font-medium text-white bg-blue-500 rounded-md hover:bg-blue-600">
+                                                                                    Add User
+                                                                                </button>
+                                                                            </form>
+                                                                        </Dialog.Panel>
+                                                                    </div>
+                                                                </Dialog>
+                                                            </dd>
+
+                                                            <dd className="mt-3 space-y-3 text-gray-500">
+
+                                                                <button
+                                                                    type="button"
+                                                                    onClick={() => {
+                                                                        setSelectedGroupId(product.group_id);
+                                                                        setDeleteGroupOpen(true);
+                                                                    }}
+                                                                    className="font-medium text-red-600 hover:text-secondary"
+                                                                >
+                                                                    Delete Group
+                                                                </button>
+
+                                                                <Dialog open={deleteGroupOpen}
+                                                                        onClose={() => setDeleteGroupOpen(false)}>
+                                                                    <div className="fixed inset-0 bg-black/30"
+                                                                         aria-hidden="true"/>
+                                                                    <div
+                                                                        className="fixed inset-0 flex items-center justify-center p-4">
+                                                                        <Dialog.Panel
+                                                                            className="mx-auto max-w-sm rounded bg-white p-6">
+                                                                            <Dialog.Title
+                                                                                className="text-lg font-medium leading-6 text-gray-900">Delete
+                                                                                Group</Dialog.Title>
+                                                                            <p className="mt-2 text-sm text-gray-500">Are
+                                                                                you sure you want to delete this group?
+                                                                                This action cannot be undone.</p>
+                                                                            <div
+                                                                                className="mt-4 flex justify-end space-x-2">
+                                                                                <button
+                                                                                    onClick={() => setDeleteGroupOpen(false)}
+                                                                                    className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200">
+                                                                                    Cancel
+                                                                                </button>
+                                                                                <button onClick={handleDeleteGroup}
+                                                                                        className="px-4 py-2 text-sm font-medium text-white bg-red-500 rounded-md hover:bg-red-600">
+                                                                                    Delete
+                                                                                </button>
+                                                                            </div>
+                                                                        </Dialog.Panel>
+                                                                    </div>
+                                                                </Dialog>
                                                             </dd>
                                                         </div>
                                                     </dl>
@@ -239,30 +437,34 @@ export default function GroupOrders() {
                                             <div className="border-t border-gray-200 px-4 py-6 sm:px-6 lg:p-8">
                                                 <h4 className="sr-only">Status</h4>
                                                 <p className="text-sm font-medium text-gray-900">
-                                                    {product.status} on <time
-                                                    dateTime={product.datetime}>{product.date}</time>
+                                                    Last Updated on <time
+                                                    dateTime={product.updated_at}>{new Date(product.updated_at).toLocaleDateString('en-US', {
+                                                    month: 'numeric',
+                                                    day: 'numeric',
+                                                    year: '2-digit'
+                                                })}</time>
                                                 </p>
                                                 <div className="mt-6" aria-hidden="true">
                                                     <div className="overflow-hidden rounded-full bg-gray-200">
                                                         <div
-                                                            className="h-2 rounded-full bg-indigo-600"
-                                                            style={{width: `calc((${product.step} * 2 + 1) / 8 * 100%)`}}
+                                                            className="h-2 rounded-full bg-primary"
+                                                            style={{width: `${(product.users_count / 10) * 100}%`}}
                                                         />
                                                     </div>
                                                     <div
                                                         className="mt-6 hidden grid-cols-4 text-sm font-medium text-gray-600 sm:grid">
-                                                        <div className="text-indigo-600">Order placed</div>
+                                                        <div className="text-primary">Group Created</div>
                                                         <div
-                                                            className={classNames(product.step > 0 ? 'text-indigo-600' : '', 'text-center')}>
-                                                            Processing
+                                                            className={classNames(product.users_count >= 0 ? 'text-primary' : '', 'text-center')}>
+                                                            Just Starting
                                                         </div>
                                                         <div
-                                                            className={classNames(product.step > 1 ? 'text-indigo-600' : '', 'text-center')}>
-                                                            Shipped
+                                                            className={classNames(product.users_count >= 5 ? 'text-primary' : '', 'text-center')}>
+                                                            Halfway There
                                                         </div>
                                                         <div
-                                                            className={classNames(product.step > 2 ? 'text-indigo-600' : '', 'text-right')}>
-                                                            Delivered
+                                                            className={classNames(product.users_count >= 10 ? 'text-primary' : '', 'text-right')}>
+                                                            Group Completed
                                                         </div>
                                                     </div>
                                                 </div>

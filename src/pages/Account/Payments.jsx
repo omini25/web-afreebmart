@@ -35,7 +35,7 @@ export default function Payments() {
         const fetchPlans = async () => {
             try {
                 const response = await axios.get(`${server}/user/payments/${user.id}`); // Replace with your API endpoint
-                setPlans(response.data);
+                setPlans(response.data.payments);
             } catch (error) {
                 console.error('Error fetching plans:', error);
             } finally {
@@ -46,7 +46,6 @@ export default function Payments() {
         fetchPlans();
     }, []);
 
-    console.log(plans)
 
     if (isLoading) return (
         <div className="flex items-center justify-center h-screen">
@@ -160,7 +159,8 @@ export default function Payments() {
                                                 'hidden px-3 py-3.5 text-sm text-gray-500 lg:table-cell'
                                             )}
                                         >
-                                            {plan.order.product_name}
+                                            {plan.order && plan.order.product_name ? plan.order.product_name : null}
+
                                         </td>
                                         <td
                                             className={classNames(
@@ -168,21 +168,21 @@ export default function Payments() {
                                                 'hidden px-3 py-3.5 text-sm text-gray-500 lg:table-cell'
                                             )}
                                         >
-                                            ${plan.payment.total_cost}
+                                            ${plan.total_cost}
                                         </td>
                                         <td
                                             className={
                                                 'border-t border-gray-200 hidden px-3 py-3.5 text-sm text-gray-500 lg:table-cell'
                                             }
                                         >
-                                            {plan.payment.payment_status}
+                                            {plan.payment_status}
                                         </td>
                                         <td
                                             className={'border-t border-gray-200 px-3 py-3.5 text-sm text-gray-500'
                                             }
                                         >
-                                            <div className="sm:hidden">{new Date(plan.payment.created_at).toLocaleDateString('en-US', { month: 'numeric', day: 'numeric', year: 'numeric' })}</div>
-                                            <div className="hidden sm:block">{new Date(plan.payment.created_at).toLocaleDateString('en-US', { month: 'numeric', day: 'numeric', year: 'numeric' })}</div>
+                                            <div className="sm:hidden">{new Date(plan.created_at).toLocaleDateString('en-US', { month: 'numeric', day: 'numeric', year: 'numeric' })}</div>
+                                            <div className="hidden sm:block">{new Date(plan.created_at).toLocaleDateString('en-US', { month: 'numeric', day: 'numeric', year: 'numeric' })}</div>
                                         </td>
                                         <td
                                             className={classNames(
@@ -190,15 +190,17 @@ export default function Payments() {
                                                 'relative py-3.5 pl-3 pr-4 text-right text-sm font-medium sm:pr-6'
                                             )}
                                         >
-                                            <Link to={`/invoice/${plan.payment.id}`}>
+                                            <Link to={`/invoice/${plan.id}`}>
                                                 <button
                                                     type="button"
-                                                    className="inline-flex items-center rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-white"
-                                                    disabled={plan.isCurrent}
+                                                    className={`inline-flex items-center rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 ${!plan.order || !plan.order.product_name ? 'disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-white' : ''}`}
+                                                    disabled={!plan.order || !plan.order.product_name}
                                                 >
-                                                    Invoice <span className="sr-only">, {plan.payment.id}</span>
+                                                    Invoice <span className="sr-only">, {plan.id}</span>
                                                 </button>
                                             </Link>
+
+
                                             {planIdx !== 0 ? <div
                                                 className="absolute -top-px left-0 right-6 h-px bg-gray-200"/> : null}
                                         </td>
