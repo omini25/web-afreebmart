@@ -11,7 +11,7 @@ export default function Index() {
         <>
             <Header/>
             <Hero/>
-            <Categories />
+            {/*<Categories />*/}
             <ProductListing/>
 
             {/* Sale and testimonials */}
