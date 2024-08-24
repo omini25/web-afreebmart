@@ -49,13 +49,7 @@ export default function SingleProduct({ productId, productName }) {
     };
 
     const handleAddToCart = () => {
-        addProductToCart({
-            id: product.id,
-            name: product.product_name,
-            price: product.price,
-            quantity: 1,
-            image: `${assetServer}/images/products/${product.image}`,
-        });
+        addProductToCart(product);
         toast.success(`${product.product_name} added to cart!`);
     };
 

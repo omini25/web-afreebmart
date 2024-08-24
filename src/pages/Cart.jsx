@@ -2,7 +2,8 @@ import Header from "../components/Header.jsx";
 import { CheckIcon, ClockIcon, QuestionMarkCircleIcon, XMarkIcon } from '@heroicons/react/20/solid'
 import { useNavigate } from 'react-router-dom'; // Import useNavigate
 import { useState, useEffect } from 'react'; // Import useState and useEffect
-import { useShoppingHooks } from '../redux/useShoppingHooks'; // Import useShoppingHooks
+import { useShoppingHooks } from '../redux/useShoppingHooks';
+import {assetServer} from "../assetServer.js"; // Import useShoppingHooks
 
 export default function Cart() {
     const navigate = useNavigate(); // Initialize useNavigate
@@ -77,8 +78,8 @@ export default function Cart() {
                                     <li key={product.id} className="flex py-6 sm:py-10">
                                         <div className="flex-shrink-0">
                                             <img
-                                                src={product.image}
-                                                alt={product.name}
+                                                src={`${assetServer}/images/products/${product.image}`}
+                                                alt={product.product_name}
                                                 className="h-24 w-24 rounded-md object-cover object-center sm:h-48 sm:w-48"
                                             />
                                         </div>
@@ -87,12 +88,12 @@ export default function Cart() {
                                             <div className="relative pr-9 sm:grid sm:grid-cols-2 sm:gap-x-6 sm:pr-0">
                                                 <div>
                                                     <div className="flex justify-between">
-                                                        <h3 className="text-sm">
-                                                            <a href={product.href}
+                                                        <h1 className="text-lg font-bold text-gray-900">
+                                                            <a href={`product/${product.product_name}`}
                                                                className="font-medium text-gray-700 hover:text-gray-800">
-                                                                {product.name}
+                                                                {product.product_name}
                                                             </a>
-                                                        </h3>
+                                                        </h1>
                                                     </div>
                                                     <div className="mt-1 flex text-sm">
                                                         <p className="text-gray-500">{product.color}</p>
@@ -105,7 +106,7 @@ export default function Cart() {
 
                                                 <div className="mt-4 sm:mt-0 sm:pr-9">
                                                     <label htmlFor={`quantity-${productIdx}`} className="sr-only">
-                                                        Quantity, {product.name}
+                                                        Quantity, {product.product_name}
                                                     </label>
                                                     <div className="flex items-center">
                                                         <button
@@ -145,17 +146,17 @@ export default function Cart() {
                                                 </div>
                                             </div>
 
-                                            <p className="mt-4 flex space-x-2 text-sm text-gray-700">
-                                                {product.inStock ? (
-                                                    <CheckIcon className="h-5 w-5 flex-shrink-0 text-green-500"
-                                                               aria-hidden="true"/>
-                                                ) : (
-                                                    <ClockIcon className="h-5 w-5 flex-shrink-0 text-gray-300"
-                                                               aria-hidden="true"/>
-                                                )}
+                                            {/*<p className="mt-4 flex space-x-2 text-sm text-gray-700">*/}
+                                            {/*    {product.inStock ? (*/}
+                                            {/*        <CheckIcon className="h-5 w-5 flex-shrink-0 text-green-500"*/}
+                                            {/*                   aria-hidden="true"/>*/}
+                                            {/*    ) : (*/}
+                                            {/*        <ClockIcon className="h-5 w-5 flex-shrink-0 text-gray-300"*/}
+                                            {/*                   aria-hidden="true"/>*/}
+                                            {/*    )}*/}
 
-                                                <span>{product.inStock ? 'In stock' : `Ships in ${product.leadTime}`}</span>
-                                            </p>
+                                            {/*    <span>{product.inStock ? 'In stock' : `Ships in ${product.leadTime}`}</span>*/}
+                                            {/*</p>*/}
                                         </div>
                                     </li>
                                 ))}
@@ -206,7 +207,7 @@ export default function Cart() {
                                 <button
                                     type="button" // Change to button type
                                     onClick={handleCheckout} // Add onClick handler
-                                    className="w-full rounded-md border border-transparent bg-primary px-4 py-3 text-base font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-gray-50"
+                                    className="w-full rounded-md border border-transparent bg-primary px-4 py-3 text-base font-medium text-white shadow-sm hover:bg-secondary focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-gray-50"
                                 >
                                     Proceed To Checkout
                                 </button>

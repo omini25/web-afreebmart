@@ -10,15 +10,13 @@ export default {
         primary: "#6de768",
         secondary: "#d89000",
         backgroundLight: "#F9FAFB",
+        btnprimary: "#3bb77e",
+        btnsecondary: "#d89000",
 
       }
     },
   },
-  // variants: {
-  //   extend: {
-  //     opacity: ['group-hover'],
-  //   },
-  // },
+
   plugins: [
     require('@tailwindcss/forms'),
     require('@tailwindcss/aspect-ratio'),

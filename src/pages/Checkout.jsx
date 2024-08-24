@@ -1,23 +1,120 @@
-import { Disclosure } from '@headlessui/react'
-import { LockClosedIcon } from '@heroicons/react/20/solid'
+import React, { useState, useEffect } from 'react';
+import { Disclosure } from '@headlessui/react';
+import axios from 'axios';
+import { loadStripe } from '@stripe/stripe-js';
+import { toast } from 'react-toastify';
 import Header from "../components/Header.jsx";
-import { useState, useEffect } from 'react';
-import Footer from "../components/Footer.jsx"; // Import useState and useEffect
+import Footer from "../components/Footer.jsx";
+import { Link } from "react-router-dom";
+import {server} from "../Server.js";
+import {assetServer} from "../assetServer.js";
 
-const subtotal = '$210.00'
-const discount = { code: 'CHEAPSKATE', amount: '$24.00' }
-const taxes = '$23.68'
-const shipping = '$22.00'
-const total = '$341.68'
+const stripePromise = loadStripe('pk_test_51K4bVzCT7v0Ax3ZCQUKpDk4gTPZ6UuWcJlMpNULOujrGRhsEL4IPAdeZ7KwDXIFEcJ5sLTxm3r2DMCUaQYWbLl2W00W13HDVPl');
 
 export default function Checkout() {
-    const [cartItems, setCartItems] = useState(JSON.parse(localStorage.getItem('cart')) || []); // Get cart items from localStorage
+    const [cartItems, setCartItems] = useState(JSON.parse(localStorage.getItem('cart')) || []);
+    const [addresses, setAddresses] = useState([]);
+    const [selectedAddress, setSelectedAddress] = useState(null);
+    const [showAddressForm, setShowAddressForm] = useState(false);
+    const [newAddress, setNewAddress] = useState({ country: '', address: '', street: '', city: '', state: '', zip_code: '' });
+    const [sameAsBilling, setSameAsBilling] = useState(true);
+    const [billingAddress, setBillingAddress] = useState(null);
+    const [selectedCountry, setSelectedCountry] = useState('');
+    const user = JSON.parse(localStorage.getItem('user')) || {};
+
+    const subtotal = cartItems.reduce((total, product) => total + parseFloat(product.price) * product.quantity, 0).toFixed(2);
+    const discount = { code: 'CHEAPSKATE', amount: 24.00 };
+    const taxes = (subtotal * 0.05).toFixed(2);
+    const shipping = 5.99;
+    const total = (parseFloat(subtotal) + parseFloat(taxes) + shipping - discount.amount).toFixed(2);
+
 
     // Update cart items in real-time
     useEffect(() => {
         const cart = JSON.parse(localStorage.getItem('cart')) || [];
         setCartItems(cart);
     }, []);
+
+    const handleRemoveFromCart = (productId) => {
+        // Update cartItems state by filtering out the product with the matching ID
+        const updatedCartItems = cartItems.filter(item => item.id !== productId);
+        setCartItems(updatedCartItems);
+
+        // Update localStorage with the new cartItems array
+        localStorage.setItem('cart', JSON.stringify(updatedCartItems));
+    };
+
+    useEffect(() => {
+        const fetchAddresses = async () => {
+            try {
+                const response = await axios.get(`${server}/address/${user.id}`);
+                setAddresses(response.data.address);
+                const defaultAddr = response.data.address.find(addr => addr.is_default === 1);
+                setSelectedAddress(defaultAddr);
+            } catch (error) {
+                console.error('Failed to fetch addresses:', error);
+                toast.error('Failed to load addresses. Please try again.');
+            }
+        };
+        fetchAddresses();
+    }, [user.id]);
+
+    const handleAddressSelect = (address) => {
+        setSelectedAddress(address);
+        if (sameAsBilling) {
+            setBillingAddress(address);
+        }
+    };
+
+    const handleAddAddress = async (event) => {
+        event.preventDefault();
+        try {
+            const response = await axios.post(`${server}/address/${user.id}`, newAddress);
+            setAddresses([...addresses, response.data]);
+            setSelectedAddress(response.data);
+            setShowAddressForm(false);
+            setNewAddress({ country: '', address: '', street: '', city: '', state: '', zip_code: '' });
+            toast.success('Address added successfully!');
+        } catch (error) {
+            console.error('Failed to add address:', error);
+            toast.error('Failed to add address. Please try again.');
+        }
+    };
+
+    const handleCheckout = async (event) => {
+        event.preventDefault();
+        try {
+            const productDetails = cartItems.map((item) => ({
+                name: item.product_name,
+                totalPrice: item.price,
+                quantity: item.quantity,
+            }));
+
+            const stripe = await stripePromise;
+
+            const response = await axios.post(`${server}/create-checkout-session`, {
+                productDetails,
+                user_id: user.id,
+            });
+
+            const { id: sessionId } = response.data;
+
+            if (sessionId) {
+                const result = await stripe.redirectToCheckout({
+                    sessionId,
+                });
+                if (result.error) {
+                    toast.error(result.error.message);
+                }
+            } else {
+                toast.error('Failed to create a checkout session.');
+            }
+        } catch (error) {
+            console.error('An error occurred:', error);
+            toast.error('An error occurred during the payment process.');
+        }
+    };
+
 
     return (
         <>
@@ -35,7 +132,7 @@ export default function Checkout() {
                                     <h2 id="order-heading" className="text-lg font-medium text-gray-900">
                                         Your Order
                                     </h2>
-                                    <Disclosure.Button className="font-medium text-indigo-600 hover:text-indigo-500">
+                                    <Disclosure.Button className="font-medium text-primary hover:text-secondary">
                                         {open ? <span>Hide full summary</span> : <span>Show full summary</span>}
                                     </Disclosure.Button>
                                 </div>
@@ -45,26 +142,30 @@ export default function Checkout() {
                                         {cartItems.map((product) => (
                                             <li key={product.id} className="flex space-x-6 py-6">
                                                 <img
-                                                    src={product.image}
-                                                    alt={product.name}
+                                                    src={`${assetServer}/images/products/${product.image}`}
+                                                    alt={product.product_name}
                                                     className="h-40 w-40 flex-none rounded-md bg-gray-200 object-cover object-center"
                                                 />
                                                 <div className="flex flex-col justify-between space-y-4">
                                                     <div className="space-y-1 text-sm font-medium">
-                                                        <h3 className="text-gray-900">{product.name}</h3>
+                                                        <h3 className="text-gray-900">{product.product_name}</h3>
                                                         <p className="text-gray-900">{product.price}</p>
                                                         <p className="text-gray-500">{product.color}</p>
                                                         <p className="text-gray-500">{product.size}</p>
                                                     </div>
                                                     <div className="flex space-x-4">
-                                                        <button type="button"
-                                                                className="text-sm font-medium text-indigo-600 hover:text-indigo-500">
-                                                            Edit
-                                                        </button>
+                                                        <Link to="/cart">
+                                                            <button type="button"
+                                                                    className="text-sm font-medium text-btnprimary hover:text-indigo-500">
+                                                                Edit
+                                                            </button>
+                                                        </Link>
                                                         <div className="flex border-l border-gray-300 pl-4">
+
                                                             <button
                                                                 type="button"
-                                                                className="text-sm font-medium text-indigo-600 hover:text-indigo-500"
+                                                                className="text-sm font-medium text-btnprimary hover:text-indigo-500"
+                                                                onClick={() => handleRemoveFromCart(product.id)} // Add onClick handler
                                                             >
                                                                 Remove
                                                             </button>
@@ -99,15 +200,15 @@ export default function Checkout() {
                                     <dl className="mt-10 space-y-6 text-sm font-medium text-gray-500">
                                         <div className="flex justify-between">
                                             <dt>Subtotal</dt>
-                                            <dd className="text-gray-900">{subtotal}</dd>
+                                            <dd className="text-gray-900">${subtotal}</dd>
                                         </div>
                                         <div className="flex justify-between">
                                             <dt className="flex">
                                                 Discount
                                                 <span
                                                     className="ml-2 rounded-full bg-gray-200 px-2 py-0.5 text-xs tracking-wide text-gray-600">
-                          {discount.code}
-                        </span>
+                                                  {discount.code}
+                                                </span>
                                             </dt>
                                             <dd className="text-gray-900">-{discount.amount}</dd>
                                         </div>
@@ -142,25 +243,30 @@ export default function Checkout() {
                         {cartItems.map((product) => (
                             <li key={product.id} className="flex space-x-6 py-6">
                                 <img
-                                    src={product.image}
+                                    src={`${assetServer}/images/products/${product.image}`}
                                     alt={product.name}
                                     className="h-40 w-40 flex-none rounded-md bg-gray-200 object-cover object-center"
                                 />
                                 <div className="flex flex-col justify-between space-y-4">
-                                    <div className="space-y-1 text-sm font-medium">
-                                        <h3 className="text-gray-900">{product.name}</h3>
-                                        <p className="text-gray-900">{product.price}</p>
-                                        <p className="text-gray-500">{product.color}</p>
+                                    <div className="space-y-1 ">
+                                        <h3 className="text-gray-900 text-lg font-bold">{product.product_name}</h3>
+                                        <p className="text-gray-900 text-sm font-medium">Price: ${product.price}</p>
+                                        <p className="text-gray-500">Quantity: {product.quantity}</p>
                                         <p className="text-gray-500">{product.size}</p>
                                     </div>
                                     <div className="flex space-x-4">
-                                        <button type="button"
-                                                className="text-sm font-medium text-indigo-600 hover:text-indigo-500">
-                                            Edit
-                                        </button>
-                                        <div className="flex border-l border-gray-300 pl-4">
+                                        <Link to="/cart">
                                             <button type="button"
-                                                    className="text-sm font-medium text-indigo-600 hover:text-indigo-500">
+                                                    className="text-sm font-medium text-btnprimary hover:text-indigo-500">
+                                                Edit
+                                            </button>
+                                        </Link>
+                                        <div className="flex border-l border-gray-300 pl-4">
+                                            <button
+                                                type="button"
+                                                className="text-sm font-medium text-btnprimary hover:text-indigo-500"
+                                                onClick={() => handleRemoveFromCart(product.id)} // Add onClick handler
+                                            >
                                                 Remove
                                             </button>
                                         </div>
@@ -172,7 +278,7 @@ export default function Checkout() {
 
                     <div className="sticky bottom-0 flex-none border-t border-gray-200 bg-gray-50 p-6">
                         <form>
-                            <label htmlFor="discount-code" className="block text-sm font-medium text-gray-700">
+                        <label htmlFor="discount-code" className="block text-sm font-medium text-gray-700">
                                 Discount code
                             </label>
                             <div className="mt-1 flex space-x-4">
@@ -194,15 +300,15 @@ export default function Checkout() {
                         <dl className="mt-10 space-y-6 text-sm font-medium text-gray-500">
                             <div className="flex justify-between">
                                 <dt>Subtotal</dt>
-                                <dd className="text-gray-900">{subtotal}</dd>
+                                <dd className="text-gray-900">${subtotal}</dd>
                             </div>
                             <div className="flex justify-between">
                                 <dt className="flex">
                                     Discount
                                     <span
                                         className="ml-2 rounded-full bg-gray-200 px-2 py-0.5 text-xs tracking-wide text-gray-600">
-                    {discount.code}
-                  </span>
+                                        {discount.code}
+                                      </span>
                                 </dt>
                                 <dd className="text-gray-900">-{discount.amount}</dd>
                             </div>
@@ -223,179 +329,129 @@ export default function Checkout() {
                     </div>
                 </section>
 
+
                 {/* Checkout form */}
-                <section
-                    aria-labelledby="payment-heading"
-                    className="flex-auto overflow-y-auto px-4 pb-16 pt-12 sm:px-6 sm:pt-16 lg:px-8 lg:pb-24 lg:pt-0 overflow-hidden"
-                >
+                <section aria-labelledby="payment-heading" className="flex-auto overflow-y-auto px-4 pb-16 pt-12 sm:px-6 sm:pt-16 lg:px-8 lg:pb-24 lg:pt-0">
                     <div className="mx-auto max-w-lg">
+                        <h2 className="text-lg font-medium text-gray-900 mb-4">Shipping Address</h2>
 
-                        <form className="mt-6">
-                            <div className="grid grid-cols-12 gap-x-4 gap-y-6">
-                                <div className="col-span-full">
-                                    <label htmlFor="email-address" className="block text-sm font-medium text-gray-700">
-                                        Email address
-                                    </label>
-                                    <div className="mt-1">
-                                        <input
-                                            type="email"
-                                            id="email-address"
-                                            name="email-address"
-                                            autoComplete="email"
-                                            className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                                        />
+                        {addresses.length > 0 ? (
+                            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                                {addresses.map((address) => (
+                                    <div
+                                        key={address.id}
+                                        className={`border p-4 rounded-md cursor-pointer ${selectedAddress?.id === address.id ? 'border-blue-500' : 'border-gray-300'}`}
+                                        onClick={() => handleAddressSelect(address)}
+                                    >
+                                        <p>{address.address}, {address.street}</p>
+                                        <p>{address.city}, {address.state} {address.zip_code}</p>
+                                        <p>{address.country}</p>
+                                        {address.is_default === 1 && <span className="text-sm text-blue-600">Main Address</span>}
                                     </div>
-                                </div>
-
-                                <div className="col-span-full">
-                                    <label htmlFor="name-on-card" className="block text-sm font-medium text-gray-700">
-                                        Name on card
-                                    </label>
-                                    <div className="mt-1">
-                                        <input
-                                            type="text"
-                                            id="name-on-card"
-                                            name="name-on-card"
-                                            autoComplete="cc-name"
-                                            className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                                        />
-                                    </div>
-                                </div>
-
-                                <div className="col-span-full">
-                                    <label htmlFor="card-number" className="block text-sm font-medium text-gray-700">
-                                        Card number
-                                    </label>
-                                    <div className="mt-1">
-                                        <input
-                                            type="text"
-                                            id="card-number"
-                                            name="card-number"
-                                            autoComplete="cc-number"
-                                            className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                                        />
-                                    </div>
-                                </div>
-
-                                <div className="col-span-8 sm:col-span-9">
-                                    <label htmlFor="expiration-date"
-                                           className="block text-sm font-medium text-gray-700">
-                                        Expiration date (MM/YY)
-                                    </label>
-                                    <div className="mt-1">
-                                        <input
-                                            type="text"
-                                            name="expiration-date"
-                                            id="expiration-date"
-                                            autoComplete="cc-exp"
-                                            className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                                        />
-                                    </div>
-                                </div>
-
-                                <div className="col-span-4 sm:col-span-3">
-                                    <label htmlFor="cvc" className="block text-sm font-medium text-gray-700">
-                                        CVC
-                                    </label>
-                                    <div className="mt-1">
-                                        <input
-                                            type="text"
-                                            name="cvc"
-                                            id="cvc"
-                                            autoComplete="csc"
-                                            className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                                        />
-                                    </div>
-                                </div>
-
-                                <div className="col-span-full">
-                                    <label htmlFor="address" className="block text-sm font-medium text-gray-700">
-                                        Address
-                                    </label>
-                                    <div className="mt-1">
-                                        <input
-                                            type="text"
-                                            id="address"
-                                            name="address"
-                                            autoComplete="street-address"
-                                            className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                                        />
-                                    </div>
-                                </div>
-
-                                <div className="col-span-full sm:col-span-4">
-                                    <label htmlFor="city" className="block text-sm font-medium text-gray-700">
-                                        City
-                                    </label>
-                                    <div className="mt-1">
-                                        <input
-                                            type="text"
-                                            id="city"
-                                            name="city"
-                                            autoComplete="address-level2"
-                                            className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                                        />
-                                    </div>
-                                </div>
-
-                                <div className="col-span-full sm:col-span-4">
-                                    <label htmlFor="region" className="block text-sm font-medium text-gray-700">
-                                        State / Province
-                                    </label>
-                                    <div className="mt-1">
-                                        <input
-                                            type="text"
-                                            id="region"
-                                            name="region"
-                                            autoComplete="address-level1"
-                                            className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                                        />
-                                    </div>
-                                </div>
-
-                                <div className="col-span-full sm:col-span-4">
-                                    <label htmlFor="postal-code" className="block text-sm font-medium text-gray-700">
-                                        Postal code
-                                    </label>
-                                    <div className="mt-1">
-                                        <input
-                                            type="text"
-                                            id="postal-code"
-                                            name="postal-code"
-                                            autoComplete="postal-code"
-                                            className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                                        />
-                                    </div>
-                                </div>
+                                ))}
                             </div>
+                        ) : (
+                            <p>No addresses found.</p>
+                        )}
 
-                            <div className="mt-6 flex space-x-2">
-                                <div className="flex h-5 items-center">
-                                    <input
-                                        id="same-as-shipping"
-                                        name="same-as-shipping"
-                                        type="checkbox"
-                                        defaultChecked
-                                        className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
-                                    />
-                                </div>
-                                <label htmlFor="same-as-shipping" className="text-sm font-medium text-gray-900">
-                                    Billing address is the same as shipping address
-                                </label>
+                        <button
+                            className="mt-4 text-blue-600 hover:text-blue-800"
+                            onClick={() => setShowAddressForm(!showAddressForm)}
+                        >
+                            {showAddressForm ? 'Cancel' : 'Add New Address'}
+                        </button>
+
+                        {showAddressForm && (
+                            <form onSubmit={handleAddAddress} className="mt-4 space-y-4">
+                                <select
+                                    value={selectedCountry}
+                                    onChange={(e) => setSelectedCountry(e.target.value)}
+                                    className="w-full p-2 border rounded"
+                                    required
+                                >
+                                    <option value="">Select Country</option>
+                                    <option value="US">United States</option>
+                                    <option value="CA">Canada</option>
+                                    {/* Add more countries as needed */}
+                                </select>
+                                <input
+                                    type="text"
+                                    name="address"
+                                    placeholder="Address"
+                                    value={newAddress.address}
+                                    onChange={(e) => setNewAddress({...newAddress, address: e.target.value})}
+                                    className="w-full p-2 border rounded"
+                                    required
+                                />
+                                <input
+                                    type="text"
+                                    name="street"
+                                    placeholder="Street"
+                                    value={newAddress.street}
+                                    onChange={(e) => setNewAddress({...newAddress, street: e.target.value})}
+                                    className="w-full p-2 border rounded"
+                                    required
+                                />
+                                <input
+                                    type="text"
+                                    name="city"
+                                    placeholder="City"
+                                    value={newAddress.city}
+                                    onChange={(e) => setNewAddress({...newAddress, city: e.target.value})}
+                                    className="w-full p-2 border rounded"
+                                    required
+                                />
+                                <input
+                                    type="text"
+                                    name="state"
+                                    placeholder="State"
+                                    value={newAddress.state}
+                                    onChange={(e) => setNewAddress({...newAddress, state: e.target.value})}
+                                    className="w-full p-2 border rounded"
+                                    required
+                                />
+                                <input
+                                    type="text"
+                                    name="zip_code"
+                                    placeholder="Zip Code"
+                                    value={newAddress.zip_code}
+                                    onChange={(e) => setNewAddress({...newAddress, zip_code: e.target.value})}
+                                    className="w-full p-2 border rounded"
+                                    required
+                                />
+                                <button type="submit" className="w-full bg-blue-600 text-white p-2 rounded hover:bg-blue-700">
+                                    Add Address
+                                </button>
+                            </form>
+                        )}
+
+                        <div className="mt-6 flex items-center">
+                            <input
+                                id="same-as-shipping"
+                                name="same-as-shipping"
+                                type="checkbox"
+                                checked={sameAsBilling}
+                                onChange={() => setSameAsBilling(!sameAsBilling)}
+                                className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                            />
+                            <label htmlFor="same-as-shipping" className="ml-2 text-sm text-gray-900">
+                                Billing address is the same as shipping address
+                            </label>
+                        </div>
+
+                        {!sameAsBilling && (
+                            <div className="mt-4">
+                                <h3 className="text-lg font-medium text-gray-900 mb-2">Billing Address</h3>
+                                {/* Add billing address selection/form here */}
                             </div>
+                        )}
 
-                            <button
-                                type="submit"
-                                className="mt-6 w-full rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-                            >
-                                Pay {total}
-                            </button>
-
-                            <p className="mt-6 flex justify-center text-sm font-medium text-gray-500">
-                                <LockClosedIcon className="mr-1.5 h-5 w-5 text-gray-400" aria-hidden="true"/>
-                                Payment details stored in plain text
-                            </p>
-                        </form>
+                        <button
+                            onClick={handleCheckout}
+                            className="mt-6 w-full rounded-md border border-transparent bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                        >
+                            Pay ${total}
+                        </button>
                     </div>
                 </section>
             </main>

@@ -69,7 +69,7 @@ export default function Footer() {
     return (
 
         <>
-            <div className={`${styles.section} hidden sm:block`}>
+            <div className={`${styles.section} hidden sm:block flex justify-between items-center sm:items-center mx-auto max-w-2xl px-4 sm:px-6 lg:max-w-7xl lg:px-8`}>
                 <div className={`branding my-12 flex justify-between w-full shadow bg-white p-5 rounded-md`}>
                     {
                         brandingData && brandingData.map((i, index) => {
@@ -96,13 +96,13 @@ export default function Footer() {
                 <h2 id="footer-heading" className="sr-only">
                     Footer
                 </h2>
-                <div className="mx-auto max-w-7xl px-6 pb-8 pt-16 sm:pt-24 lg:px-8 lg:pt-32">
+                <div className="mx-auto max-w-7xl px-6 pb-8 pt-8 sm:pt-24 lg:px-8 lg:pt-32">
                     <div className="xl:grid xl:grid-cols-3 xl:gap-8">
                         <div className="space-y-8">
                             <img
                                 src={logo}
                                 alt="Afreebmart"
-                                className="h-7"
+                                className="h-16 w-auto"
                             />
                             <p className="text-sm leading-6 text-gray-600">
                                 Fresh, high-quality agricultural food items sourced directly from trusted vendors and suppliers.

@@ -12,6 +12,7 @@ import afreeblogo from '../assets/images/afreemart-logo.png';
 import {Link, useNavigate} from "react-router-dom";
 import {ChevronDownIcon} from "@heroicons/react/20/solid";
 import {toast} from "react-toastify";
+import {assetServer} from "../assetServer.js";
 
 function classNames(...classes) {
     return classes.filter(Boolean).join(' ')
@@ -605,7 +606,7 @@ export default function Header() {
                                         <img
                                             src={afreeblogo}
                                             alt="Afreebmart Logo"
-                                            className="h-10 w-auto"
+                                            className="h-8 w-auto"
                                         />
                                     </a>
 
@@ -680,7 +681,7 @@ export default function Header() {
                                                     </button>
                                                     {cartHovered && (
                                                         <div
-                                                            className="absolute right-0 mt-5 w-80 bg-white shadow-lg z-10 rounded-lg">
+                                                            className="absolute right-0  w-80 bg-white shadow-lg z-10 rounded-lg">
                                                             <div className="p-4">
                                                                 <h2 className="text-lg font-semibold mb-4">Shopping
                                                                     Cart</h2>
@@ -688,14 +689,14 @@ export default function Header() {
                                                                     <ul className="divide-y divide-gray-200">
                                                                         {cartProducts.map((product) => (
                                                                             <li key={product.id}
-                                                                                className="py-4 flex relative">
+                                                                                className="py-2  flex relative">
                                                                                 <img
-                                                                                    src={product.image}
-                                                                                    alt={product.name}
+                                                                                    src={`${assetServer}/images/products/${product.image}`}
+                                                                                    alt={product.product_name}
                                                                                     className="h-16 w-16 rounded-md object-cover mr-4"
                                                                                 />
                                                                                 <div className="flex-1">
-                                                                                    <h3 className="text-sm font-medium">{product.name}</h3>
+                                                                                    <h3 className="text-sm font-medium">{product.product_name}</h3>
                                                                                     <p className="text-sm text-gray-500">${product.price}</p>
                                                                                     <p className="text-sm text-gray-500">{product.quantity}</p>
                                                                                 </div>
@@ -712,12 +713,14 @@ export default function Header() {
                                                                 ) : (
                                                                     <p className="text-gray-500">Your cart is empty</p>
                                                                 )}
-                                                                <button
-                                                                    className="mt-4 w-full bg-primary text-white py-2 px-4 rounded-md hover:bg-primary-dark">
-                                                                    Checkout
-                                                                </button>
+
+                                                                <Link to="/checkout">
+                                                                    <button className="mt-4 w-full bg-primary text-white py-2 px-4 rounded-md hover:bg-primary-dark">
+                                                                        Checkout
+                                                                    </button>
+                                                                </Link>
                                                                 <p className="mt-6 text-center">
-                                                                    <a href="#"
+                                                                    <a href="/cart"
                                                                        className="text-sm font-medium text-secondary hover:text-primary">
                                                                         View Cart
                                                                     </a>

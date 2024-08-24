@@ -401,13 +401,7 @@ export default function ProductPage( ) {
                         </div>
 
                         {/* Reviews */}
-                        <section aria-labelledby="reviews-heading" className="mt-16 sm:mt-24">
-                            <h2 id="reviews-heading" className="text-lg font-medium text-gray-900">
-                                Recent reviews
-                            </h2>
-
-                            <ProductReviews productId={product.id} />
-                        </section>
+                        <ProductReviews productId={product.id} />
 
 
 
