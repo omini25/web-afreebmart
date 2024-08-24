@@ -1,29 +1,29 @@
 import logo from '../assets/images/afreemart-logo.png';
 import styles from "../styles/styles.js";
 import {brandingData} from "../static/data.jsx";
-import React from "react";
 
 
 const navigation = {
     solutions: [
-        { name: 'Delivery Options', href: '#' },
-        { name: 'Sell on Afreebmart', href: '#' },
-        { name: 'Logistics Partner', href: '#' },
-        { name: 'Compensation', href: '#' },
+        { name: 'Delivery Options', href: '/delivery-options' },
+        { name: 'Sell on Afreebmart', href: '/vendor-guide' },
+        { name: 'Logistics Partner', href: '/logistics-partner' },
+        { name: 'Compensation', href: '/compensation' },
     ],
     support: [
-        { name: 'FAQs', href: '#' },
+        { name: 'FAQs', href: '/faq' },
         { name: 'Make a Report', href: '#' },
-        { name: 'Contact Us', href: '#' },
+        { name: 'Contact Us', href: '/contact' },
     ],
     company: [
-        { name: 'About', href: '#' },
+        { name: 'About', href: '/about' },
         { name: 'Careers', href: '#' },
     ],
     legal: [
-        { name: 'Return Policy', href: '#' },
-        { name: 'Privacy', href: '#' },
-        { name: 'Terms', href: '#' },
+        { name: 'Return Policy', href: '/return-policy' },
+        { name: 'Freshness Policy', href: '/freshness-policy' },
+        { name: 'Privacy', href: '/privacy-policy' },
+        { name: 'Terms', href: '/terms-of-service' },
     ],
     social: [
         {
@@ -92,7 +92,7 @@ export default function Footer() {
                 </div>
             </div>
 
-            <footer className="bg-backgroundLight" aria-labelledby="footer-heading">
+            <footer className="bg-backgroundDark" aria-labelledby="footer-heading">
                 <h2 id="footer-heading" className="sr-only">
                     Footer
                 </h2>

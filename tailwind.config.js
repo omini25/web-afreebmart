@@ -12,6 +12,7 @@ export default {
         backgroundLight: "#F9FAFB",
         btnprimary: "#3bb77e",
         btnsecondary: "#d89000",
+        backgroundDark: "#f4f6fa",
 
       }
     },

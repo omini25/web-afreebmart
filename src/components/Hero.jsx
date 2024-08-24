@@ -55,11 +55,11 @@ export const Hero = () => {
                                 alt=""
                                 className="h-full w-full object-cover object-center"
                             />
-                            <div className="absolute inset-0 bg-gray-500 opacity-20" />
+                            <div className="absolute inset-0 bg-gray-500 opacity-0" />
                         </div>
                         <div className="relative h-full flex flex-col items-center justify-center px-6 text-center">
-                            <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight text-primary">{item.title}</h1>
-                            <p className="mt-4 text-lg md:text-xl text-white">{item.description}</p>
+                            <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight text-btnprimary">{item.title}</h1>
+                            <p className="mt-4 text-lg md:text-xl text-black">{item.description}</p>
                             <a
                                 href="/shop"
                                 className="mt-6 md:mt-8 inline-block rounded-md border border-transparent bg-primary px-6 py-2 md:px-8 md:py-3 text-base font-medium text-gray-900 hover:bg-gray-100"

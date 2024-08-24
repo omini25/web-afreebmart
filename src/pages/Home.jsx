@@ -32,7 +32,7 @@ export default function Index() {
                 {/* Sale */}
                 <section
                     aria-labelledby="sale-heading"
-                    className="relative mx-auto flex max-w-7xl flex-col items-center px-4 pt-32 text-center sm:px-6 lg:px-8"
+                    className="relative mx-auto  items-center px-4 -mt-50 -mb-5 text-center sm:px-6 lg:px-8 bg-backgroundDark"
                 >
                     <div className="mx-auto max-w-2xl lg:max-w-none">
                         <h2 id="sale-heading" className="text-4xl font-bold tracking-tight text-gray-900 sm:text-5xl lg:text-6xl">

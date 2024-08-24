@@ -156,7 +156,7 @@ export default function Checkout() {
                                                     <div className="flex space-x-4">
                                                         <Link to="/cart">
                                                             <button type="button"
-                                                                    className="text-sm font-medium text-btnprimary hover:text-indigo-500">
+                                                                    className="text-sm font-medium text-btnprimary hover:text-primary">
                                                                 Edit
                                                             </button>
                                                         </Link>
@@ -164,7 +164,7 @@ export default function Checkout() {
 
                                                             <button
                                                                 type="button"
-                                                                className="text-sm font-medium text-btnprimary hover:text-indigo-500"
+                                                                className="text-sm font-medium text-btnprimary hover:text-primary"
                                                                 onClick={() => handleRemoveFromCart(product.id)} // Add onClick handler
                                                             >
                                                                 Remove
@@ -186,13 +186,34 @@ export default function Checkout() {
                                                 type="text"
                                                 id="discount-code-mobile"
                                                 name="discount-code-mobile"
-                                                className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                                                className="block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm"
                                             />
                                             <button
                                                 type="submit"
-                                                className="rounded-md bg-gray-200 px-4 text-sm font-medium text-gray-600 hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-gray-50"
+                                                className="rounded-md bg-gray-200 px-4 text-sm font-medium text-gray-600 hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-gray-50"
                                             >
                                                 Apply
+                                            </button>
+                                        </div>
+                                    </form>
+
+                                    <form className="mt-10">
+                                        <label htmlFor="tip-mobile"
+                                               className="block text-sm font-medium text-gray-700">
+                                            Tip
+                                        </label>
+                                        <div className="mt-1 flex space-x-4">
+                                            <input
+                                                type="text"
+                                                id="tip-code-mobile"
+                                                name="tip"
+                                                className="block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm"
+                                            />
+                                            <button
+                                                type="submit"
+                                                className="rounded-md bg-gray-200 px-4 text-sm font-medium text-gray-600 hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-gray-50"
+                                            >
+                                                Add
                                             </button>
                                         </div>
                                     </form>
@@ -257,14 +278,14 @@ export default function Checkout() {
                                     <div className="flex space-x-4">
                                         <Link to="/cart">
                                             <button type="button"
-                                                    className="text-sm font-medium text-btnprimary hover:text-indigo-500">
+                                                    className="text-sm font-medium text-btnprimary hover:text-primary">
                                                 Edit
                                             </button>
                                         </Link>
                                         <div className="flex border-l border-gray-300 pl-4">
                                             <button
                                                 type="button"
-                                                className="text-sm font-medium text-btnprimary hover:text-indigo-500"
+                                                className="text-sm font-medium text-btnprimary hover:text-primary"
                                                 onClick={() => handleRemoveFromCart(product.id)} // Add onClick handler
                                             >
                                                 Remove
@@ -286,13 +307,33 @@ export default function Checkout() {
                                     type="text"
                                     id="discount-code"
                                     name="discount-code"
-                                    className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                                    className="block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm"
                                 />
                                 <button
                                     type="submit"
-                                    className="rounded-md bg-gray-200 px-4 text-sm font-medium text-gray-600 hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-gray-50"
+                                    className="rounded-md bg-gray-200 px-4 text-sm font-medium text-gray-600 hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-gray-50"
                                 >
                                     Apply
+                                </button>
+                            </div>
+                        </form>
+
+                        <form>
+                        <label htmlFor="tip" className="block text-sm font-medium text-gray-700 mt-5">
+                                Tip
+                            </label>
+                            <div className="mt-1 flex space-x-4">
+                                <input
+                                    type="text"
+                                    id="tip"
+                                    name="tip"
+                                    className="block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm"
+                                />
+                                <button
+                                    type="submit"
+                                    className="rounded-md bg-gray-200 px-4 text-sm font-medium text-gray-600 hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-gray-50"
+                                >
+                                    Tip
                                 </button>
                             </div>
                         </form>
@@ -331,7 +372,7 @@ export default function Checkout() {
 
 
                 {/* Checkout form */}
-                <section aria-labelledby="payment-heading" className="flex-auto overflow-y-auto px-4 pb-16 pt-12 sm:px-6 sm:pt-16 lg:px-8 lg:pb-24 lg:pt-0">
+                <section aria-labelledby="payment-heading" className="flex-auto overflow-y-auto px-4 pb-16 pt-12 sm:px-6 sm:pt-16 lg:px-8 lg:pb-24 ">
                     <div className="mx-auto max-w-lg">
                         <h2 className="text-lg font-medium text-gray-900 mb-4">Shipping Address</h2>
 
@@ -346,7 +387,7 @@ export default function Checkout() {
                                         <p>{address.address}, {address.street}</p>
                                         <p>{address.city}, {address.state} {address.zip_code}</p>
                                         <p>{address.country}</p>
-                                        {address.is_default === 1 && <span className="text-sm text-blue-600">Main Address</span>}
+                                        {address.is_default === 1 && <span className="text-sm text-primary">Main Address</span>}
                                     </div>
                                 ))}
                             </div>
@@ -355,7 +396,7 @@ export default function Checkout() {
                         )}
 
                         <button
-                            className="mt-4 text-blue-600 hover:text-blue-800"
+                            className="mt-4 text-primary hover:text-secondary"
                             onClick={() => setShowAddressForm(!showAddressForm)}
                         >
                             {showAddressForm ? 'Cancel' : 'Add New Address'}
@@ -419,7 +460,7 @@ export default function Checkout() {
                                     className="w-full p-2 border rounded"
                                     required
                                 />
-                                <button type="submit" className="w-full bg-blue-600 text-white p-2 rounded hover:bg-blue-700">
+                                <button type="submit" className="w-full bg-btnprimary text-white p-2 rounded hover:bg-secondary">
                                     Add Address
                                 </button>
                             </form>
@@ -432,7 +473,7 @@ export default function Checkout() {
                                 type="checkbox"
                                 checked={sameAsBilling}
                                 onChange={() => setSameAsBilling(!sameAsBilling)}
-                                className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                                className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-blue-500"
                             />
                             <label htmlFor="same-as-shipping" className="ml-2 text-sm text-gray-900">
                                 Billing address is the same as shipping address
@@ -448,7 +489,7 @@ export default function Checkout() {
 
                         <button
                             onClick={handleCheckout}
-                            className="mt-6 w-full rounded-md border border-transparent bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                            className="mt-6 w-full rounded-md border border-transparent bg-btnprimary px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-secondary focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
                         >
                             Pay ${total}
                         </button>

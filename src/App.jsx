@@ -26,6 +26,18 @@ import OrderDetails from "./pages/Account/OrderDetails.jsx";
 import Invoice from "./pages/Account/Invoice.jsx";
 import Search from "./pages/Products/Search.jsx"
 import 'react-toastify/dist/ReactToastify.css';
+import AboutPage from "./pages/Landing/AboutPage.jsx";
+import {DeliveryOptions} from "./pages/Landing/DeliveryOptions.jsx";
+import {PrivacyPolicy} from "./pages/Landing/PrivacyPolicy.jsx";
+import {TermsOfService} from "./pages/Landing/TermsOfService.jsx";
+import {FreshnessPolicy} from "./pages/Landing/FreshnessPolicy.jsx";
+import {ReturnPolicy} from "./pages/Landing/ReturnPolicy.jsx";
+import {ContactPage} from "./pages/Landing/ContactPage.jsx";
+import Vendors from "./pages/Landing/Vendors.jsx";
+import {VendorGuide} from "./pages/Landing/VendorGuide.jsx";
+import LogisticsPartner from "./pages/Landing/LogisticsPartner.jsx";
+import {Compensation} from "./pages/Landing/Compensation.jsx";
+import {Faq} from "./pages/Landing/Faq.jsx";
 
 const App = () => {
     return (
@@ -59,6 +71,21 @@ const App = () => {
                 <Route path="/address" element={<Addresses />} />
                 <Route path="*" element={<NotFound />} />
                 <Route path="/invoice/:invoiceId" element={<Invoice />} />
+
+                {/* Landing Pages */}
+
+                <Route path="/about" element={<AboutPage />} />
+                <Route path="/delivery-options" element={<DeliveryOptions />}/>
+                <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+                <Route path="/terms-of-service" element={<TermsOfService />} />
+                <Route path="/freshness-policy" element={<FreshnessPolicy />} />
+                <Route path="/return-policy" element={<ReturnPolicy />} />
+                <Route path="/contact" element={<ContactPage />} />
+                <Route path="/vendors" element={<Vendors />} />
+                <Route path="/vendor-guide" element={<VendorGuide />} />
+                <Route path="/logistics-partner" element={<LogisticsPartner />} />
+                <Route path="/compensation" element={<Compensation />} />
+                <Route path="/faq" element={<Faq />} />
 
             </Routes>
         </Router>

@@ -78,8 +78,8 @@ export default function Header() {
             {
                 name: 'Vendors',
                 featured: [
-                    { name: 'Vendors', href: '#' },
-                    { name: 'Vendors Guide', href: '#' },
+                    { name: 'Vendors', href: '/vendors' },
+                    { name: 'Vendors Guide', href: '/vendor-guide' },
                     { name: 'Become a Vendor', href: 'https://vendor.afreebmart.com/signup' },
                 ],
             },
