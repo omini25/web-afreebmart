@@ -680,7 +680,7 @@ export default function Header() {
                                                     </button>
                                                     {cartHovered && (
                                                         <div
-                                                            className="absolute right-0 mt-10 w-80 bg-white shadow-lg z-10 rounded-lg">
+                                                            className="absolute right-0 mt-5 w-80 bg-white shadow-lg z-10 rounded-lg">
                                                             <div className="p-4">
                                                                 <h2 className="text-lg font-semibold mb-4">Shopping
                                                                     Cart</h2>

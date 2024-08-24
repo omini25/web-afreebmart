@@ -1,7 +1,6 @@
 import { Fragment, useState, useEffect } from 'react'
 import { Disclosure, RadioGroup, Tab } from '@headlessui/react'
 import {
-
     HeartIcon,
     MinusIcon,
     PlusIcon,
@@ -13,6 +12,8 @@ import { server } from '../../Server.js';
 import { assetServer } from "../../assetServer.js";
 import Header from "../../components/Header.jsx";
 import Footer from "../../components/Footer.jsx";
+import ProductShare from "../../components/ProductShare.jsx";
+import { useShoppingHooks } from "../../redux/useShoppingHooks.js";
 
 
 
@@ -30,23 +31,60 @@ const relatedProducts = [
 ]
 
 const reviews = {
-    average: 3.9,
-    totalCount: 512,
+    average: 4,
+    totalCount: 1624,
+    counts: [
+        { rating: 5, count: 1019 },
+        { rating: 4, count: 162 },
+        { rating: 3, count: 97 },
+        { rating: 2, count: 199 },
+        { rating: 1, count: 147 },
+    ],
     featured: [
         {
             id: 1,
-            title: "Can't say enough good things",
             rating: 5,
             content: `
-        <p>I was really pleased with the overall shopping experience. My order even included a little personal, handwritten note, which delighted me!</p>
-        <p>The product quality is amazing, it looks and feel even better than I had anticipated. Brilliant stuff! I would gladly recommend this store to my friends. And, now that I think of it... I actually have, many times!</p>
+        <p>This is the bag of my dreams. I took it on my last vacation and was able to fit an absurd amount of snacks for the many long and hungry flights.</p>
       `,
-            author: 'Risako M',
-            date: 'May 16, 2021',
-            datetime: '2021-01-06',
+            author: 'Emily Selman',
+            avatarSrc:
+                'https://images.unsplash.com/photo-1502685104226-ee32379fefbe?ixlib=rb-=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=8&w=256&h=256&q=80',
         },
         // More reviews...
     ],
+}
+
+
+
+const license = {
+    href: '#',
+    summary:
+        'For personal and professional use. You cannot resell or redistribute these icons in their original or modified state.',
+    content: `
+    <h4>Overview</h4>
+    
+    <p>For personal and professional use. You cannot resell or redistribute these icons in their original or modified state.</p>
+    
+    <ul role="list">
+    <li>You\'re allowed to use the icons in unlimited projects.</li>
+    <li>Attribution is not required to use the icons.</li>
+    </ul>
+    
+    <h4>What you can do with it</h4>
+    
+    <ul role="list">
+    <li>Use them freely in your personal and professional work.</li>
+    <li>Make them your own. Change the colors to suit your project or brand.</li>
+    </ul>
+    
+    <h4>What you can\'t do with it</h4>
+    
+    <ul role="list">
+    <li>Don\'t be greedy. Selling or distributing these icons in their original or modified state is prohibited.</li>
+    <li>Don\'t be evil. These icons cannot be used on websites or applications that promote illegal or immoral beliefs or activities.</li>
+    </ul>
+  `,
 }
 
 
@@ -63,6 +101,41 @@ export default function ProductPage() {
     const [selectedImage, setSelectedImage] = useState(0);
     const [isZoomed, setIsZoomed] = useState(false);
     const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+    // const [reviews, setReviews] = useState([]);
+
+    const {
+        cartItems,
+        addProductToCart,
+        removeProductFromCart,
+        updateCartProductQuantity
+    } = useShoppingHooks();
+
+    const [quantity, setQuantity] = useState(1);
+
+    useEffect(() => {
+        if (product) {
+            const cartItem = cartItems.find(item => item.id === product.id);
+            setQuantity(cartItem ? cartItem.quantity : 1);
+        }
+    }, [product, cartItems]);
+
+    const handleAddToCart = (e) => {
+        e.preventDefault(); // Prevent form submission
+        addProductToCart({ ...product, quantity: parseInt(quantity) });
+    };
+
+    const handleRemoveFromCart = (e) => {
+        e.preventDefault(); // Prevent form submission
+        removeProductFromCart(product.id);
+    };
+
+    const handleQuantityChange = (e) => {
+        const newQuantity = parseInt(e.target.value);
+        setQuantity(newQuantity);
+        if (cartItems.some(item => item.id === product.id)) {
+            updateCartProductQuantity(product.id, newQuantity);
+        }
+    };
 
     useEffect(() => {
         const fetchProduct = async () => {
@@ -80,6 +153,37 @@ export default function ProductPage() {
 
         fetchProduct();
     }, [productName]);
+
+    // useEffect(() => {
+    //     const fetchProduct = async () => {
+    //         try {
+    //             setLoading(true);
+    //             const response = await axios.get(`${server}/product/${encodeURIComponent(productName)}`);
+    //             setProduct(response.data.product);
+    //
+    //             // Fetch reviews from external API
+    //             try {
+    //                 const reviewsResponse = await axios.get(
+    //                     `${server}/review/${response.data.product.id}`
+    //                 );
+    //                 setReviews(reviewsResponse.data);
+    //             } catch (reviewError) {
+    //                 // If reviews are not found, log the error (optional) and set reviews to an empty array
+    //                 console.error('Error fetching reviews:', reviewError);
+    //                 setReviews([]);
+    //             }
+    //
+    //             setLoading(false);
+    //         } catch (error) {
+    //             console.error('Error fetching product or reviews:', error);
+    //             setError('Failed to load product details');
+    //             setLoading(false);
+    //         }
+    //     };
+    //
+    //     fetchProduct();
+    // }, [productName]);
+
 
     const handleMouseEnter = () => setIsZoomed(true);
     const handleMouseLeave = () => setIsZoomed(false);
@@ -223,19 +327,28 @@ export default function ProductPage() {
                                     </div>
 
                                     <div className="mt-10 flex">
-                                        <button
-                                            type="submit"
-                                            className="flex items-center justify-center rounded-md border border-transparent bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-gray-50"
-                                        >
-                                            Add to cart
-                                        </button>
-
+                                        {cartItems.some((item) => item.id === product.id) ? (
+                                            <button
+                                                onClick={handleRemoveFromCart}
+                                                className="flex w-full items-center justify-center rounded-md border border-transparent bg-red-600 px-8 py-3 text-base font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 focus:ring-offset-gray-50"
+                                            >
+                                                Remove from Cart
+                                            </button>
+                                        ) : (
+                                            <button
+                                                onClick={handleAddToCart}
+                                                className="flex w-full items-center justify-center rounded-md border border-transparent bg-primary px-8 py-3 text-base font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-gray-50"
+                                            >
+                                                Add to cart
+                                            </button>
+                                        )}
 
                                         <div className="ml-2">
                                             <input
                                                 type="number"
                                                 min="1"
-                                                value="1"
+                                                value={quantity}
+                                                onChange={handleQuantityChange}
                                                 className="w-12 text-center rounded-md border border-gray-300 px-2 py-2"
                                             />
                                         </div>
@@ -250,53 +363,42 @@ export default function ProductPage() {
                                     </div>
                                 </form>
 
+
+
                                 <section aria-labelledby="details-heading" className="mt-12">
                                     <h2 id="details-heading" className="sr-only">
                                         Additional details
                                     </h2>
 
-                                    {/*<div className="divide-y divide-gray-200 border-t">*/}
-                                    {/*    {product.details.map((detail) => (*/}
-                                    {/*        <Disclosure as="div" key={detail.name}>*/}
-                                    {/*            {({ open }) => (*/}
-                                    {/*                <>*/}
-                                    {/*                    <h3>*/}
-                                    {/*                        <Disclosure.Button className="group relative flex w-full items-center justify-between py-6 text-left">*/}
-                                    {/*                      <span*/}
-                                    {/*                          className={classNames(*/}
-                                    {/*                              open ? 'text-indigo-600' : 'text-gray-900',*/}
-                                    {/*                              'text-sm font-medium'*/}
-                                    {/*                          )}*/}
-                                    {/*                      >*/}
-                                    {/*                        {detail.name}*/}
-                                    {/*                      </span>*/}
-                                    {/*                            <span className="ml-6 flex items-center">*/}
-                                    {/*                                {open ? (*/}
-                                    {/*                                    <MinusIcon*/}
-                                    {/*                                        className="block h-6 w-6 text-indigo-400 group-hover:text-indigo-500"*/}
-                                    {/*                                        aria-hidden="true"*/}
-                                    {/*                                    />*/}
-                                    {/*                                ) : (*/}
-                                    {/*                                    <PlusIcon*/}
-                                    {/*                                        className="block h-6 w-6 text-gray-400 group-hover:text-gray-500"*/}
-                                    {/*                                        aria-hidden="true"*/}
-                                    {/*                                    />*/}
-                                    {/*                                )}*/}
-                                    {/*                            </span>*/}
-                                    {/*                        </Disclosure.Button>*/}
-                                    {/*                    </h3>*/}
-                                    {/*                    <Disclosure.Panel as="div" className="prose prose-sm pb-6">*/}
-                                    {/*                        <ul role="list">*/}
-                                    {/*                            {detail.items.map((item) => (*/}
-                                    {/*                                <li key={item}>{item}</li>*/}
-                                    {/*                            ))}*/}
-                                    {/*                        </ul>*/}
-                                    {/*                    </Disclosure.Panel>*/}
-                                    {/*                </>*/}
-                                    {/*            )}*/}
-                                    {/*        </Disclosure>*/}
-                                    {/*    ))}*/}
-                                    {/*</div>*/}
+                                    {/* Product details */}
+                                    <div className="mx-auto mt-14 max-w-2xl sm:mt-16 lg:col-span-3 lg:row-span-2 lg:row-end-2 lg:mt-0 lg:max-w-none">
+
+                                        {/*<div className="mt-10 border-t border-gray-200 pt-10">*/}
+                                        {/*    <h3 className="text-sm font-medium text-gray-900">Highlights</h3>*/}
+                                        {/*    <div className="prose prose-sm mt-4 text-gray-500">*/}
+                                        {/*        <ul role="list">*/}
+                                        {/*            {product.highlights.map((highlight) => (*/}
+                                        {/*                <li key={highlight}>{highlight}</li>*/}
+                                        {/*            ))}*/}
+                                        {/*        </ul>*/}
+                                        {/*    </div>*/}
+                                        {/*</div>*/}
+
+                                        <div className="mt-10 border-t border-gray-200 pt-10">
+                                            <h3 className="text-sm font-medium text-gray-900">License</h3>
+                                            <p className="mt-4 text-sm text-gray-500">
+                                                {license.summary}{' '}
+                                                <a href={license.href} className="font-medium text-indigo-600 hover:text-indigo-500">
+                                                    Read full license
+                                                </a>
+                                            </p>
+                                        </div>
+
+                                        <div className="mt-10 border-t border-gray-200 pt-10">
+                                            <h3 className="text-sm font-medium text-gray-900">Share</h3>
+                                            <ProductShare product={product}/>
+                                        </div>
+                                    </div>
                                 </section>
                             </div>
                         </div>
@@ -307,50 +409,133 @@ export default function ProductPage() {
                                 Recent reviews
                             </h2>
 
-                            <div className="mt-6 space-y-10 divide-y divide-gray-200 border-b border-t border-gray-200 pb-10">
-                                {reviews.featured.map((review) => (
-                                    <div key={review.id} className="pt-10 lg:grid lg:grid-cols-12 lg:gap-x-8">
-                                        <div className="lg:col-span-8 lg:col-start-5 xl:col-span-9 xl:col-start-4 xl:grid xl:grid-cols-3 xl:items-start xl:gap-x-8">
-                                            <div className="flex items-center xl:col-span-1">
-                                                <div className="flex items-center">
-                                                    {[0, 1, 2, 3, 4].map((rating) => (
-                                                        <StarIcon
-                                                            key={rating}
-                                                            className={classNames(
-                                                                review.rating > rating ? 'text-yellow-400' : 'text-gray-200',
-                                                                'h-5 w-5 flex-shrink-0'
-                                                            )}
-                                                            aria-hidden="true"
-                                                        />
+                            <div
+                                className="mt-6 space-y-10 divide-y divide-gray-200 border-b border-t border-gray-200 pb-10">
+                                <div className="bg-white">
+                                    <div
+                                        className="mx-auto max-w-2xl px-4 py-16 sm:px-6 sm:py-24 lg:grid lg:max-w-7xl lg:grid-cols-12 lg:gap-x-8 lg:px-8 lg:py-32">
+                                        <div className="lg:col-span-4">
+                                            <h2 className="text-2xl font-bold tracking-tight text-gray-900">Customer
+                                                Reviews</h2>
+
+                                            <div className="mt-3 flex items-center">
+                                                <div>
+                                                    <div className="flex items-center">
+                                                        {[0, 1, 2, 3, 4].map((rating) => (
+                                                            <StarIcon
+                                                                key={rating}
+                                                                className={classNames(
+                                                                    reviews.average > rating ? 'text-yellow-400' : 'text-gray-300',
+                                                                    'h-5 w-5 flex-shrink-0'
+                                                                )}
+                                                                aria-hidden="true"
+                                                            />
+                                                        ))}
+                                                    </div>
+                                                    <p className="sr-only">{reviews.average} out of 5 stars</p>
+                                                </div>
+                                                <p className="ml-2 text-sm text-gray-900">Based
+                                                    on {reviews.totalCount} reviews</p>
+                                            </div>
+
+                                            <div className="mt-6">
+                                                <h3 className="sr-only">Review data</h3>
+
+                                                <dl className="space-y-3">
+                                                    {reviews.counts.map((count) => (
+                                                        <div key={count.rating} className="flex items-center text-sm">
+                                                            <dt className="flex flex-1 items-center">
+                                                                <p className="w-3 font-medium text-gray-900">
+                                                                    {count.rating}
+                                                                    <span className="sr-only"> star reviews</span>
+                                                                </p>
+                                                                <div aria-hidden="true"
+                                                                     className="ml-1 flex flex-1 items-center">
+                                                                    <StarIcon
+                                                                        className={classNames(
+                                                                            count.count > 0 ? 'text-yellow-400' : 'text-gray-300',
+                                                                            'h-5 w-5 flex-shrink-0'
+                                                                        )}
+                                                                        aria-hidden="true"
+                                                                    />
+
+                                                                    <div className="relative ml-3 flex-1">
+                                                                        <div
+                                                                            className="h-3 rounded-full border border-gray-200 bg-gray-100"/>
+                                                                        {count.count > 0 ? (
+                                                                            <div
+                                                                                className="absolute inset-y-0 rounded-full border border-yellow-400 bg-yellow-400"
+                                                                                style={{width: `calc(${count.count} / ${reviews.totalCount} * 100%)`}}
+                                                                            />
+                                                                        ) : null}
+                                                                    </div>
+                                                                </div>
+                                                            </dt>
+                                                            <dd className="ml-3 w-10 text-right text-sm tabular-nums text-gray-900">
+                                                                {Math.round((count.count / reviews.totalCount) * 100)}%
+                                                            </dd>
+                                                        </div>
+                                                    ))}
+                                                </dl>
+                                            </div>
+
+                                            <div className="mt-10">
+                                                <h3 className="text-lg font-medium text-gray-900">Share your
+                                                    thoughts</h3>
+                                                <p className="mt-1 text-sm text-gray-600">
+                                                    If you’ve used this product, share your thoughts with other
+                                                    customers
+                                                </p>
+
+                                                <a
+                                                    href="#"
+                                                    className="mt-6 inline-flex w-full items-center justify-center rounded-md border border-gray-300 bg-white px-8 py-2 text-sm font-medium text-gray-900 hover:bg-gray-50 sm:w-auto lg:w-full"
+                                                >
+                                                    Write a review
+                                                </a>
+                                            </div>
+                                        </div>
+
+                                        <div className="mt-16 lg:col-span-7 lg:col-start-6 lg:mt-0">
+                                            <h3 className="sr-only">Recent reviews</h3>
+
+                                            <div className="flow-root">
+                                                <div className="-my-12 divide-y divide-gray-200">
+                                                    {reviews.featured.map((review) => (
+                                                        <div key={review.id} className="py-12">
+                                                            <div className="flex items-center">
+                                                                <img src={review.avatarSrc} alt={`${review.author}.`}
+                                                                     className="h-12 w-12 rounded-full"/>
+                                                                <div className="ml-4">
+                                                                    <h4 className="text-sm font-bold text-gray-900">{review.author}</h4>
+                                                                    <div className="mt-1 flex items-center">
+                                                                        {[0, 1, 2, 3, 4].map((rating) => (
+                                                                            <StarIcon
+                                                                                key={rating}
+                                                                                className={classNames(
+                                                                                    review.rating > rating ? 'text-yellow-400' : 'text-gray-300',
+                                                                                    'h-5 w-5 flex-shrink-0'
+                                                                                )}
+                                                                                aria-hidden="true"
+                                                                            />
+                                                                        ))}
+                                                                    </div>
+                                                                    <p className="sr-only">{review.rating} out of 5
+                                                                        stars</p>
+                                                                </div>
+                                                            </div>
+
+                                                            <div
+                                                                className="mt-4 space-y-6 text-base italic text-gray-600"
+                                                                dangerouslySetInnerHTML={{__html: review.content}}
+                                                            />
+                                                        </div>
                                                     ))}
                                                 </div>
-                                                <p className="ml-3 text-sm text-gray-700">
-                                                    {review.rating}
-                                                    <span className="sr-only"> out of 5 stars</span>
-                                                </p>
                                             </div>
-
-                                            <div className="mt-4 lg:mt-6 xl:col-span-2 xl:mt-0">
-                                                <h3 className="text-sm font-medium text-gray-900">{review.title}</h3>
-
-                                                <div
-                                                    className="mt-3 space-y-6 text-sm text-gray-500"
-                                                    dangerouslySetInnerHTML={{ __html: review.content }}
-                                                />
-                                            </div>
-                                        </div>
-
-                                        <div className="mt-6 flex items-center text-sm lg:col-span-4 lg:col-start-1 lg:row-start-1 lg:mt-0 lg:flex-col lg:items-start xl:col-span-3">
-                                            <p className="font-medium text-gray-900">{review.author}</p>
-                                            <time
-                                                dateTime={review.datetime}
-                                                className="ml-4 border-l border-gray-200 pl-4 text-gray-500 lg:ml-0 lg:mt-2 lg:border-0 lg:pl-0"
-                                            >
-                                                {review.date}
-                                            </time>
                                         </div>
                                     </div>
-                                ))}
+                                </div>
                             </div>
                         </section>
 
@@ -390,7 +575,7 @@ export default function ProductPage() {
                                                 href={product.href}
                                                 className="relative flex items-center justify-center rounded-md border border-transparent bg-gray-100 px-8 py-2 text-sm font-medium text-gray-900 hover:bg-gray-200"
                                             >
-                                                Add to bag<span className="sr-only">, {product.name}</span>
+                                                Add to cart<span className="sr-only">, {product.name}</span>
                                             </a>
                                         </div>
                                     </div>
@@ -402,7 +587,7 @@ export default function ProductPage() {
             </div>
 
 
-            <Footer />
+            <Footer/>
 
         </>
     )

@@ -2,11 +2,16 @@ import { useDispatch, useSelector } from 'react-redux';
 import { addToWishlist, removeFromWishlist, setWishlistItems } from './wishlistSlice';
 import { addToCart, removeFromCart, updateCartItemQuantity, setCartItems } from './cartSlice';
 import { loadState, saveState } from './localStorageUtils';
+import { useEffect } from 'react';
 
 export const useShoppingHooks = () => {
     const dispatch = useDispatch();
     const wishlistItems = useSelector((state) => state.wishlist.items);
     const cartItems = useSelector((state) => state.cart.items);
+
+    useEffect(() => {
+        initializeFromLocalStorage();
+    }, []);
 
     const initializeFromLocalStorage = () => {
         const savedWishlist = loadState('wishlist');

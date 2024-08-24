@@ -1,10 +1,15 @@
 import { Fragment, useState, useEffect } from 'react'
-import { Dialog, RadioGroup, Transition } from '@headlessui/react'
-import { ShieldCheckIcon, XMarkIcon } from '@heroicons/react/24/outline'
-import { CheckIcon, QuestionMarkCircleIcon, StarIcon } from '@heroicons/react/20/solid'
+import { Dialog, Transition } from '@headlessui/react'
+import { XMarkIcon } from '@heroicons/react/24/outline'
+import { StarIcon } from '@heroicons/react/20/solid'
 import axios from 'axios'
 import { server } from '../Server'
 import { assetServer } from "../assetServer.js"
+import ProductShare from "./ProductShare.jsx";
+import { Link } from "react-router-dom";
+import { useShoppingHooks } from "../redux/useShoppingHooks.js";
+import { toast } from "react-toastify";
+import {ShoppingCartIcon} from "@heroicons/react/24/outline/index.js";
 
 function classNames(...classes) {
     return classes.filter(Boolean).join(' ')
@@ -12,16 +17,13 @@ function classNames(...classes) {
 
 export default function QuickView({ productName, open, setOpen }) {
     const [product, setProduct] = useState(null)
-    const [selectedSize, setSelectedSize] = useState(null)
+    const { cartItems, addProductToCart, removeProductFromCart } = useShoppingHooks();
 
     useEffect(() => {
         const fetchProduct = async () => {
             try {
                 const response = await axios.get(`${server}/product/${productName}`)
                 setProduct(response.data.product)
-                if (response.data.product.sizes && response.data.product.sizes.length > 0) {
-                    setSelectedSize(response.data.product.sizes[0])
-                }
             } catch (error) {
                 console.error('Error fetching product:', error)
             }
@@ -31,6 +33,18 @@ export default function QuickView({ productName, open, setOpen }) {
             fetchProduct()
         }
     }, [open, productName])
+
+    const handleAddToCart = (e) => {
+        e.preventDefault(); // Prevent form submission
+        addProductToCart({ ...product});
+        toast.success(`${product.product_name} added to cart!`);
+    };
+
+    const handleRemoveFromCart = (e) => {
+        e.preventDefault(); // Prevent form submission
+        removeProductFromCart(product.id);
+        toast.success(`${product.product_name} removed from cart!`);
+    };
 
     if (!product) {
         return null
@@ -111,8 +125,7 @@ export default function QuickView({ productName, open, setOpen }) {
                                                 </div>
 
                                                 <div className="mt-6 flex items-center">
-                                                    <CheckIcon className="h-5 w-5 flex-shrink-0 text-green-500" aria-hidden="true" />
-                                                    <p className="ml-2 font-medium text-gray-500">In stock and ready to ship</p>
+                                                    <p className="ml-2 font-medium text-gray-500">{product.description}</p>
                                                 </div>
                                             </section>
 
@@ -122,67 +135,69 @@ export default function QuickView({ productName, open, setOpen }) {
                                                 </h3>
 
                                                 <form>
-                                                    <div className="sm:flex sm:justify-between">
-                                                        {product.sizes && (
-                                                            <RadioGroup value={selectedSize} onChange={setSelectedSize}>
-                                                                <RadioGroup.Label className="block text-sm font-medium text-gray-700">
-                                                                    Size
-                                                                </RadioGroup.Label>
-                                                                <div className="mt-1 grid grid-cols-1 gap-4 sm:grid-cols-2">
-                                                                    {product.sizes.map((size) => (
-                                                                        <RadioGroup.Option
-                                                                            key={size.name}
-                                                                            value={size}
-                                                                            className={({ active }) =>
-                                                                                classNames(
-                                                                                    active ? 'ring-2 ring-indigo-500' : '',
-                                                                                    'relative block cursor-pointer rounded-lg border border-gray-300 p-4 focus:outline-none'
-                                                                                )
-                                                                            }
-                                                                        >
-                                                                            {({ active, checked }) => (
-                                                                                <>
-                                                                                    <RadioGroup.Label as="p" className="text-base font-medium text-gray-900">
-                                                                                        {size.name}
-                                                                                    </RadioGroup.Label>
-                                                                                    <RadioGroup.Description as="p" className="mt-1 text-sm text-gray-500">
-                                                                                        {size.description}
-                                                                                    </RadioGroup.Description>
-                                                                                    <div
-                                                                                        className={classNames(
-                                                                                            active ? 'border' : 'border-2',
-                                                                                            checked ? 'border-indigo-500' : 'border-transparent',
-                                                                                            'pointer-events-none absolute -inset-px rounded-lg'
-                                                                                        )}
-                                                                                        aria-hidden="true"
-                                                                                    />
-                                                                                </>
-                                                                            )}
-                                                                        </RadioGroup.Option>
-                                                                    ))}
-                                                                </div>
-                                                            </RadioGroup>
-                                                        )}
-                                                    </div>
+
                                                     <div className="mt-6">
-                                                        <button
-                                                            type="submit"
-                                                            className="flex w-full items-center justify-center rounded-md border border-transparent bg-indigo-600 px-8 py-3 text-base font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-gray-50"
-                                                        >
-                                                            Add to bag
-                                                        </button>
-                                                    </div>
-                                                    <div className="mt-6 text-center">
-                                                        <a href="#" className="group inline-flex text-base font-medium">
-                                                            <ShieldCheckIcon
-                                                                className="mr-2 h-6 w-6 flex-shrink-0 text-gray-400 group-hover:text-gray-500"
-                                                                aria-hidden="true"
-                                                            />
-                                                            <span className="text-gray-500 group-hover:text-gray-700">Lifetime Guarantee</span>
-                                                        </a>
+                                                        <div className="mt-6">
+                                                            <div className="mt-6">
+                                                                {/*{cartItems.some(item => item.id === product.id) ? (*/}
+                                                                {/*    <button*/}
+                                                                {/*        onClick={handleRemoveFromCart}*/}
+                                                                {/*        className="flex w-full items-center justify-center rounded-md border border-transparent bg-red-600 px-8 py-3 text-base font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 focus:ring-offset-gray-50"*/}
+                                                                {/*    >*/}
+                                                                {/*        Remove from Cart*/}
+                                                                {/*    </button>*/}
+                                                                {/*) : (*/}
+                                                                {/*    <button*/}
+                                                                {/*        onClick={handleAddToCart}*/}
+                                                                {/*        className="flex w-full items-center justify-center rounded-md border border-transparent bg-primary px-8 py-3 text-base font-medium text-white hover:bg-secondary focus:outline-none focus:ring-2 focus:ring-secondary focus:ring-offset-2 focus:ring-offset-gray-50"*/}
+                                                                {/*    >*/}
+                                                                {/*        Add to cart*/}
+                                                                {/*    </button>*/}
+                                                                {/*)}*/}
+
+                                                                {cartItems.some(item => item.id === product.id) ? (
+                                                                    <button
+                                                                        onClick={handleRemoveFromCart}
+                                                                        className="flex w-full items-center justify-center rounded-md border border-transparent bg-red-600 px-8 py-3 text-base font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 focus:ring-offset-gray-50"
+                                                                    >
+                                                                        Remove from Cart
+                                                                    </button>
+                                                                ) : (
+                                                                    product.group === "1" ? (
+                                                                        <Link to={`/group-order/${product.id}`}>
+                                                                            <button
+                                                                                className="mt-2 flex w-full items-center justify-center rounded-md border border-gray-300 px-8 py-3 text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-secondary focus:ring-offset-2 focus:ring-offset-gray-200"
+                                                                            >
+                                                                                Create or Join Group
+                                                                            </button>
+                                                                        </Link>
+                                                                    ) : (
+                                                                        <button
+                                                                            onClick={handleAddToCart}
+                                                                            className="flex w-full items-center justify-center rounded-md border border-transparent bg-primary px-8 py-3 text-base font-medium text-white hover:bg-secondary focus:outline-none focus:ring-2 focus:ring-secondary focus:ring-offset-2 focus:ring-offset-gray-50"
+                                                                        >
+                                                                            Add to cart
+                                                                        </button>
+                                                                    )
+                                                                )}
+                                                            </div>
+                                                            <Link
+                                                                to={`/product/${product.product_name}`}> {/* Assuming your product page route is /product/:productName */}
+                                                                <button
+                                                                    className="mt-2 flex w-full items-center justify-center rounded-md border border-gray-300 px-8 py-3 text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-gray-200"
+                                                                >
+                                                                    View Details
+                                                                </button>
+                                                            </Link>
+                                                        </div>
                                                     </div>
                                                 </form>
                                             </section>
+
+                                            <div className="mt-5 border-t border-gray-200 pt-5">
+                                                <h3 className="text-sm font-medium text-gray-900">Share</h3>
+                                                <ProductShare product={product}/>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
