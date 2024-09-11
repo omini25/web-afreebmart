@@ -1,4 +1,4 @@
-import { Fragment, useState } from 'react'
+import {Fragment, useEffect, useState} from 'react'
 import {
     CreditCardIcon,
     CubeIcon,
@@ -6,6 +6,8 @@ import {
     UserCircleIcon,
 } from '@heroicons/react/24/outline'
 import Header from "../../components/Header.jsx";
+import {toast} from "react-toastify";
+import {useNavigate} from "react-router-dom";
 
 
 const secondaryNavigation = [
@@ -42,6 +44,17 @@ function classNames(...classes) {
 }
 
 export default function TrackingOrder() {
+    const navigate = useNavigate();
+
+    useEffect(() => {
+        // Check if localStorage.isLoggedIn is true
+        if (localStorage.getItem('isLoggedIn') === 'false') {
+            // Redirect to /dashboard
+            navigate('/login');
+            // Show a toast notification
+            toast.warning('You need to login to access the page');
+        }
+    }, []);
 
 
     return (

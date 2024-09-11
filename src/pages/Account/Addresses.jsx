@@ -10,6 +10,8 @@ import axios from "axios";
 import {server} from "../../Server.js";
 import {AddAddress} from "../../components/AddAddress.jsx";
 import {EditAddress} from "../../components/EditAddress.jsx";
+import {toast} from "react-toastify";
+import {useNavigate} from "react-router-dom";
 
 
 const secondaryNavigation = [
@@ -33,6 +35,17 @@ export default function Addresses() {
     const [showModal, setShowModal] = useState(false);
     const [editingAddress, setEditingAddress] = useState(null);
     const [showEditModal, setShowEditModal] = useState(false);
+    const navigate = useNavigate();
+
+    useEffect(() => {
+        // Check if localStorage.isLoggedIn is true
+        if (localStorage.getItem('isLoggedIn') === 'false') {
+            // Redirect to /dashboard
+            navigate('/login');
+            // Show a toast notification
+            toast.warning('You need to login to access the page');
+        }
+    }, []);
 
     const handleEditAddress = (address) => {
         setEditingAddress(address);

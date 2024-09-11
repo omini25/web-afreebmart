@@ -14,17 +14,24 @@ function classNames(...classes) {
     return classes.filter(Boolean).join(' ')
 }
 
-export default function Search() {
-    const { searchTerm } = useParams()
+export default function VendorProducts() {
+    const {vendorId} = useParams()
     const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false)
     const [allProducts, setAllProducts] = useState([])
     const [categories, setCategories] = useState([])
     const [selectedCategory, setSelectedCategory] = useState('')
     const [selectedPriceRange, setSelectedPriceRange] = useState('')
     const [sortOption, setSortOption] = useState('popularity')
+    const [vendorDetails, setVendorDetails] = useState(null);
 
+    useEffect(() => {
+        fetchCategories();
+        fetchAllProducts();
 
-    console.log(useParams())
+        // Fetch vendor details when vendorId changes
+        fetchVendorDetails();
+    }, [vendorId]);
+
 
     useEffect(() => {
         fetchCategories()
@@ -44,9 +51,9 @@ export default function Search() {
 
     const fetchAllProducts = async () => {
         try {
-            const response = await axios.get(`${server}/product-search/${searchTerm}`)
-            if (Array.isArray(response.data.product)) {
-                setAllProducts(response.data.product)
+            const response = await axios.get(`${server}/vendor/users/${vendorId}/products`)
+            if (Array.isArray(response.data.products)) {
+                setAllProducts(response.data.products)
             } else {
                 console.error('Unexpected API response structure:', response.data)
                 setAllProducts([]) // Set to empty array if response is not as expected
@@ -57,7 +64,16 @@ export default function Search() {
         }
     }
 
-    console.log(searchTerm)
+    const fetchVendorDetails = async () => {
+        try {
+            const response = await axios.get(`${server}/landing/${vendorId}/details`); // Replace with your API endpoint
+            setVendorDetails(response.data);
+        } catch (error) {
+            console.error('Error fetching vendor details:', error);
+        }
+    };
+
+
 
     const filters = useMemo(() => [
         {
@@ -190,11 +206,11 @@ export default function Search() {
                                                             <Disclosure.Button className="flex w-full items-center justify-between p-2 text-gray-400 hover:text-gray-500">
                                                                 <span className="text-sm font-medium text-gray-900">{section.name}</span>
                                                                 <span className="ml-6 flex h-7 items-center">
-                                  <ChevronDownIcon
-                                      className={classNames(open ? '-rotate-180' : 'rotate-0', 'h-5 w-5 transform')}
-                                      aria-hidden="true"
-                                  />
-                                </span>
+                                                              <ChevronDownIcon
+                                                                  className={classNames(open ? '-rotate-180' : 'rotate-0', 'h-5 w-5 transform')}
+                                                                  aria-hidden="true"
+                                                              />
+                                                            </span>
                                                             </Disclosure.Button>
                                                         </legend>
                                                         <Disclosure.Panel className="px-4 pb-2 pt-4">
@@ -230,12 +246,20 @@ export default function Search() {
                 </Transition.Root>
 
                 <main className="mx-auto max-w-2xl px-4 lg:max-w-7xl lg:px-8">
-                    {/*<div className="border-b border-gray-200 pb-10 pt-8">*/}
-                    {/*    <h1 className="text-4xl font-bold tracking-tight text-gray-900">Group Products</h1>*/}
-                    {/*    <p className="mt-4 text-base text-gray-500">*/}
-                    {/*        Buy a product cheaper with friends and family. Create or Join a Group, Add, Buy.*/}
-                    {/*    </p>*/}
-                    {/*</div>*/}
+                    <div className="border-b border-gray-200 pb-10 pt-8">
+                        {vendorDetails ? (
+                            <>
+                                <h1 className="text-4xl font-bold tracking-tight text-gray-900">
+                                    {vendorDetails.vendor.store_name}
+                                </h1>
+                                <p className="mt-4 text-base text-gray-500">
+                                    {vendorDetails.vendor.store_description}
+                                </p>
+                            </>
+                        ) : (
+                            <p>Loading vendor details...</p>
+                        )}
+                    </div>
 
                     <div className="flex items-center justify-between pt-12">
                         <button

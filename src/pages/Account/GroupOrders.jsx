@@ -12,7 +12,7 @@ import Header from "../../components/Header.jsx";
 import axios from "axios";
 import { server } from "../../Server.js";
 import { assetServer } from "../../assetServer.js";
-import { Link } from "react-router-dom";
+import {Link, useNavigate} from "react-router-dom";
 import { useShoppingHooks } from "../../redux/useShoppingHooks.js";
 import { toast } from "react-toastify";
 import { Dialog } from '@headlessui/react'
@@ -38,6 +38,7 @@ export default function GroupOrders() {
     const [isLoading, setIsLoading] = useState(true);
     const user = JSON.parse(localStorage.getItem('user')) || {};
     const { addProductToCart } = useShoppingHooks();
+    const navigate = useNavigate();
 
     // New state variables for modals
     const [createGroupOpen, setCreateGroupOpen] = useState(false);
@@ -48,8 +49,20 @@ export default function GroupOrders() {
 
     // New state variables for form inputs
     const [newGroupName, setNewGroupName] = useState('');
+    const [selectedProductId, setSelectedProductId] = useState(null);
+    const [products, setProducts] = useState([]);
     const [joinGroupId, setJoinGroupId] = useState('');
     const [addUserEmail, setAddUserEmail] = useState('');
+
+    useEffect(() => {
+        // Check if localStorage.isLoggedIn is true
+        if (localStorage.getItem('isLoggedIn') === 'false') {
+            // Redirect to /dashboard
+            navigate('/login');
+            // Show a toast notification
+            toast.warning('You need to login to access the page');
+        }
+    }, []);
 
     const fetchOrders = async () => {
         try {
@@ -66,12 +79,33 @@ export default function GroupOrders() {
         fetchOrders();
     }, []);
 
+
+    useEffect(() => {
+        // Fetch products from API
+        const fetchProducts = async () => {
+            try {
+                const response = await axios.get(`${server}/group-products`); // Replace with your actual products API endpoint
+                setProducts(response.data.group_products);
+            } catch (error) {
+                console.error('Error fetching products:', error);
+                // Handle error appropriately (e.g., display an error message)
+            }
+        };
+
+        fetchProducts();
+    }, []);
+
     const handleCreateGroup = async (e) => {
         e.preventDefault();
         try {
-            await axios.post(`${server}/user/group`, { name: newGroupName, userId: user.id });
+            await axios.post(`${server}/user/create-group/${user.id}`, {
+                groupName: newGroupName,
+                userId: user.id,
+                productId: selectedProductId, // Send selected product ID
+            });
             setCreateGroupOpen(false);
             setNewGroupName('');
+            setSelectedProductId(null); // Reset selected product
             toast.success('Group created successfully!');
             fetchOrders();
         } catch (error) {
@@ -108,9 +142,9 @@ export default function GroupOrders() {
         }
     };
 
-    const handleDeleteGroup = async (ordersId) => {
+    const handleDeleteGroup = async () => {
         try {
-            await axios.delete(`${server}/user/group/${ordersId}`);
+            await axios.delete(`${server}/user/group/${orders.group_id}`);
             setDeleteGroupOpen(false);
             toast.success('Group deleted successfully!');
             fetchOrders();
@@ -119,6 +153,7 @@ export default function GroupOrders() {
             toast.error('Failed to delete group');
         }
     };
+
 
     if (isLoading) return (
         <div className="flex items-center justify-center h-screen">
@@ -214,6 +249,10 @@ export default function GroupOrders() {
                                                 <Dialog.Title className="text-lg font-medium leading-6 text-gray-900">Create
                                                     Group</Dialog.Title>
                                                 <form onSubmit={handleCreateGroup}>
+                                                    <label htmlFor="groupName"
+                                                           className="block text-sm font-medium leading-6 text-gray-900">
+                                                        Group Name
+                                                    </label>
                                                     <input
                                                         type="text"
                                                         value={newGroupName}
@@ -222,6 +261,27 @@ export default function GroupOrders() {
                                                         className="mt-2 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
                                                         required
                                                     />
+
+                                                    <label htmlFor="productId"
+                                                           className="block text-sm font-medium leading-6 text-gray-900">
+                                                        Select Product
+                                                    </label>
+
+                                                    <select
+                                                        id="productId"
+                                                        name="productId"
+                                                        className="mt-2 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+                                                        value={selectedProductId}
+                                                        onChange={(e) => setSelectedProductId(e.target.value)}
+                                                        required
+                                                    >
+                                                        <option value="">Select a product</option>
+                                                        {products.map((product) => (
+                                                            <option key={product.id} value={product.id}>
+                                                                {product.product_name}
+                                                            </option>
+                                                        ))}
+                                                    </select>
 
                                                     <button type="submit"
                                                             className="mt-4 w-full px-4 py-2 text-sm font-medium text-white bg-blue-500 rounded-md hover:bg-blue-600">

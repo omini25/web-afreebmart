@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, {useEffect, useState} from 'react';
 import { useSelector } from "react-redux";
 import {
     MagnifyingGlassIcon,
@@ -13,6 +13,7 @@ import {Link, useNavigate} from "react-router-dom";
 import {ChevronDownIcon} from "@heroicons/react/20/solid";
 import {toast} from "react-toastify";
 import {assetServer} from "../assetServer.js";
+import banner from "../assets/images/banner-menu.png"
 
 function classNames(...classes) {
     return classes.filter(Boolean).join(' ')
@@ -35,9 +36,10 @@ export default function Header() {
     const navigate = useNavigate();
 
 
+
     const handleSearchSubmit = () => {
         setSearchModalOpen(false); // Close the modal
-        navigate(`/search?q=${searchTerm}`); // Navigate to the search page
+        navigate(`/search/${searchTerm}`); // Navigate to the search page
     };
 
     const handleRemoveFromCart = (productId) => {
@@ -88,6 +90,25 @@ export default function Header() {
             { name: 'Group Shop', href: '/bulk-shop' },
         ],
     };
+
+    const [isSticky, setIsSticky] = useState(false);
+
+    useEffect(() => {
+        const handleScroll = () => {
+            const offset = window.scrollY;
+            if (offset > 100) {
+                setIsSticky(true);
+            } else {
+                setIsSticky(false);
+            }
+        };
+
+        window.addEventListener('scroll', handleScroll);
+
+        return () => {
+            window.removeEventListener('scroll', handleScroll);
+        };
+    }, []);
 
     return (
         <div className="bg-white">
@@ -299,12 +320,12 @@ export default function Header() {
                             ) : (
                                 <div className="space-y-6 border-t border-gray-200 px-4 py-6">
                                     <div className="flow-root">
-                                        <a href="#" className="-m-2 block p-2 font-medium text-gray-900">
+                                        <a href="/login" className="-m-2 block p-2 font-medium text-gray-900">
                                             Sign in
                                         </a>
                                     </div>
                                     <div className="flow-root">
-                                        <a href="#" className="-m-2 block p-2 font-medium text-gray-900">
+                                        <a href="/register" className="-m-2 block p-2 font-medium text-gray-900">
                                             Create account
                                         </a>
                                     </div>
@@ -318,13 +339,13 @@ export default function Header() {
             <header className="sticky top-0 z-10">
                 <nav aria-label="Top">
                     {/* Top navigation */}
-                    <div className="bg-primary">
+                    <div className="bg-newColor">
                         <div className="mx-auto flex h-10 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
 
                             {/* Conditional rendering based on user state */}
                             {localStorage.getItem('isLoggedIn') === 'true' ? (
                                 <div className="hidden lg:flex lg:flex-1 lg:items-center lg:justify-end lg:space-x-6">
-                                <a href="/Account/Account" className="text-sm font-medium text-white hover:text-gray-100">
+                                <a href="/account" className="text-sm font-medium text-white hover:text-gray-100">
                                     Account
                                     </a>
                                     <span className="h-6 w-px bg-gray-600" aria-hidden="true"/>
@@ -359,7 +380,8 @@ export default function Header() {
                     </div>
 
                     {/* Secondary navigation */}
-                    <div className="bg-white">
+                    <div
+                        className={`bg-white ${isSticky ? 'sticky top-0 shadow-md z-50' : ''} transition-all duration-300`}>
                         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                             <div className="border-b border-gray-200">
                                 <div className="flex h-16 items-center justify-between">
@@ -377,7 +399,7 @@ export default function Header() {
 
                                     <div className="hidden h-full lg:flex">
                                         {/* Mega menus */}
-                                        <div className="ml-8 bg-white z-auto">
+                                        <div className="ml-8">
                                             <div className="flex h-full justify-center space-x-8">
                                                 {navigation.categories.map((category, categoryIdx) => (
                                                     <div
@@ -391,8 +413,8 @@ export default function Header() {
                                                                 className={classNames(
                                                                     hoveredCategory === categoryIdx
                                                                         ? 'border-primary text-primary'
-                                                                        : 'border-transparent text-gray-700 hover:text-gray-800',
-                                                                    'relative z-10 -mb-px flex items-center border-b-2 pt-px text-sm font-medium transition-colors duration-200 ease-out'
+                                                                        : 'border-transparent text-gray-700 hover:text-gray-800 font-bold',
+                                                                    'relative z-10 -mb-px flex items-center border-b-2 pt-px text-base font-bold transition-colors duration-200 ease-out'
                                                                 )}
                                                             >
                                                                 {category.name}
@@ -400,17 +422,21 @@ export default function Header() {
                                                         </div>
 
                                                         {hoveredCategory === categoryIdx && (
-                                                            <div className="absolute inset-x-0 top-full text-gray-500 sm:text-sm bg-white">
-                                                                <div className="absolute inset-0 top-1/2 bg-white shadow" aria-hidden="true" />
-
+                                                            <div
+                                                                className="absolute inset-x-0 top-full text-gray-500 sm:text-sm bg-white">
+                                                                <div
+                                                                    className="absolute inset-0 top-1/2 bg-white shadow"
+                                                                    aria-hidden="true"/>
                                                                 <div className="relative bg-white">
                                                                     <div className="mx-auto max-w-7xl px-8">
-                                                                        <div className="grid grid-cols-2 items-start gap-x-8 gap-y-10 pb-12 pt-10">
-                                                                            <div className="grid grid-cols-2 gap-x-8 gap-y-10">
+                                                                        <div
+                                                                            className="grid grid-cols-3 items-start gap-x-8 gap-y-10 pb-12 pt-10">
+                                                                            <div
+                                                                                className="grid grid-cols-2 gap-x-8 gap-y-10">
                                                                                 <div>
                                                                                     <p
                                                                                         id={`desktop-featured-heading-${categoryIdx}`}
-                                                                                        className="font-medium text-gray-900"
+                                                                                        className="font-bold text-newColor hover:text-secondary text-xl"
                                                                                     >
                                                                                         Fresh Food
                                                                                     </p>
@@ -420,8 +446,10 @@ export default function Header() {
                                                                                         className="mt-6 space-y-6 sm:mt-4 sm:space-y-4"
                                                                                     >
                                                                                         {category.featured.map((item) => (
-                                                                                            <li key={item.name} className="flex">
-                                                                                                <a href={item.href} className="hover:text-gray-800">
+                                                                                            <li key={item.name}
+                                                                                                className="flex">
+                                                                                                <a href={item.href}
+                                                                                                   className="hover:text-secondary text-sm">
                                                                                                     {item.name}
                                                                                                 </a>
                                                                                             </li>
@@ -431,7 +459,7 @@ export default function Header() {
                                                                                 <div>
                                                                                     <p
                                                                                         id="desktop-categories-heading"
-                                                                                        className="font-medium text-gray-900"
+                                                                                        className="font-bold text-newColor hover:text-secondary text-xl"
                                                                                     >
                                                                                         Foodie (Hot Food)
                                                                                     </p>
@@ -441,8 +469,10 @@ export default function Header() {
                                                                                         className="mt-6 space-y-6 sm:mt-4 sm:space-y-4"
                                                                                     >
                                                                                         {category.categories.map((item) => (
-                                                                                            <li key={item.name} className="flex">
-                                                                                                <a href={item.href} className="hover:text-gray-800">
+                                                                                            <li key={item.name}
+                                                                                                className="flex">
+                                                                                                <a href={item.href}
+                                                                                                   className="hover:text-secondary text-sm">
                                                                                                     {item.name}
                                                                                                 </a>
                                                                                             </li>
@@ -450,11 +480,12 @@ export default function Header() {
                                                                                     </ul>
                                                                                 </div>
                                                                             </div>
-                                                                            <div className="grid grid-cols-2 gap-x-8 gap-y-10">
+                                                                            <div
+                                                                                className="grid grid-cols-2 gap-x-8 gap-y-10">
                                                                                 <div>
                                                                                     <p
                                                                                         id="desktop-collection-heading"
-                                                                                        className="font-medium text-gray-900"
+                                                                                        className="font-bold text-newColor hover:text-secondary text-xl"
                                                                                     >
                                                                                         Frozen Food
                                                                                     </p>
@@ -464,8 +495,10 @@ export default function Header() {
                                                                                         className="mt-6 space-y-6 sm:mt-4 sm:space-y-4"
                                                                                     >
                                                                                         {category.collection.map((item) => (
-                                                                                            <li key={item.name} className="flex">
-                                                                                                <a href={item.href} className="hover:text-gray-800">
+                                                                                            <li key={item.name}
+                                                                                                className="flex">
+                                                                                                <a href={item.href}
+                                                                                                   className="hover:text-secondary text-sm">
                                                                                                     {item.name}
                                                                                                 </a>
                                                                                             </li>
@@ -473,6 +506,46 @@ export default function Header() {
                                                                                     </ul>
                                                                                 </div>
                                                                             </div>
+
+
+                                                                            {/* Banner on the right */}
+                                                                            <li className="sub-mega-menu sub-mega-menu-width-34">
+                                                                                <div
+                                                                                    className="menu-banner-wrap relative">
+                                                                                    <a href="#">
+                                                                                        <img
+                                                                                            src={banner}
+                                                                                            alt="Afreebmart Banner"
+                                                                                        />
+                                                                                    </a>
+                                                                                    <div
+                                                                                        className="menu-banner-content absolute top-0 left-0 w-1/2 h-full flex flex-col justify-center items-start text-white p-8">
+                                                                                        <div>
+                                                                                            <h4 className="text-black text-xl font-medium">Hot
+                                                                                                deals</h4>
+                                                                                            <h3 className="text-black text-xl font-medium">
+                                                                                                Don't miss<br/>Trending
+                                                                                            </h3>
+
+                                                                                            <div
+                                                                                                className="menu-banner-btn mt-2">
+                                                                                                <Link to="/shop">
+                                                                                                    <button
+                                                                                                        className="px-4 py-2 bg-newColor text-white rounded-md hover:bg-blue-600">
+                                                                                                        Shop now
+                                                                                                    </button>
+                                                                                                </Link>
+                                                                                            </div>
+                                                                                        </div>
+                                                                                    </div>
+                                                                                    <div
+                                                                                        className="menu-banner-discount absolute -top-4 -right-4 bg-red-500 text-white py-2 px-4 rounded-bl-lg">
+                                                                                        <h3>
+                                                                                            <span>25%</span> off
+                                                                                        </h3>
+                                                                                    </div>
+                                                                                </div>
+                                                                            </li>
                                                                         </div>
                                                                     </div>
                                                                 </div>
@@ -485,7 +558,7 @@ export default function Header() {
                                                     <a
                                                         key={page.name}
                                                         href={page.href}
-                                                        className="flex items-center text-sm font-medium text-gray-700 hover:text-gray-800"
+                                                        className="flex items-center text-base font-bold text-gray-700 hover:text-gray-800"
                                                     >
                                                         {page.name}
                                                     </a>
@@ -504,7 +577,7 @@ export default function Header() {
                                                                     hoveredVendor === vendorIdx
                                                                         ? 'border-primary text-primary'
                                                                         : 'border-transparent text-gray-700 hover:text-gray-800',
-                                                                    'relative z-10 -mb-px flex items-center border-b-2 pt-px text-sm font-medium transition-colors duration-200 ease-out'
+                                                                    'relative z-10 -mb-px flex items-center border-b-2 pt-px text-base font-bold transition-colors duration-200 ease-out'
                                                                 )}
                                                             >
                                                                 {vendor.name}
@@ -512,13 +585,18 @@ export default function Header() {
                                                         </div>
 
                                                         {hoveredVendor === vendorIdx && (
-                                                            <div className="absolute inset-x-0 top-full text-gray-500 sm:text-sm bg-white">
-                                                                <div className="absolute inset-0 top-1/2 bg-white shadow" aria-hidden="true" />
+                                                            <div
+                                                                className="absolute inset-x-0 top-full text-gray-500 sm:text-sm bg-white">
+                                                                <div
+                                                                    className="absolute inset-0 top-1/2 bg-white shadow"
+                                                                    aria-hidden="true"/>
 
                                                                 <div className="relative bg-white">
                                                                     <div className="mx-auto max-w-7xl px-8">
-                                                                        <div className="grid grid-cols-2 items-start gap-x-8 gap-y-10 pb-12 pt-10">
-                                                                            <div className="grid grid-cols-2 gap-x-8 gap-y-10">
+                                                                        <div
+                                                                            className="grid grid-cols-2 items-start gap-x-8 gap-y-10 pb-12 pt-10">
+                                                                            <div
+                                                                                className="grid grid-cols-2 gap-x-8 gap-y-10">
                                                                                 <div>
 
                                                                                     <ul
@@ -527,8 +605,10 @@ export default function Header() {
                                                                                         className="mt-6 space-y-6 sm:mt-4 sm:space-y-4"
                                                                                     >
                                                                                         {vendor.featured.map((item) => (
-                                                                                            <li key={item.name} className="flex">
-                                                                                                <a href={item.href} className="hover:text-gray-800">
+                                                                                            <li key={item.name}
+                                                                                                className="flex">
+                                                                                                <a href={item.href}
+                                                                                                   className="hover:text-secondary text-sm">
                                                                                                     {item.name}
                                                                                                 </a>
                                                                                             </li>
@@ -557,7 +637,7 @@ export default function Header() {
                                             onClick={() => setMobileMenuOpen(true)}
                                         >
                                             <span className="sr-only">Open menu</span>
-                                            <Bars3Icon className="h-6 w-6" aria-hidden="true" />
+                                            <Bars3Icon className="h-6 w-6" aria-hidden="true"/>
                                         </button>
 
                                         {/* Search */}
@@ -567,12 +647,13 @@ export default function Header() {
                                             className="ml-2 p-2 text-gray-400 hover:text-gray-500"
                                         >
                                             <span className="sr-only">Search</span>
-                                            <MagnifyingGlassIcon className="h-6 w-6" aria-hidden="true" />
+                                            <MagnifyingGlassIcon className="h-6 w-6" aria-hidden="true"/>
                                         </button>
 
                                         {/* Search Modal */}
                                         {searchModalOpen && (
-                                            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+                                            <div
+                                                className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
                                                 <div className="bg-white p-4 rounded-lg w-full max-w-md">
                                                     <div className="flex items-center">
                                                         <input
@@ -682,7 +763,7 @@ export default function Header() {
                                                     {cartHovered && (
                                                         <div
                                                             className="absolute right-0  w-80 bg-white shadow-lg z-10 rounded-lg">
-                                                            <div className="p-4">
+                                                            <div className="p-4 bg-altBackground">
                                                                 <h2 className="text-lg font-semibold mb-4">Shopping
                                                                     Cart</h2>
                                                                 {cartProducts.length > 0 ? (
@@ -715,7 +796,8 @@ export default function Header() {
                                                                 )}
 
                                                                 <Link to="/checkout">
-                                                                    <button className="mt-4 w-full bg-primary text-white py-2 px-4 rounded-md hover:bg-primary-dark">
+                                                                    <button
+                                                                        className="mt-4 w-full bg-newColor text-white py-2 px-4 rounded-md hover:bg-primary-dark">
                                                                         Checkout
                                                                     </button>
                                                                 </Link>
@@ -734,16 +816,31 @@ export default function Header() {
                                             <span className="mx-4 h-6 w-px bg-gray-200 lg:mx-6" aria-hidden="true"/>
 
                                             <div className=" flow-root relative lg:hidden">
-                                                <Link
-                                                    to="/dashboard">
-                                                    <button className="group  flex items-center pt-2 pb-2">
-                                                        <UserIcon
-                                                            className="h-6 w-6 flex-shrink-0 text-gray-400 group-hover:text-gray-500"
-                                                            aria-hidden="true"/>
-                                                        <span
-                                                            className="sr-only">Account</span>
-                                                    </button>
-                                                </Link>
+                                                {localStorage.getItem('isLoggedIn') === 'true' ? (
+                                                    <Link
+                                                        to="/dashboard">
+                                                        <button className="group  flex items-center pt-2 pb-2">
+                                                            <UserIcon
+                                                                className="h-6 w-6 flex-shrink-0 text-gray-400 group-hover:text-gray-500"
+                                                                aria-hidden="true"/>
+                                                            <span
+                                                                className="sr-only">Account</span>
+                                                        </button>
+                                                    </Link>
+                                                    ):(
+                                                        <Link
+                                                            to="/login">
+                                                            <button className="group  flex items-center pt-2 pb-2">
+                                                                <UserIcon
+                                                                    className="h-6 w-6 flex-shrink-0 text-gray-400 group-hover:text-gray-500"
+                                                                    aria-hidden="true"/>
+                                                                <span
+                                                                    className="sr-only">Account</span>
+                                                            </button>
+                                                        </Link>
+                                                    )
+                                                }
+
                                             </div>
 
                                             {/* User account */}

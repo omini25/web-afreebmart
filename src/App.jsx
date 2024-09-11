@@ -36,8 +36,11 @@ import {ContactPage} from "./pages/Landing/ContactPage.jsx";
 import Vendors from "./pages/Landing/Vendors.jsx";
 import {VendorGuide} from "./pages/Landing/VendorGuide.jsx";
 import LogisticsPartner from "./pages/Landing/LogisticsPartner.jsx";
-import {Compensation} from "./pages/Landing/Compensation.jsx";
+import Compensation from "./pages/Landing/Compensation.jsx";
 import {Faq} from "./pages/Landing/Faq.jsx";
+import {MakeAReport} from "./pages/Landing/MakeAReport.jsx";
+import {Careers} from "./pages/Landing/Careers.jsx";
+import VendorProducts from "./pages/Products/VendorProducts.jsx";
 
 const App = () => {
     return (
@@ -51,13 +54,13 @@ const App = () => {
                 <Route path="/product/:productName" element={<Product />} />
                 <Route path="/cart" element={<Cart />} />
                 <Route path="/checkout" element={<Checkout />} />
-                <Route path="/order-confirmed" element={<OrderConfirmed />} />
+                <Route path="/order-successful" element={<OrderConfirmed />} />
                 <Route path="/wishlist" element={<Wishlist />} />
                 <Route path="/account" element={<Account />} />
                 <Route path="/register" element={<Register />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/password-reset" element={<PasswordReset />} />
-                <Route path="/password-change" element={<PasswordChange />} />
+                <Route path="/password-reset-success" element={<PasswordChange />} />
                 <Route path="/email-confirmation" element={<EmailConfirmation />} />
                 <Route path="/category/:categoryName" element={<MainShop />} />
                 <Route path="/subcategory/:subcategoryName" element={<SubCategory />} />
@@ -71,6 +74,7 @@ const App = () => {
                 <Route path="/address" element={<Addresses />} />
                 <Route path="*" element={<NotFound />} />
                 <Route path="/invoice/:invoiceId" element={<Invoice />} />
+                <Route path="/vendor/products/:vendorId" element={<VendorProducts />} />
 
                 {/* Landing Pages */}
 
@@ -86,6 +90,8 @@ const App = () => {
                 <Route path="/logistics-partner" element={<LogisticsPartner />} />
                 <Route path="/compensation" element={<Compensation />} />
                 <Route path="/faq" element={<Faq />} />
+                <Route path="/make-a-report" element={<MakeAReport />} />
+                <Route path="/careers" element={<Careers />} />
 
             </Routes>
         </Router>

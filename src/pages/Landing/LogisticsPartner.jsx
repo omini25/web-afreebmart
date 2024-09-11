@@ -1,12 +1,7 @@
-import { useState } from 'react'
-import { Dialog } from '@headlessui/react'
 import {
-    ArrowPathIcon,
-    Bars3Icon,
-    CloudArrowUpIcon,
-    FingerPrintIcon,
-    LockClosedIcon,
-    XMarkIcon,
+    ArrowsRightLeftIcon,
+    UserGroupIcon,
+    BanknotesIcon,
 } from '@heroicons/react/24/outline'
 import Header from "../../components/Header.jsx";
 import Footer from "../../components/Footer.jsx";
@@ -16,19 +11,19 @@ const features = [
         name: 'Flexible Schedule',
         description:
             'Work on your schedule and availability, allowing you to balance work and personal commitments.',
-        icon: CloudArrowUpIcon,
+        icon: ArrowsRightLeftIcon,
     },
     {
         name: 'Earn Competitive Income',
         description:
             'Enjoy competitive earnings and incentives based on the number of deliveries completed.',
-        icon: LockClosedIcon,
+        icon: BanknotesIcon,
     },
     {
         name: 'Join A Growing Network',
         description:
             'Be part of a rapidly growing logistics network, connecting suppliers, vendors, and consumers seamlessly.',
-        icon: ArrowPathIcon,
+        icon: UserGroupIcon,
     },
 ]
 
@@ -67,10 +62,6 @@ const faqs = [
 ]
 
 
-function classNames(...classes) {
-    return classes.filter(Boolean).join(' ')
-}
-
 export default function LogisticsPartner() {
 
     return (
@@ -80,7 +71,7 @@ export default function LogisticsPartner() {
 
             <main className="isolate">
                 {/* Hero section */}
-                <div className="relative pt-14">
+                <div className="relative pt-2">
                     <div className="py-24 sm:py-32">
                         <div className="mx-auto max-w-7xl px-6 lg:px-8">
                             <div className="mx-auto max-w-2xl text-center">
@@ -114,7 +105,7 @@ export default function LogisticsPartner() {
                             {features.map((feature) => (
                                 <div key={feature.name} className="relative pl-16">
                                     <dt className="text-base font-semibold leading-7 text-gray-900">
-                                        <div className="absolute left-0 top-0 flex h-10 w-10 items-center justify-center rounded-lg bg-indigo-600">
+                                        <div className="absolute left-0 top-0 flex h-10 w-10 items-center justify-center rounded-lg bg-newColor">
                                             <feature.icon className="h-6 w-6 text-white" aria-hidden="true" />
                                         </div>
                                         {feature.name}
@@ -128,8 +119,8 @@ export default function LogisticsPartner() {
 
 
                 {/* FAQs */}
-                <div className="mx-auto max-w-2xl divide-y divide-gray-900/10 px-6 pb-8 sm:pb-24 sm:pt-12 lg:max-w-7xl lg:px-8 lg:pb-32">
-                    <h2 className="text-2xl font-bold leading-10 tracking-tight text-gray-900">Frequently asked questions</h2>
+                <div className="mx-auto max-w-2xl divide-y divide-gray-900/10 px-6 pb-8 sm:pb-24 sm:pt-12 lg:max-w-7xl lg:px-8 lg:pb-32 mt-12">
+                    <h2 className="text-2xl font-bold leading-10 tracking-tight text-gray-900">How to Get Started</h2>
                     <dl className="mt-10 space-y-8 divide-y divide-gray-900/10">
                         {faqs.map((faq) => (
                             <div key={faq.id} className="pt-8 lg:grid lg:grid-cols-12 lg:gap-8">
@@ -143,13 +134,13 @@ export default function LogisticsPartner() {
                 </div>
 
                 {/* CTA section */}
-                <div className="relative -z-10 mt-32 px-6 lg:px-8">
+                <div className="mx-auto max-w-7xl px-6 lg:px-8">
 
-                    <div className="mx-auto max-w-2xl text-center">
+                    <div className="">
                         <h2 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
                             Join Us
                         </h2>
-                        <p className="mx-auto mt-6 max-w-xl text-lg leading-8 text-gray-600">
+                        <p className="mx-auto mt-6 text-lg leading-8 text-gray-600">
                             Ready to embark on an exciting journey as a logistics partner with Afreebmart Logistics? Sign up now and be part of delivering freshness and quality to our customers while enjoying the benefits of flexibility and competitive earnings.
                             For any inquiries or assistance during the registration process, please contact us at info@logistics.afreebmart.com or through our app's support feature.
                         </p>

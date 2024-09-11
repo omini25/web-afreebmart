@@ -15,30 +15,16 @@ export default function Index() {
             <ProductListing/>
 
             {/* Sale and testimonials */}
-            <div className="relative overflow-hidden">
-                {/* Decorative background image and gradient */}
-                <div aria-hidden="true" className="absolute inset-0">
-                    <div className="absolute inset-0 mx-auto max-w-7xl overflow-hidden xl:px-8">
-                        <img
-                            src="https://tailwindui.com/img/ecommerce-images/home-page-02-sale-full-width.jpg"
-                            alt=""
-                            className="h-full w-full object-cover object-center"
-                        />
-                    </div>
-                    <div className="absolute inset-0 bg-white bg-opacity-75" />
-                    <div className="absolute inset-0 bg-gradient-to-t from-white via-white" />
-                </div>
+            <div className="relative pt-7 pb-7 bg-backgroundDark">
+
 
                 {/* Sale */}
-                <section
-                    aria-labelledby="sale-heading"
-                    className="relative mx-auto  items-center px-4 -mt-50 -mb-5 text-center sm:px-6 lg:px-8 bg-backgroundDark"
-                >
-                    <div className="mx-auto max-w-2xl lg:max-w-none">
-                        <h2 id="sale-heading" className="text-4xl font-bold tracking-tight text-gray-900 sm:text-5xl lg:text-6xl">
+
+                    <div className="mx-auto max-w-2xl lg:max-w-none text-center">
+                        <h6  className="text font-bold tracking-tight text-btnprimary sm:text-xl lg:text-2xl ">
                             Amazing Products Just For You
-                        </h2>
-                        <p className="mx-auto mt-4 max-w-xl text-xl text-gray-600">
+                        </h6>
+                        <p className="mx-auto mt-4 max-w-xl text text-gray-600">
                             Find out what we offer from regular products to buying with friends and family using our group product option
                         </p>
                         {/*<a*/}
@@ -48,7 +34,6 @@ export default function Index() {
                         {/*    Get access to our one-time sale*/}
                         {/*</a>*/}
                     </div>
-                </section>
 
             </div>
 

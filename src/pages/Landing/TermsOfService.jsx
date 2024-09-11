@@ -5,9 +5,9 @@ export function TermsOfService() {
     return (
         <>
             <Header />
-            <div className="bg-gray-100 ">
-                <div className="container mx-auto px-40 py-8">
-                    <h1 className="text-3xl font-bold mb-4">Terms And Conditions</h1>
+            <div className="bg-white ">
+                <div className="mx-auto max-w-7xl px-6 lg:px-8 mt-12">
+                    <h1 className="text-6xl font-bold mb-4">Terms And Conditions</h1>
                     <p className="mb-4">
                         Welcome to Afreebmart! These Terms and Conditions ("Terms") govern your use of the Afreebmart website and mobile application (collectively referred to as the "Platform") operated by Afreebmart. By accessing or using our Platform, you agree to comply with these Terms. Please read them carefully before proceeding.
                     </p>

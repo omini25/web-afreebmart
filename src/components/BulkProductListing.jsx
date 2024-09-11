@@ -48,25 +48,20 @@ export default function BulkProductListing() {
         return product.category.toLowerCase() === activeTab.toLowerCase();
     });
 
-
-
-
-    console.log(filteredProducts);
-
     return (
         <div className="bg-white">
             <div className="mx-auto max-w-2xl px-4 py-16 sm:px-6 sm:py-24 lg:max-w-7xl lg:px-8">
-                <div className="flex justify-between items-center sm:items-center ">
+                <div className="flex justify-between items-center sm:items-center mb-8">
                     <div className="flex items-center justify-between mb-4 sm:mb-0">
-                        <h1 className="text-2xl font-bold">Group Products</h1>
-                        <div className="sm:hidden">
+                        <h1 className="text-2xl font-bold">Main Products</h1>
+                        <div className="sm:hidden mx-5">
                             <label htmlFor="tabs" className="sr-only">
                                 Select a tab
                             </label>
                             <select
                                 id="tabs"
                                 name="tabs"
-                                className="block w-full rounded-md border-gray-300 focus:border-indigo-500 focus:ring-indigo-500"
+                                className="block w-full rounded-md border-gray-300 focus:border-newColor focus:ring-newColor"
                                 value={activeTab}
                                 onChange={(e) => handleTabClick(e.target.value)}
                             >
@@ -87,8 +82,8 @@ export default function BulkProductListing() {
                                 key={tab.name}
                                 href={tab.href}
                                 className={classNames(
-                                    tab.name === activeTab ? 'bg-indigo-100 text-indigo-700' : 'text-gray-500 hover:text-gray-700',
-                                    'rounded-md px-3 py-2 text-sm font-medium'
+                                    tab.name === activeTab ? 'bg-newColor text-white' : 'text-gray-500 hover:text-gray-700',
+                                    'rounded-md px-3 py-2 text-m font-medium'
                                 )}
                                 onClick={() => handleTabClick(tab.name)}
                                 aria-current={tab.name === activeTab ? 'page' : undefined}
@@ -110,7 +105,7 @@ export default function BulkProductListing() {
             <div className="flex justify-center">
                 <a
                     href="/shop"
-                    className="mt-8 inline-block rounded-md border border-transparent bg-primary px-8 py-3 text-base font-medium text-gray-900 hover:bg-gray-100"
+                    className="mt-8 inline-block rounded-md border border-transparent bg-newColor px-8 py-3 text-base font-medium text-gray-900 hover:bg-gray-100"
                 >
                     View All Group Products
                 </a>

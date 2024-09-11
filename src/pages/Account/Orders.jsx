@@ -12,7 +12,7 @@ import Header from "../../components/Header.jsx";
 import axios from "axios";
 import {server} from "../../Server.js";
 import {assetServer} from "../../assetServer.js";
-import {Link} from "react-router-dom";
+import {Link, useNavigate} from "react-router-dom";
 import {useShoppingHooks} from "../../redux/useShoppingHooks.js";
 import {toast} from "react-toastify";
 
@@ -36,11 +36,22 @@ export default function Orders() {
     const [isLoading, setIsLoading] = useState(true);
     const user = JSON.parse(localStorage.getItem('user')) || {};
     const { addProductToCart } = useShoppingHooks();
+    const navigate = useNavigate();
+
+    useEffect(() => {
+        // Check if localStorage.isLoggedIn is true
+        if (localStorage.getItem('isLoggedIn') === 'false') {
+            // Redirect to /dashboard
+            navigate('/login');
+            // Show a toast notification
+            toast.warning('You need to login to access the page');
+        }
+    }, []);
 
     useEffect(() => {
         const fetchOrders = async () => {
             try {
-                const response = await axios(`${server}/order/${user.id}`);
+                const response = await axios.get(`${server}/order/${user.id}`);
                 const data = response.data.orders;
                 setOrders(data);
             } catch (error) {
@@ -51,6 +62,8 @@ export default function Orders() {
 
         fetchOrders();
     }, []);
+
+    console.log(orders)
 
     if (isLoading) return (
         <div className="flex items-center justify-center h-screen">

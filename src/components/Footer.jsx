@@ -1,6 +1,7 @@
 import logo from '../assets/images/afreemart-logo.png';
 import styles from "../styles/styles.js";
 import {brandingData} from "../static/data.jsx";
+import {FeatureCards} from "./FeatureCards.jsx";
 
 
 const navigation = {
@@ -12,12 +13,12 @@ const navigation = {
     ],
     support: [
         { name: 'FAQs', href: '/faq' },
-        { name: 'Make a Report', href: '#' },
+        { name: 'Make a Report', href: '/make-a-report' },
         { name: 'Contact Us', href: '/contact' },
     ],
     company: [
         { name: 'About', href: '/about' },
-        { name: 'Careers', href: '#' },
+        { name: 'Careers', href: '/careers' },
     ],
     legal: [
         { name: 'Return Policy', href: '/return-policy' },
@@ -69,28 +70,8 @@ export default function Footer() {
     return (
 
         <>
-            <div className={`${styles.section} hidden sm:block flex justify-between items-center sm:items-center mx-auto max-w-2xl px-4 sm:px-6 lg:max-w-7xl lg:px-8`}>
-                <div className={`branding my-12 flex justify-between w-full shadow bg-white p-5 rounded-md`}>
-                    {
-                        brandingData && brandingData.map((i, index) => {
-                            return (
-                                <div className={`flex items-start`} key={index}>
-                                    {i.icon}
-                                    <div className={`px-3`}>
-                                        <h3 className={`font-bold text-sm md:text-base`}>
-                                            {i.title}
-                                        </h3>
-                                        <p className={`text-xs md:text-sm`}>
-                                            {i.Description}
-                                        </p>
-                                    </div>
-                                </div>
-                            )
-                        })
-                    }
 
-                </div>
-            </div>
+            <FeatureCards />
 
             <footer className="bg-backgroundDark" aria-labelledby="footer-heading">
                 <h2 id="footer-heading" className="sr-only">
@@ -104,7 +85,7 @@ export default function Footer() {
                                 alt="Afreebmart"
                                 className="h-16 w-auto"
                             />
-                            <p className="text-sm leading-6 text-gray-600">
+                            <p className="text leading-6 text-gray-600">
                                 Fresh, high-quality agricultural food items sourced directly from trusted vendors and suppliers.
                             </p>
                             <div className="flex space-x-6">
@@ -119,11 +100,11 @@ export default function Footer() {
                         <div className="mt-16 grid grid-cols-2 gap-8 xl:col-span-2 xl:mt-0">
                             <div className="md:grid md:grid-cols-2 md:gap-8">
                                 <div>
-                                    <h3 className="text-sm font-semibold leading-6 text-gray-900">Solutions</h3>
+                                    <h3 className="text-xl font-semibold leading-6 text-newColor">Solutions</h3>
                                     <ul role="list" className="mt-6 space-y-4">
                                         {navigation.solutions.map((item) => (
                                             <li key={item.name}>
-                                                <a href={item.href} className="text-sm leading-6 text-gray-600 hover:text-gray-900">
+                                                <a href={item.href} className="text leading-6 text-gray-600 hover:text-newColor">
                                                     {item.name}
                                                 </a>
                                             </li>
@@ -131,11 +112,11 @@ export default function Footer() {
                                     </ul>
                                 </div>
                                 <div className="mt-10 md:mt-0">
-                                    <h3 className="text-sm font-semibold leading-6 text-gray-900">Support</h3>
+                                    <h3 className="text-xl font-semibold leading-6 text-newColor">Support</h3>
                                     <ul role="list" className="mt-6 space-y-4">
                                         {navigation.support.map((item) => (
                                             <li key={item.name}>
-                                                <a href={item.href} className="text-sm leading-6 text-gray-600 hover:text-gray-900">
+                                                <a href={item.href} className="text leading-6 text-gray-600 hover:text-newColor">
                                                     {item.name}
                                                 </a>
                                             </li>
@@ -145,11 +126,11 @@ export default function Footer() {
                             </div>
                             <div className="md:grid md:grid-cols-2 md:gap-8">
                                 <div>
-                                    <h3 className="text-sm font-semibold leading-6 text-gray-900">Company</h3>
+                                    <h3 className="text-xl font-semibold leading-6 text-newColor">Company</h3>
                                     <ul role="list" className="mt-6 space-y-4">
                                         {navigation.company.map((item) => (
                                             <li key={item.name}>
-                                                <a href={item.href} className="text-sm leading-6 text-gray-600 hover:text-gray-900">
+                                                <a href={item.href} className="text leading-6 text-gray-600 hover:text-newColor">
                                                     {item.name}
                                                 </a>
                                             </li>
@@ -157,11 +138,11 @@ export default function Footer() {
                                     </ul>
                                 </div>
                                 <div className="mt-10 md:mt-0">
-                                    <h3 className="text-sm font-semibold leading-6 text-gray-900">Legal</h3>
+                                    <h3 className="text-xl font-semibold leading-6 text-newColor">Legal</h3>
                                     <ul role="list" className="mt-6 space-y-4">
                                         {navigation.legal.map((item) => (
                                             <li key={item.name}>
-                                                <a href={item.href} className="text-sm leading-6 text-gray-600 hover:text-gray-900">
+                                                <a href={item.href} className="text leading-6 text-gray-600 hover:text-newColor">
                                                     {item.name}
                                                 </a>
                                             </li>

@@ -8,7 +8,8 @@ import Header from "../../components/Header.jsx";
 import {useEffect, useState} from "react";
 import axios from "axios";
 import {server} from "../../Server.js";
-import {Link} from "react-router-dom";
+import {Link, useNavigate} from "react-router-dom";
+import {toast} from "react-toastify";
 
 
 const secondaryNavigation = [
@@ -29,6 +30,17 @@ export default function Payments() {
     const [plans, setPlans] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
     const user = JSON.parse(localStorage.getItem('user')) || {};
+    const navigate = useNavigate();
+
+    useEffect(() => {
+        // Check if localStorage.isLoggedIn is true
+        if (localStorage.getItem('isLoggedIn') === 'false') {
+            // Redirect to /dashboard
+            navigate('/login');
+            // Show a toast notification
+            toast.warning('You need to login to access the page');
+        }
+    }, []);
 
 
     useEffect(() => {

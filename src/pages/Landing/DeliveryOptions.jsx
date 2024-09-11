@@ -3,6 +3,7 @@ import Header from "../../components/Header.jsx";
 import Footer from "../../components/Footer.jsx";
 import { Disclosure } from '@headlessui/react'
 import { MinusSmallIcon, PlusSmallIcon } from '@heroicons/react/24/outline'
+import deliveryhero from "../../assets/images/landing/delivery.jpg"
 
 const faqs = [
     {
@@ -89,69 +90,39 @@ export function DeliveryOptions() {
         <>
             <Header/>
             <div className="bg-white">
-                <div className="relative isolate overflow-hidden bg-gradient-to-b from-indigo-100/20">
-                    <div
-                        className="mx-auto max-w-7xl pb-24 pt-10 sm:pb-32 lg:grid lg:grid-cols-2 lg:gap-x-8 lg:px-8 lg:py-40">
-                        <div className="px-6 lg:px-0 lg:pt-4">
-                            <div className="mx-auto max-w-2xl">
-                                <div className="max-w-lg">
-
-                                    <h3 className="mt-10 text-4xl font-bold tracking-tight text-gray-900 sm:text-6xl">
-                                        Delivery Options and Timeline at Afreebmart
-                                    </h3>
-                                    <p className="mt-6 text-lg leading-8 text-gray-600">
-                                        Welcome to Afreebmart's Delivery Options and Timeline page. Here, we provide detailed information about our delivery services, including available options, delivery areas, timelines, and related policies.
+                <div className="relative isolate overflow-hidden bg-gradient-to-b from-indigo-100/20 pt-24">
+                    <div className="mx-auto max-w-7xl px-6 lg:px-8">
+                        <div
+                            className="mx-auto max-w-2xl lg:mx-0 lg:grid lg:max-w-none lg:grid-cols-2 lg:gap-x-16 lg:gap-y-6">
+                            {/* Text content */}
+                            <div>
+                                <h1 className="max-w-2xl text-4xl font-bold tracking-tight text-gray-900 sm:text-6xl">
+                                    Delivery Options and Timeline at Afreebmart
+                                </h1>
+                                <div className="mt-6 max-w-xl">
+                                    <p className="text-lg leading-8 text-gray-600">
+                                        Welcome to Afreebmart's Delivery Options and Timeline page. Here, we provide
+                                        detailed information about our delivery services, including available options,
+                                        delivery areas, timelines, and related policies.
                                     </p>
                                 </div>
                             </div>
-                        </div>
-                        <div className="mt-20 sm:mt-24 md:mx-auto md:max-w-2xl lg:mx-0 lg:mt-0 lg:w-screen">
-                            <div
-                                className="absolute inset-y-0 right-1/2 -z-10 -mr-10 w-[200%] skew-x-[-30deg] bg-white shadow-xl shadow-indigo-600/10 ring-1 ring-indigo-50 md:-mr-20 lg:-mr-36"
-                                aria-hidden="true"
-                            />
-                            <div className="shadow-lg md:rounded-3xl">
-                                <div
-                                    className="bg-indigo-500 [clip-path:inset(0)] md:[clip-path:inset(0_round_theme(borderRadius.3xl))]">
-                                    <div
-                                        className="absolute -inset-y-px left-1/2 -z-10 ml-10 w-[200%] skew-x-[-30deg] bg-indigo-100 opacity-20 ring-1 ring-inset ring-white md:ml-20 lg:ml-36"
-                                        aria-hidden="true"
-                                    />
-                                    <div className="relative px-6 pt-8 sm:pt-16 md:pl-16 md:pr-0">
-                                        <div className="mx-auto max-w-2xl md:mx-0 md:max-w-none">
-                                            <div className="w-screen overflow-hidden rounded-tl-xl bg-gray-900">
-                                                <div className="flex bg-gray-800/40 ring-1 ring-white/5">
-                                                    <div
-                                                        className="-mb-px flex text-sm font-medium leading-6 text-gray-400">
-                                                        <div
-                                                            className="border-b border-r border-b-white/20 border-r-white/10 bg-white/5 px-4 py-2 text-white">
-                                                            NotificationSetting.jsx
-                                                        </div>
-                                                        <div className="border-r border-gray-600/10 px-4 py-2">App.jsx
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div className="px-6 pb-14 pt-6">{/* Your code example */}</div>
-                                            </div>
-                                        </div>
-                                        <div
-                                            className="pointer-events-none absolute inset-0 ring-1 ring-inset ring-black/10 md:rounded-3xl"
-                                            aria-hidden="true"
-                                        />
-                                    </div>
-                                </div>
+                            {/* Image */}
+                            <div className="mt-10 sm:mt-16 lg:mt-0">
+                                <img
+                                    src={deliveryhero}
+                                    alt=""
+                                    className="aspect-[6/5] w-full max-w-lg rounded-2xl object-cover"
+                                />
                             </div>
                         </div>
                     </div>
-                    <div className="absolute inset-x-0 bottom-0 -z-10 h-24 bg-gradient-to-t from-white sm:h-32"/>
                 </div>
             </div>
 
             <div className="bg-white">
-                <div className="mx-auto max-w-7xl px-6 lg:px-8 lg:py-40">
+                <div className="mx-auto max-w-7xl px-6 lg:px-8">
                     <div className="mx-auto max-w-4xl divide-y divide-gray-900/10">
-                        <h2 className="text-2xl font-bold leading-10 tracking-tight text-gray-900">Frequently asked
-                            questions</h2>
                         <dl className="mt-10 space-y-6 divide-y divide-gray-900/10">
                             {faqs.map((faq) => (
                                 <Disclosure as="div" key={faq.title} className="pt-6">
@@ -189,10 +160,13 @@ export function DeliveryOptions() {
                     </div>
                 </div>
 
-                <div className="mx-auto max-w-2xl lg:mx-0 mt-12">
+                <div className="mx-auto max-w-7xl px-6 lg:px-8 mt-10">
                     <h5 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">Contact Us</h5>
                     <p className="mt-6 text-lg leading-8 text-gray-600">
-                        If you have any questions, need assistance with delivery options, or have special delivery requests, please contact our customer support team at <a href="mailto:support@afreebmart.com"> support@afreebmart.com</a>. We are here to ensure a smooth and convenient delivery experience for you at Afreebmart.
+                        If you have any questions, need assistance with delivery options, or have special delivery
+                        requests, please contact our customer support team at <a
+                        href="mailto:support@afreebmart.com"> support@afreebmart.com</a>. We are here to ensure a smooth
+                        and convenient delivery experience for you at Afreebmart.
                         Thank you for choosing Afreebmart. We look forward to delivering freshness to your doorstep!
                     </p>
                 </div>

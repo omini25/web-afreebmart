@@ -1,9 +1,12 @@
-import { useState } from 'react';
+import {useEffect, useState} from 'react';
 import { useDispatch } from 'react-redux';
-import { setUser } from '../redux/userSlice'; // Assume this action is defined in userSlice.js
+import { setUser } from '../redux/userSlice';
 import axios from 'axios';
 import {server} from "../Server.js";
-import GoogleLoginButton from "../components/GoogleLoginButton.jsx"; // Make sure to install axios
+import GoogleLoginButton from "../components/GoogleLoginButton.jsx";
+import {useNavigate} from "react-router-dom";
+import {toast} from "react-toastify";
+import afreeblogo from '../assets/images/afreemart-logo.png';
 
 export default function Register() {
     const [formData, setFormData] = useState({
@@ -13,6 +16,18 @@ export default function Register() {
         password: '',
         confirmPassword: '',
     });
+
+    useEffect(() => {
+        // Check if localStorage.isLoggedIn is true
+        if (localStorage.getItem('isLoggedIn') === 'true') {
+            // Redirect to /dashboard
+            navigate('/dashboard');
+            // Show a toast notification
+            toast.success('You are already logged in!');
+        }
+    }, []);
+    
+    const navigate = useNavigate();
 
     const dispatch = useDispatch();
 
@@ -24,15 +39,19 @@ export default function Register() {
         e.preventDefault();
         try {
             const response = await axios.post(`${server}/register`, formData);
-            if (response.data.success) {
+            if (response.data) {
+                // 1. Update Redux store and local storage FIRST
                 dispatch(setUser(response.data.user));
                 localStorage.setItem('user', JSON.stringify(response.data.user));
                 localStorage.setItem('isLoggedIn', 'true');
-                // Redirect or update UI as needed
+
+                toast.success('Registration successful!')
+
+                // 2. THEN navigate AFTER state updates
+                navigate('/');
             }
         } catch (error) {
             console.error('Registration failed:', error);
-            // Handle error (e.g., show error message to user)
         }
     };
 
@@ -43,7 +62,7 @@ export default function Register() {
                     <a href="/">
                         <img
                             className="mx-auto h-10 w-auto"
-                            src="../assets/images/afreemart-logo.png"
+                            src={afreeblogo}
                             alt="Afreebmart"
                         />
                     </a>
@@ -54,7 +73,7 @@ export default function Register() {
                     <p className="mt-2 text-center text-sm leading-6 text-gray-600">
                         Already have an account?
                         {' '}
-                        <a href="/login" className="font-semibold leading-6 text-indigo-600 hover:text-indigo-500">
+                        <a href="/login" className="font-semibold leading-6 text-primary hover:text-secondary">
                             Log in
                         </a>
                     </p>
@@ -75,7 +94,7 @@ export default function Register() {
                                         type="text"
                                         autoComplete="name"
                                         required
-                                        className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                                        className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-primary sm:text-sm sm:leading-6"
                                         value={formData.name}
                                         onChange={handleChange}
                                     />
@@ -93,7 +112,7 @@ export default function Register() {
                                         type="email"
                                         autoComplete="email"
                                         required
-                                        className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                                        className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-primary sm:text-sm sm:leading-6"
                                         value={formData.email}
                                         onChange={handleChange}
                                     />
@@ -112,7 +131,7 @@ export default function Register() {
                                         type="phone"
                                         autoComplete="phone"
                                         required
-                                        className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                                        className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-primary sm:text-sm sm:leading-6"
                                         value={formData.phone}
                                         onChange={handleChange}
                                     />
@@ -130,7 +149,7 @@ export default function Register() {
                                         type="password"
                                         autoComplete="current-password"
                                         required
-                                        className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                                        className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-primary sm:text-sm sm:leading-6"
                                         value={formData.password}
                                         onChange={handleChange}
                                     />
@@ -138,17 +157,17 @@ export default function Register() {
                             </div>
 
                             <div>
-                                <label htmlFor="password" className="block text-sm font-medium leading-6 text-gray-900">
+                                <label htmlFor="confirmpassword" className="block text-sm font-medium leading-6 text-gray-900">
                                     Confirm Password
                                 </label>
                                 <div className="mt-2">
                                     <input
-                                        id="password"
-                                        name="password"
+                                        id="confirmPassword"
+                                        name="confirmPassword"
                                         type="password"
-                                        autoComplete="current-password"
+                                        autoComplete="new-password"
                                         required
-                                        className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                                        className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-primary sm:text-sm sm:leading-6"
                                         value={formData.confirmPassword}
                                         onChange={handleChange}
                                     />
@@ -158,7 +177,7 @@ export default function Register() {
                             <div>
                                 <button
                                     type="submit"
-                                    className="flex w-full justify-center rounded-md bg-primary px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+                                    className="flex w-full justify-center rounded-md bg-primary px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-secondary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
                                 >
                                     Sign Up
                                 </button>
@@ -176,31 +195,31 @@ export default function Register() {
                             </div>
 
                             <div className="mt-6 grid grid-cols-2 gap-4">
-                                <GoogleLoginButton />
+                                <GoogleLoginButton/>
 
-                                <a
-                                    href="#"
-                                    className="flex w-full items-center justify-center gap-3 rounded-md bg-[#1877F2] px-3 py-1.5 text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1877F2]"
-                                >
-                                    <svg className="h-5 w-5" aria-hidden="true" fill="currentColor" viewBox="0 0 24 24">
-                                        <path
-                                            d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
-                                    </svg>
-                                    <span className="text-sm font-semibold leading-6">Facebook</span>
-                                </a>
+                                {/*<a*/}
+                                {/*    href="#"*/}
+                                {/*    className="flex w-full items-center justify-center gap-3 rounded-md bg-[#1877F2] px-3 py-1.5 text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1877F2]"*/}
+                                {/*>*/}
+                                {/*    <svg className="h-5 w-5" aria-hidden="true" fill="currentColor" viewBox="0 0 24 24">*/}
+                                {/*        <path*/}
+                                {/*            d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>*/}
+                                {/*    </svg>*/}
+                                {/*    <span className="text-sm font-semibold leading-6">Facebook</span>*/}
+                                {/*</a>*/}
                             </div>
                         </div>
                     </div>
 
                     <p className="mt-10 text-center text-sm text-gray-500">
                         By clicking sign up you agree to our{' '}
-                        <a href="#" className="font-semibold leading-6 text-indigo-600 hover:text-indigo-500">
+                        <a href="#" className="font-semibold leading-6 text-primary hover:text-secondary">
                             Terms
                         </a>
                         {' '}
                         and
                         {' '}
-                        <a href="#" className="font-semibold leading-6 text-indigo-600 hover:text-indigo-500">
+                        <a href="#" className="font-semibold leading-6 text-primary hover:text-secondary">
                             Privacy Policy
                         </a>
                     </p>

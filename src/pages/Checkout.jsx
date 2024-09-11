@@ -5,7 +5,7 @@ import { loadStripe } from '@stripe/stripe-js';
 import { toast } from 'react-toastify';
 import Header from "../components/Header.jsx";
 import Footer from "../components/Footer.jsx";
-import { Link } from "react-router-dom";
+import {Link, useNavigate} from "react-router-dom";
 import {server} from "../Server.js";
 import {assetServer} from "../assetServer.js";
 
@@ -16,17 +16,28 @@ export default function Checkout() {
     const [addresses, setAddresses] = useState([]);
     const [selectedAddress, setSelectedAddress] = useState(null);
     const [showAddressForm, setShowAddressForm] = useState(false);
-    const [newAddress, setNewAddress] = useState({ country: '', address: '', street: '', city: '', state: '', zip_code: '' });
+    const [newAddress, setNewAddress] = useState({ country: 'USA', address: '', street: '', city: '', state: '', zip_code: '' });
     const [sameAsBilling, setSameAsBilling] = useState(true);
     const [billingAddress, setBillingAddress] = useState(null);
-    const [selectedCountry, setSelectedCountry] = useState('');
+    // const [selectedCountry, setSelectedCountry] = useState('');
+    const [country, setCountry] = useState('');
+    const [tip, setTip] = useState(0);
+    const [couponCode, setCouponCode] = useState('');
+    const [discount, setDiscount] = useState({ code: '', amount: 0 });
     const user = JSON.parse(localStorage.getItem('user')) || {};
+    const navigate = useNavigate();
 
     const subtotal = cartItems.reduce((total, product) => total + parseFloat(product.price) * product.quantity, 0).toFixed(2);
-    const discount = { code: 'CHEAPSKATE', amount: 24.00 };
     const taxes = (subtotal * 0.05).toFixed(2);
     const shipping = 5.99;
-    const total = (parseFloat(subtotal) + parseFloat(taxes) + shipping - discount.amount).toFixed(2);
+    const total = (parseFloat(subtotal) + parseFloat(taxes) + shipping + parseFloat(tip) - discount.amount).toFixed(2);
+
+    useEffect(() => {
+        if (localStorage.getItem('isLoggedIn') === 'false') {
+            navigate('/login');
+            toast.warning('You need to login to access the page');
+        }
+    }, []);
 
 
     // Update cart items in real-time
@@ -73,11 +84,38 @@ export default function Checkout() {
             setAddresses([...addresses, response.data]);
             setSelectedAddress(response.data);
             setShowAddressForm(false);
-            setNewAddress({ country: '', address: '', street: '', city: '', state: '', zip_code: '' });
             toast.success('Address added successfully!');
+            window.location.reload();
+            // setNewAddress({ country: 'USA', address: '', street: '', city: '', state: '', zip_code: '' });
+
         } catch (error) {
             console.error('Failed to add address:', error);
             toast.error('Failed to add address. Please try again.');
+        }
+    };
+
+    const handleTipChange = (event) => {
+        const tipAmount = parseFloat(event.target.value) || 0;
+        setTip(tipAmount);
+    };
+
+    const handleCouponSubmit = async (event) => {
+        event.preventDefault();
+        if (!selectedAddress) {
+            toast.error('Please select a shipping address before proceeding to payment.');
+            return;
+        }
+        try {
+            const response = await axios.post(`${server}/apply-coupon`, { code: couponCode });
+            if (response.data.valid) {
+                setDiscount({ code: couponCode, amount: response.data.discount });
+                toast.success('Coupon applied successfully!');
+            } else {
+                toast.error('Invalid coupon code.');
+            }
+        } catch (error) {
+            console.error('Failed to apply coupon:', error);
+            toast.error('Failed to apply coupon. Please try again.');
         }
     };
 
@@ -95,6 +133,8 @@ export default function Checkout() {
             const response = await axios.post(`${server}/create-checkout-session`, {
                 productDetails,
                 user_id: user.id,
+                tip,
+                discount: discount.amount,
             });
 
             const { id: sessionId } = response.data;
@@ -186,6 +226,8 @@ export default function Checkout() {
                                                 type="text"
                                                 id="discount-code-mobile"
                                                 name="discount-code-mobile"
+                                                value={couponCode}
+                                                onChange={(e) => setCouponCode(e.target.value)}
                                                 className="block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm"
                                             />
                                             <button
@@ -207,6 +249,8 @@ export default function Checkout() {
                                                 type="text"
                                                 id="tip-code-mobile"
                                                 name="tip"
+                                                value={tip}
+                                                onChange={handleTipChange}
                                                 className="block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm"
                                             />
                                             <button
@@ -235,11 +279,11 @@ export default function Checkout() {
                                         </div>
                                         <div className="flex justify-between">
                                             <dt>Taxes</dt>
-                                            <dd className="text-gray-900">{taxes}</dd>
+                                            <dd className="text-gray-900">${taxes}</dd>
                                         </div>
                                         <div className="flex justify-between">
                                             <dt>Shipping</dt>
-                                            <dd className="text-gray-900">{shipping}</dd>
+                                            <dd className="text-gray-900">${shipping}</dd>
                                         </div>
                                     </dl>
                                 </Disclosure.Panel>
@@ -298,8 +342,8 @@ export default function Checkout() {
                     </ul>
 
                     <div className="sticky bottom-0 flex-none border-t border-gray-200 bg-gray-50 p-6">
-                        <form>
-                        <label htmlFor="discount-code" className="block text-sm font-medium text-gray-700">
+                        <form onSubmit={handleCouponSubmit}>
+                            <label htmlFor="discount-code" className="block text-sm font-medium text-gray-700">
                                 Discount code
                             </label>
                             <div className="mt-1 flex space-x-4">
@@ -307,6 +351,8 @@ export default function Checkout() {
                                     type="text"
                                     id="discount-code"
                                     name="discount-code"
+                                    value={couponCode}
+                                    onChange={(e) => setCouponCode(e.target.value)}
                                     className="block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm"
                                 />
                                 <button
@@ -319,22 +365,18 @@ export default function Checkout() {
                         </form>
 
                         <form>
-                        <label htmlFor="tip" className="block text-sm font-medium text-gray-700 mt-5">
+                            <label htmlFor="tip" className="block text-sm font-medium text-gray-700 mt-5">
                                 Tip
                             </label>
                             <div className="mt-1 flex space-x-4">
                                 <input
-                                    type="text"
+                                    type="number"
                                     id="tip"
                                     name="tip"
+                                    value={tip}
+                                    onChange={handleTipChange}
                                     className="block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm"
                                 />
-                                <button
-                                    type="submit"
-                                    className="rounded-md bg-gray-200 px-4 text-sm font-medium text-gray-600 hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-gray-50"
-                                >
-                                    Tip
-                                </button>
                             </div>
                         </form>
 
@@ -343,28 +385,34 @@ export default function Checkout() {
                                 <dt>Subtotal</dt>
                                 <dd className="text-gray-900">${subtotal}</dd>
                             </div>
-                            <div className="flex justify-between">
-                                <dt className="flex">
-                                    Discount
-                                    <span
-                                        className="ml-2 rounded-full bg-gray-200 px-2 py-0.5 text-xs tracking-wide text-gray-600">
-                                        {discount.code}
-                                      </span>
-                                </dt>
-                                <dd className="text-gray-900">-{discount.amount}</dd>
-                            </div>
+                            {discount.amount > 0 && (
+                                <div className="flex justify-between">
+                                    <dt className="flex">
+                                        Discount
+                                        <span
+                                            className="ml-2 rounded-full bg-gray-200 px-2 py-0.5 text-xs tracking-wide text-gray-600">
+                                            {discount.code}
+                                        </span>
+                                    </dt>
+                                    <dd className="text-gray-900">-${discount.amount.toFixed(2)}</dd>
+                                </div>
+                            )}
                             <div className="flex justify-between">
                                 <dt>Taxes</dt>
-                                <dd className="text-gray-900">{taxes}</dd>
+                                <dd className="text-gray-900">${taxes}</dd>
                             </div>
                             <div className="flex justify-between">
                                 <dt>Shipping</dt>
-                                <dd className="text-gray-900">{shipping}</dd>
+                                <dd className="text-gray-900">${shipping}</dd>
+                            </div>
+                            <div className="flex justify-between">
+                                <dt>Tip</dt>
+                                <dd className="text-gray-900">${tip.toFixed(2)}</dd>
                             </div>
                             <div
                                 className="flex items-center justify-between border-t border-gray-200 pt-6 text-gray-900">
                                 <dt className="text-base">Total</dt>
-                                <dd className="text-base">{total}</dd>
+                                <dd className="text-base">${total}</dd>
                             </div>
                         </dl>
                     </div>
@@ -372,7 +420,8 @@ export default function Checkout() {
 
 
                 {/* Checkout form */}
-                <section aria-labelledby="payment-heading" className="flex-auto overflow-y-auto px-4 pb-16 pt-12 sm:px-6 sm:pt-16 lg:px-8 lg:pb-24 ">
+                <section aria-labelledby="payment-heading"
+                         className="flex-auto overflow-y-auto px-4 pb-16 pt-12 sm:px-6 sm:pt-16 lg:px-8 lg:pb-24 ">
                     <div className="mx-auto max-w-lg">
                         <h2 className="text-lg font-medium text-gray-900 mb-4">Shipping Address</h2>
 
@@ -387,7 +436,8 @@ export default function Checkout() {
                                         <p>{address.address}, {address.street}</p>
                                         <p>{address.city}, {address.state} {address.zip_code}</p>
                                         <p>{address.country}</p>
-                                        {address.is_default === 1 && <span className="text-sm text-primary">Main Address</span>}
+                                        {address.is_default === 1 &&
+                                            <span className="text-sm text-primary">Main Address</span>}
                                     </div>
                                 ))}
                             </div>
@@ -404,17 +454,25 @@ export default function Checkout() {
 
                         {showAddressForm && (
                             <form onSubmit={handleAddAddress} className="mt-4 space-y-4">
-                                <select
-                                    value={selectedCountry}
-                                    onChange={(e) => setSelectedCountry(e.target.value)}
-                                    className="w-full p-2 border rounded"
-                                    required
-                                >
-                                    <option value="">Select Country</option>
-                                    <option value="US">United States</option>
-                                    <option value="CA">Canada</option>
-                                    {/* Add more countries as needed */}
-                                </select>
+                                {/*<select*/}
+                                {/*    value={selectedCountry}*/}
+                                {/*    onChange={(e) => setSelectedCountry(e.target.value)}*/}
+                                {/*    className="w-full p-2 border rounded"*/}
+                                {/*    required*/}
+                                {/*>*/}
+                                {/*    <option value="">Select Country</option>*/}
+                                {/*    <option value="USA">United States</option>*/}
+                                {/*    <option value="Canada">Canada</option>*/}
+                                {/*</select>*/}
+                                <input
+                                    id="country"
+                                    name="country"
+                                    type="text"
+                                    value="USA"
+                                    readOnly
+                                    className="w-full p-2 border rounded bg-gray-100"
+                                />
+
                                 <input
                                     type="text"
                                     name="address"
@@ -460,7 +518,8 @@ export default function Checkout() {
                                     className="w-full p-2 border rounded"
                                     required
                                 />
-                                <button type="submit" className="w-full bg-btnprimary text-white p-2 rounded hover:bg-secondary">
+                                <button type="submit"
+                                        className="w-full bg-btnprimary text-white p-2 rounded hover:bg-secondary">
                                     Add Address
                                 </button>
                             </form>
@@ -482,16 +541,119 @@ export default function Checkout() {
 
                         {!sameAsBilling && (
                             <div className="mt-4">
-                                <h3 className="text-lg font-medium text-gray-900 mb-2">Billing Address</h3>
                                 {/* Add billing address selection/form here */}
+                                <form className="space-y-4">
+                                    <h3 className="text-lg font-medium text-gray-900">Billing Address</h3>
+
+                                    <div>
+                                        <label htmlFor="fullName" className="block text-sm font-medium text-gray-700">
+                                            Full Name
+                                        </label>
+                                        <input
+                                            type="text"
+                                            id="fullName"
+                                            name="fullName"
+                                            // value={billingAddress.fullName}
+                                            // onChange={handleChange}
+                                            required
+                                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                                        />
+                                    </div>
+
+                                    <div>
+                                        <label htmlFor="address" className="block text-sm font-medium text-gray-700">
+                                            Address
+                                        </label>
+                                        <input
+                                            type="text"
+                                            id="address"
+                                            name="address"
+                                            // value={billingAddress.address}
+                                            // onChange={handleChange}
+                                            required
+                                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                                        />
+                                    </div>
+
+                                    <div>
+                                        <label htmlFor="city" className="block text-sm font-medium text-gray-700">
+                                            City
+                                        </label>
+                                        <input
+                                            type="text"
+                                            id="city"
+                                            name="city"
+                                            // value={billingAddress.city}
+                                            // onChange={handleChange}
+                                            required
+                                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                                        />
+                                    </div>
+
+                                    <div>
+                                        <label htmlFor="state" className="block text-sm font-medium text-gray-700">
+                                            State
+                                        </label>
+                                        <input
+                                            type="text"
+                                            id="state"
+                                            name="state"
+                                            // value={billingAddress.state}
+                                            // onChange={handleChange}
+                                            required
+                                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                                        />
+                                    </div>
+
+                                    <div>
+                                        <label htmlFor="zipCode" className="block text-sm font-medium text-gray-700">
+                                            ZIP Code
+                                        </label>
+                                        <input
+                                            type="text"
+                                            id="zipCode"
+                                            name="zipCode"
+                                            // value={billingAddress.zipCode}
+                                            // onChange={handleChange}
+                                            required
+                                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                                        />
+                                    </div>
+
+                                    <div>
+                                        <label htmlFor="country" className="block text-sm font-medium text-gray-700">
+                                            Country
+                                        </label>
+                                        <input
+                                            type="text"
+                                            id="country"
+                                            name="country"
+                                            value="USA"
+                                            readOnly
+                                            className="mt-1 block w-full rounded-md border-gray-300 bg-gray-100 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                                        />
+                                    </div>
+
+                                    {/*<button*/}
+                                    {/*    type="submit"*/}
+                                    {/*    className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"*/}
+                                    {/*>*/}
+                                    {/*    Save Billing Address*/}
+                                    {/*</button>*/}
+                                </form>
                             </div>
                         )}
 
                         <button
                             onClick={handleCheckout}
-                            className="mt-6 w-full rounded-md border border-transparent bg-btnprimary px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-secondary focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                            disabled={!selectedAddress}
+                            className={`mt-6 w-full rounded-md border border-transparent px-4 py-2 text-sm font-medium text-white shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
+                                selectedAddress
+                                    ? 'bg-btnprimary hover:bg-secondary'
+                                    : 'bg-gray-300 cursor-not-allowed'
+                            }`}
                         >
-                            Pay ${total}
+                            {selectedAddress ? `Pay $${total}` : 'Select an address to proceed'}
                         </button>
                     </div>
                 </section>

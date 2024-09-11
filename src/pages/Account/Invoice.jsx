@@ -18,9 +18,10 @@ import Header from "../../components/Header.jsx";
 import {useEffect, useState} from "react";
 import axios from "axios";
 import {server} from "../../Server.js";
-import {useParams} from "react-router-dom";
+import {useNavigate, useParams} from "react-router-dom";
 import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
+import {toast} from "react-toastify";
 
 
 const secondaryNavigation = [
@@ -43,6 +44,17 @@ export default function Invoice() {
     const [invoices, setInvoices] = useState([]); // Changed to invoices (plural)
     const [isLoading, setIsLoading] = useState(true);
     const user = JSON.parse(localStorage.getItem('user')) || {};
+    const navigate = useNavigate();
+
+    useEffect(() => {
+        // Check if localStorage.isLoggedIn is true
+        if (localStorage.getItem('isLoggedIn') === 'false') {
+            // Redirect to /dashboard
+            navigate('/login');
+            // Show a toast notification
+            toast.warning('You need to login to access the page');
+        }
+    }, []);
 
 
 

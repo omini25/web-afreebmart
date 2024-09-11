@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import {useEffect, useState} from 'react'
 import { Switch } from '@headlessui/react'
 import {
     CreditCardIcon,
@@ -34,11 +34,22 @@ export default function Account() {
 
     const user = JSON.parse(localStorage.getItem('user')) || {};
 
+
     const [email, setEmail] = useState();
     const [name, setName] = useState();
     const [phone, setPhone] = useState();
     const [image, setImage] = useState(user.image);
     const [password, setPassword] = useState('');
+
+    useEffect(() => {
+        // Check if localStorage.isLoggedIn is true
+        if (localStorage.getItem('isLoggedIn') === 'false') {
+            // Redirect to /dashboard
+            navigate('/login');
+            // Show a toast notification
+            toast.warning('You need to login to access the page');
+        }
+    }, []);
 
 
     const handleSubmit = async (event) => {

@@ -3,19 +3,22 @@ import axios from 'axios';
 import { StarIcon } from '@heroicons/react/20/solid';
 import { server } from "../Server.js";
 import { assetServer } from "../assetServer.js";
+import ProductRating from "./ProductRating.jsx";
 
 function classNames(...classes) {
     return classes.filter(Boolean).join(' ')
 }
 
-const ProductReviews = ({ productId }) => {
+const ProductReviews = ({ productId, vendorId }) => {
     const [reviews, setReviews] = useState(null);
     const [showReviewForm, setShowReviewForm] = useState(false);
     const [newReview, setNewReview] = useState({ rating: 5, content: '' });
+    const user = JSON.parse(localStorage.getItem('user')) || {};
 
     useEffect(() => {
         fetchReviews();
     }, [productId]);
+
 
     const fetchReviews = async () => {
         try {
@@ -27,10 +30,17 @@ const ProductReviews = ({ productId }) => {
         }
     };
 
+
+
     const handleSubmitReview = async (e) => {
         e.preventDefault();
         try {
-            await axios.post(`${server}/reviews/${productId}`, newReview);
+            await axios.post(`${server}/users/reviews/${user.id}`, {
+                ...newReview,
+                product_id: productId,
+                vendor_id: vendorId,
+                comment: newReview.content // Map content to comment
+            });
             setShowReviewForm(false);
             setNewReview({ rating: 5, content: '' });
             fetchReviews();
@@ -49,7 +59,7 @@ const ProductReviews = ({ productId }) => {
                     id="rating"
                     name="rating"
                     value={newReview.rating}
-                    onChange={(e) => setNewReview({ ...newReview, rating: parseInt(e.target.value) })}
+                    onChange={(e) => setNewReview({...newReview, rating: parseInt(e.target.value)})}
                     className="mt-1 block w-full rounded-md border-gray-300 py-2 pl-3 pr-10 text-base focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm"
                 >
                     {[1, 2, 3, 4, 5].map((rating) => (
@@ -66,12 +76,14 @@ const ProductReviews = ({ productId }) => {
                 <textarea
                     id="content"
                     name="content"
+                    placeholder="Write your review here"
                     rows={3}
                     value={newReview.content}
-                    onChange={(e) => setNewReview({ ...newReview, content: e.target.value })}
+                    onChange={(e) => setNewReview({...newReview, content: e.target.value})}
                     className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                 />
             </div>
+
             <button
                 type="submit"
                 className="mt-4 inline-flex items-center justify-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
@@ -94,25 +106,17 @@ const ProductReviews = ({ productId }) => {
                             <div className="mt-3 flex items-center">
                                 <div>
                                     <div className="flex items-center">
-                                        {[0, 1, 2, 3, 4].map((rating) => (
-                                            <StarIcon
-                                                key={rating}
-                                                className={classNames(
-                                                    reviews.rating > rating ? 'text-yellow-400' : 'text-gray-300',
-                                                    'h-5 w-5 flex-shrink-0'
-                                                )}
-                                                aria-hidden="true"
-                                            />
-                                        ))}
+                                        {/* Reviews */}
+                                        <ProductRating productId={productId} />
                                     </div>
-                                    <p className="sr-only">{reviews.average} out of 5 stars</p>
                                 </div>
-                                <p className="ml-2 text-sm text-gray-900">Based on {reviews.length} reviews</p>
+
+
+
                             </div>
 
                             <div className="mt-6">
-                                <h3 className="sr-only">Review data</h3>
-                                {/* ... (keep the existing review data display code) ... */}
+                                <p className="ml-2 text-sm text-gray-900">Based on {reviews.length} reviews</p>
                             </div>
                         </>
                     ) : (

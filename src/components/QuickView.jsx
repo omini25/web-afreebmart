@@ -1,4 +1,4 @@
-import { Fragment, useState, useEffect } from 'react'
+import React, { Fragment, useState, useEffect } from 'react'
 import { Dialog, Transition } from '@headlessui/react'
 import { XMarkIcon } from '@heroicons/react/24/outline'
 import { StarIcon } from '@heroicons/react/20/solid'
@@ -10,6 +10,7 @@ import { Link } from "react-router-dom";
 import { useShoppingHooks } from "../redux/useShoppingHooks.js";
 import { toast } from "react-toastify";
 import {ShoppingCartIcon} from "@heroicons/react/24/outline/index.js";
+import ProductRating from "./ProductRating.jsx";
 
 function classNames(...classes) {
     return classes.filter(Boolean).join(' ')
@@ -106,21 +107,8 @@ export default function QuickView({ productName, open, setOpen }) {
 
                                                     <div className="ml-4 border-l border-gray-300 pl-4">
                                                         <h4 className="sr-only">Reviews</h4>
-                                                        <div className="flex items-center">
-                                                            <div className="flex items-center">
-                                                                {[0, 1, 2, 3, 4].map((rating) => (
-                                                                    <StarIcon
-                                                                        key={rating}
-                                                                        className={classNames(
-                                                                            product.rating > rating ? 'text-yellow-400' : 'text-gray-300',
-                                                                            'h-5 w-5 flex-shrink-0'
-                                                                        )}
-                                                                        aria-hidden="true"
-                                                                    />
-                                                                ))}
-                                                            </div>
-                                                            <p className="sr-only">{product.rating} out of 5 stars</p>
-                                                        </div>
+                                                        {/* Reviews */}
+                                                        <ProductRating productId={product.id} />
                                                     </div>
                                                 </div>
 
@@ -174,7 +162,7 @@ export default function QuickView({ productName, open, setOpen }) {
                                                                     ) : (
                                                                         <button
                                                                             onClick={handleAddToCart}
-                                                                            className="flex w-full items-center justify-center rounded-md border border-transparent bg-primary px-8 py-3 text-base font-medium text-white hover:bg-secondary focus:outline-none focus:ring-2 focus:ring-secondary focus:ring-offset-2 focus:ring-offset-gray-50"
+                                                                            className="flex w-full items-center justify-center rounded-md border border-transparent bg-newColor px-8 py-3 text-base font-medium text-white hover:bg-altBackground focus:outline-none focus:ring-2 focus:ring-secondary focus:ring-offset-2 focus:ring-offset-gray-50"
                                                                         >
                                                                             Add to cart
                                                                         </button>

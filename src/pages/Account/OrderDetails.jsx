@@ -8,8 +8,9 @@ import {
 import Header from "../../components/Header.jsx";
 import {server} from "../../Server.js";
 import axios from "axios";
-import {useParams} from "react-router-dom";
+import {useNavigate, useParams} from "react-router-dom";
 import {assetServer} from "../../assetServer.js";
+import {toast} from "react-toastify";
 
 
 const secondaryNavigation = [
@@ -21,25 +22,6 @@ const secondaryNavigation = [
     { name: 'Account', href: '/account', icon: UserCircleIcon, current: false },
 ]
 
-const products = [
-    {
-        id: 1,
-        name: 'Distant Mountains Artwork Tee',
-        price: '$36.00',
-        description: 'You awake in a new, mysterious land. Mist hangs low along the distant mountains. What does it mean?',
-        address: ['Floyd Miles', '7363 Cynthia Pass', 'Toronto, ON N3Y 4H8'],
-        email: 'f•••@example.com',
-        phone: '1•••••••••40',
-        href: '#',
-        status: 'Processing',
-        step: 1,
-        date: 'March 24, 2021',
-        datetime: '2021-03-24',
-        imageSrc: 'https://tailwindui.com/img/ecommerce-images/confirmation-page-04-product-01.jpg',
-        imageAlt: 'Off-white t-shirt with circular dot illustration on the front of mountain ridges that fade.',
-    },
-    // More products...
-]
 
 function classNames(...classes) {
     return classes.filter(Boolean).join(' ')
@@ -49,6 +31,17 @@ export default function OrderDetails( ) { // Accept orderId as a prop
     const [orderDetails, setOrderDetails] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
     const {orderId} = useParams(); // Access the orderId from the URL params
+    const navigate = useNavigate();
+
+    useEffect(() => {
+        // Check if localStorage.isLoggedIn is true
+        if (localStorage.getItem('isLoggedIn') === 'false') {
+            // Redirect to /dashboard
+            navigate('/login');
+            // Show a toast notification
+            toast.warning('You need to login to access the page');
+        }
+    }, []);
 
     useEffect(() => {
         const fetchOrderDetails = async () => {
@@ -65,7 +58,6 @@ export default function OrderDetails( ) { // Accept orderId as a prop
         fetchOrderDetails();
     }, [orderId]); // Fetch details whenever orderId changes
 
-    console.log(orderDetails)
 
     if (isLoading) return (
         <div className="flex items-center justify-center h-screen">

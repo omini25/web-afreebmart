@@ -19,6 +19,7 @@ import {ShoppingCartIcon} from "@heroicons/react/24/outline/index.js";
 import {HeartIcon as HeartIconSolid} from "@heroicons/react/24/solid/index.js";
 import {toast} from "react-toastify";
 import ProductReviews from "../../components/ProductReviews.jsx";
+import ProductRating from "../../components/ProductRating.jsx";
 
 
 const reviews = {
@@ -271,24 +272,7 @@ export default function ProductPage( ) {
                                 </div>
 
                                 {/* Reviews */}
-                                <div className="mt-3">
-                                <h3 className="sr-only">Reviews</h3>
-                                    <div className="flex items-center">
-                                        <div className="flex items-center">
-                                            {[0, 1, 2, 3, 4].map((rating) => (
-                                                <StarIcon
-                                                    key={rating}
-                                                    className={classNames(
-                                                        product.rating > rating ? 'text-indigo-500' : 'text-gray-300',
-                                                        'h-5 w-5 flex-shrink-0'
-                                                    )}
-                                                    aria-hidden="true"
-                                                />
-                                            ))}
-                                        </div>
-                                        <p className="sr-only">{product.rating} out of 5 stars</p>
-                                    </div>
-                                </div>
+                                <ProductRating productId={product.id} />
 
                                 <div className="mt-6">
                                     <h3 className="sr-only">Description</h3>
@@ -401,7 +385,7 @@ export default function ProductPage( ) {
                         </div>
 
                         {/* Reviews */}
-                        <ProductReviews productId={product.id} />
+                        <ProductReviews productId={product.id} vendorId={product.vendor_id}/>
 
 
 

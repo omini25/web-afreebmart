@@ -79,13 +79,14 @@ export default function SingleProduct({ productId, productName }) {
 
     return (
         <div className="group relative">
-            <div className="relative w-52 h-52 overflow-hidden">
+            <div className="relative w-full sm:w-52 h-52 sm:h-52 overflow-hidden">
                 <img
                     src={`${assetServer}/images/products/${product.image}`}
                     alt={product.product_name}
                     className="w-full h-full object-cover object-center transition-all duration-300 ease-in-out group-hover:scale-105"
                 />
-                <div className="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                <div
+                    className="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                     <div className="flex space-x-4">
                         <button
                             onClick={handleQuickView}
@@ -114,12 +115,15 @@ export default function SingleProduct({ productId, productName }) {
                     <div>
                         <h3 className="text-sm font-medium text-gray-900">
                             <Link to={`/product/${encodeURIComponent(product.product_name)}`}>
-                                {product.product_name.length > 20 ? product.product_name.substring(0, 20) + '...' : product.product_name}
+                                {/* Shorten product name on smaller screens */}
+                                {product.product_name.length > (window.innerWidth < 768 ? 10 : 15)
+                                    ? product.product_name.substring(0, window.innerWidth < 768 ? 10 : 15) + '...'
+                                    : product.product_name}
                             </Link>
                         </h3>
                         <p className="mt-1 text-sm text-gray-500">By: {product.store_name}</p>
                     </div>
-                    <p className="text-sm font-medium text-primary">${product.price}</p>
+                    <p className="text-sm font-medium text-newColor">${product.price}</p>
                 </div>
                 <div className="mt-2">
                     {cartItems.some(item => item.id === product.id) ? (
@@ -132,18 +136,18 @@ export default function SingleProduct({ productId, productName }) {
                         product.group === "1" ? (
                             <Link to={`/group-order`}>
                                 <button
-                                    className="relative w-full flex items-center justify-center rounded-md border border-transparent bg-primary px-4 py-2 text-sm font-medium text-gray-900 hover:bg-secondary">
-                                    Create or Join Group
+                                    className="relative w-full flex items-center justify-center rounded-md border border-transparent bg-altBackground px-4 py-2 text-sm font-medium text-gray-900 hover:bg-newColor group">
+                                    <p className="text-newColor group-hover:text-white">Group Product</p>
                                     <span className="sr-only">, {product.product_name}</span>
                                 </button>
                             </Link>
                         ) : (
                             <button
                                 onClick={handleAddToCart}
-                                className="relative w-full flex items-center justify-center rounded-md border border-transparent bg-primary px-4 py-2 text-sm font-medium text-gray-900 hover:bg-secondary"
+                                className="relative w-full flex items-center justify-center rounded-md border border-transparent bg-altBackground px-4 py-2 text-sm font-medium text-gray-900 hover:bg-newColor group"
                             >
-                                <ShoppingCartIcon className="h-5 w-5 mr-2 text-gray-600" aria-hidden="true"/>
-                                Add to cart
+                                <ShoppingCartIcon className="h-5 w-5 mr-2 text-newColor group-hover:text-white" aria-hidden="true"/>
+                                <p className="text-newColor group-hover:text-white">Add to cart</p>
                                 <span className="sr-only">, {product.product_name}</span>
                             </button>
                         )
