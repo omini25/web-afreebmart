@@ -7,7 +7,7 @@ export function ReturnPolicy() {
             <Header />
             <div className="bg-white ">
                 <div className="mx-auto max-w-7xl px-6 lg:px-8 pt-12">
-                    <h1 className="text-6xl font-bold mb-4">Return Policy at Afreebmart</h1>
+                    <h1 className="text-4xl font-bold mb-4">Return Policy at Afreebmart</h1>
                     <p className="mb-4">
                         At Afreebmart, we prioritize the safety and satisfaction of our customers. Due to the nature of
                         the products we offer, which primarily include perishable food items, we do not have a standard

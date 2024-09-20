@@ -18,7 +18,8 @@ function classNames(...classes) {
 
 export default function QuickView({ productName, open, setOpen }) {
     const [product, setProduct] = useState(null)
-    const { cartItems, addProductToCart, removeProductFromCart } = useShoppingHooks();
+    const [quantity, setQuantity] = useState(1)
+    const { cartItems, addProductToCart, removeProductFromCart, updateCartProductQuantity } = useShoppingHooks();
 
     useEffect(() => {
         const fetchProduct = async () => {
@@ -36,15 +37,25 @@ export default function QuickView({ productName, open, setOpen }) {
     }, [open, productName])
 
     const handleAddToCart = (e) => {
-        e.preventDefault(); // Prevent form submission
-        addProductToCart({ ...product});
-        toast.success(`${product.product_name} added to cart!`);
+        e.preventDefault();
+        const existingCartItem = cartItems.find(item => item.id === product.id);
+        if (existingCartItem) {
+            updateCartProductQuantity(product.id, existingCartItem.quantity + quantity);
+            toast.success(`Updated ${product.product_name} quantity in cart to ${existingCartItem.quantity + quantity}!`);
+        } else {
+            addProductToCart({ ...product, quantity });
+            toast.success(`${quantity} ${product.product_name}${quantity > 1 ? 's' : ''} added to cart!`);
+        }
     };
 
     const handleRemoveFromCart = (e) => {
-        e.preventDefault(); // Prevent form submission
+        e.preventDefault();
         removeProductFromCart(product.id);
         toast.success(`${product.product_name} removed from cart!`);
+    };
+
+    const handleQuantityChange = (value) => {
+        setQuantity(Math.max(1, value)); // Ensure quantity is at least 1
     };
 
     if (!product) {
@@ -160,12 +171,38 @@ export default function QuickView({ productName, open, setOpen }) {
                                                                             </button>
                                                                         </Link>
                                                                     ) : (
-                                                                        <button
-                                                                            onClick={handleAddToCart}
-                                                                            className="flex w-full items-center justify-center rounded-md border border-transparent bg-newColor px-8 py-3 text-base font-medium text-white hover:bg-altBackground focus:outline-none focus:ring-2 focus:ring-secondary focus:ring-offset-2 focus:ring-offset-gray-50"
-                                                                        >
-                                                                            Add to cart
-                                                                        </button>
+                                                                        <div className="flex items-center space-x-3">
+                                                                            <div
+                                                                                className="flex items-center rounded-md border border-gray-300">
+                                                                                <button
+                                                                                    type="button"
+                                                                                    onClick={() => handleQuantityChange(quantity - 1)}
+                                                                                    className="px-3 py-2 text-gray-700 hover:bg-gray-50"
+                                                                                >
+                                                                                    -
+                                                                                </button>
+                                                                                <input
+                                                                                    type="text"
+                                                                                    value={quantity}
+                                                                                    onChange={(e) => handleQuantityChange(parseInt(e.target.value))}
+                                                                                    className="w-12 border-t border-b border-gray-300 px-3 py-2 text-center appearance-none"
+                                                                                    min="1"
+                                                                                />
+                                                                                <button
+                                                                                    type="button"
+                                                                                    onClick={() => handleQuantityChange(quantity + 1)}
+                                                                                    className="px-3 py-2 text-gray-700 hover:bg-gray-50"
+                                                                                >
+                                                                                    +
+                                                                                </button>
+                                                                            </div>
+                                                                            <button
+                                                                                onClick={handleAddToCart}
+                                                                                className="flex w-full items-center justify-center rounded-md border border-transparent bg-newColor px-8 py-3 text-base font-medium text-white hover:bg-altBackground focus:outline-none focus:ring-2 focus:ring-secondary focus:ring-offset-2 focus:ring-offset-gray-50"
+                                                                            >
+                                                                                Add to cart
+                                                                            </button>
+                                                                        </div>
                                                                     )
                                                                 )}
                                                             </div>

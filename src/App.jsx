@@ -41,6 +41,8 @@ import {Faq} from "./pages/Landing/Faq.jsx";
 import {MakeAReport} from "./pages/Landing/MakeAReport.jsx";
 import {Careers} from "./pages/Landing/Careers.jsx";
 import VendorProducts from "./pages/Products/VendorProducts.jsx";
+import Messages from "./pages/Account/Messages.jsx";
+
 
 const App = () => {
     return (
@@ -75,6 +77,7 @@ const App = () => {
                 <Route path="*" element={<NotFound />} />
                 <Route path="/invoice/:invoiceId" element={<Invoice />} />
                 <Route path="/vendor/products/:vendorId" element={<VendorProducts />} />
+                <Route path="/messages" element={<Messages />} />
 
                 {/* Landing Pages */}
 

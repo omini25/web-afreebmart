@@ -5,7 +5,7 @@ import {
     CubeIcon,
     MapPinIcon, RectangleGroupIcon,
     UserCircleIcon,
-    EllipsisVerticalIcon
+    EllipsisVerticalIcon, ChatBubbleBottomCenterIcon
 } from '@heroicons/react/24/outline'
 import { CheckCircleIcon } from '@heroicons/react/20/solid'
 import Header from "../../components/Header.jsx";
@@ -21,6 +21,7 @@ const secondaryNavigation = [
     { name: 'Dashboard', href: '/dashboard', icon: UserCircleIcon, current: false },
     { name: 'Orders', href: '/orders', icon: CubeIcon, current: true },
     { name: 'Group Orders', href: '/group-orders', icon: RectangleGroupIcon, current: false },
+    { name: 'Messages', href: '/messages', icon: ChatBubbleBottomCenterIcon, current: false },
     { name: 'Payments', href: '/payments', icon: CreditCardIcon, current: false },
     { name: 'Addresses', href: '/address', icon: MapPinIcon, current: false },
     { name: 'Account', href: '/account', icon: UserCircleIcon, current: false },

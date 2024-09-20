@@ -5,9 +5,14 @@ import Footer from "../../components/Footer.jsx";
 import axios from "axios";
 import {server} from "../../Server.js";
 import {BuildingStorefrontIcon} from "@heroicons/react/24/outline/index.js";
+import {createChat} from "../../api.js";
+import {toast} from "react-toastify";
+
 
 export default function Vendors() {
     const [vendors, setVendors] = useState([]);
+    const user = JSON.parse(localStorage.getItem('user')) || {};
+    const userId = user.id;
 
     useEffect(() => {
         // Replace with your actual API endpoint
@@ -17,6 +22,19 @@ export default function Vendors() {
             })
             .catch(error => console.error('Error fetching vendors:', error));
     }, []);
+
+    const handleCreateChat = async (vendorId) => {
+        try {
+            // Pass vendorId directly within the array
+            await createChat('From User', 'Hello!', [vendorId]);
+            toast('Chat request sent. You will see the chat if the vendor accepts.');
+        } catch (error) {
+            console.error('Error creating chat:', error);
+            toast.error('Failed to send message. Please try again later.');
+        }
+    };
+
+
 
 
     return (
@@ -42,15 +60,23 @@ export default function Vendors() {
                             </div>
                             <div>
                                 <div className="-mt-px flex divide-x divide-gray-200">
-                                    {/*<div className="flex w-0 flex-1">*/}
-                                    {/*    <a*/}
-                                    {/*        href={`mailto:${vendor.email}`}*/}
-                                    {/*        className="relative -mr-px inline-flex w-0 flex-1 items-center justify-center gap-x-3 rounded-bl-lg border border-transparent py-4 text-sm font-semibold text-gray-900"*/}
-                                    {/*    >*/}
-                                    {/*        <EnvelopeIcon className="h-5 w-5 text-gray-400" aria-hidden="true"/>*/}
-                                    {/*        Message Vendor*/}
-                                    {/*    </a>*/}
-                                    {/*</div>*/}
+                                    <div className="flex w-0 flex-1">
+                                        <a
+                                            href="#"
+                                            onClick={(e) => {
+                                                e.preventDefault(); // Prevent default mailto behavior
+                                                if (user && userId) {
+                                                    handleCreateChat(vendor.user_id);
+                                                } else {
+                                                    toast.error('You must be logged in to message the vendor.');
+                                                }
+                                            }}
+                                            className="relative -mr-px inline-flex w-0 flex-1 items-center justify-center gap-x-3 rounded-bl-lg border border-transparent py-4 text-sm font-semibold text-gray-900"
+                                        >
+                                            <EnvelopeIcon className="h-5 w-5 text-gray-400" aria-hidden="true"/>
+                                            Message Vendor
+                                        </a>
+                                    </div>
                                     <div className="-ml-px flex w-0 flex-1">
                                         <a
                                             href={`/vendor/products/${vendor.id}`}

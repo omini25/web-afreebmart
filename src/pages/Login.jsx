@@ -40,17 +40,21 @@ export default function Login() {
         e.preventDefault();
         try {
             const response = await axios.post(`${server}/login`, formData);
-            console.log(response.data)
+            console.log(response.data);
             if (response.data) {
-                dispatch(setUser(response.data.user));
-                localStorage.setItem('user', JSON.stringify(response.data.user));
-                localStorage.setItem('isLoggedIn', 'true');
-                // Redirect or update UI as needed
-                navigate('/dashboard');
+                const role = response.data.user.role || response.data.user?.user?.role; // Get role safely
+                if (role === 'vendor' || role === 'admin') {
+                    toast.error("Can't login as vendor or admin.");
+                    return; // Stop login process
+                } else {
+                    dispatch(setUser(response.data.user));
+                    localStorage.setItem('user', JSON.stringify(response.data.user));
+                    localStorage.setItem('isLoggedIn', 'true');
+                    navigate('/dashboard');
+                }
             }
         } catch (error) {
             console.error('Login failed:', error);
-            // Handle error (e.g., show error message to user)
         }
     };
 

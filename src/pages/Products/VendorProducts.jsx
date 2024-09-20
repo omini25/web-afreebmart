@@ -8,6 +8,8 @@ import SingleProduct from "../../components/SingleProduct.jsx"
 import { server } from "../../Server.js"
 import axios from "axios"
 import {useParams} from "react-router-dom";
+import {createChat} from "../../api.js";
+import {toast} from "react-toastify";
 
 
 function classNames(...classes) {
@@ -16,6 +18,8 @@ function classNames(...classes) {
 
 export default function VendorProducts() {
     const {vendorId} = useParams()
+    const user = JSON.parse(localStorage.getItem('user')) || {};
+    const userId = user.user.id;
     const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false)
     const [allProducts, setAllProducts] = useState([])
     const [categories, setCategories] = useState([])
@@ -23,6 +27,9 @@ export default function VendorProducts() {
     const [selectedPriceRange, setSelectedPriceRange] = useState('')
     const [sortOption, setSortOption] = useState('popularity')
     const [vendorDetails, setVendorDetails] = useState(null);
+    const vendorUserId = vendorDetails?.vendor.user_id;
+
+
 
     useEffect(() => {
         fetchCategories();
@@ -152,6 +159,18 @@ export default function VendorProducts() {
         return result
     }, [allProducts, selectedCategory, selectedPriceRange, sortOption])
 
+
+    const handleCreateChat = async (vendorUserId) => {
+        try {
+            await createChat('From User', 'Hello!', [vendorUserId]);
+            toast('Chat request sent. You will see the chat if the vendor accepts.');
+        } catch (error) {
+            console.error('Error creating chat:', error);
+            toast.error('Failed to send message. Please try again later.');
+        }
+    };
+
+
     return (
         <div className="bg-white">
             <Header />
@@ -255,6 +274,19 @@ export default function VendorProducts() {
                                 <p className="mt-4 text-base text-gray-500">
                                     {vendorDetails.vendor.store_description}
                                 </p>
+                                <button
+                                    onClick={(e) => {
+                                        e.preventDefault();
+                                        if (user && userId) {
+                                            handleCreateChat(vendorUserId);
+                                        } else {
+                                            toast.error('You must be logged in to message the vendor.');
+                                        }
+                                    }}
+                                    className="mt-2 bg-primary hover:bg-secondary text-white font-bold py-2 px-4 rounded"
+                                >
+                                    Message Vendor
+                                </button>
                             </>
                         ) : (
                             <p>Loading vendor details...</p>

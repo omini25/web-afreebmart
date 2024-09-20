@@ -36,10 +36,11 @@ export const useShoppingHooks = () => {
     };
 
     const addProductToCart = (product) => {
-        dispatch(addToCart(product));
+        const quantity = product.quantity || 1;
+        dispatch(addToCart({ ...product, quantity }));
         const updatedCart = cartItems.find(item => item.id === product.id)
-            ? cartItems.map(item => item.id === product.id ? { ...item, quantity: item.quantity + 1 } : item)
-            : [...cartItems, { ...product, quantity: 1 }];
+            ? cartItems.map(item => item.id === product.id ? { ...item, quantity: item.quantity + quantity } : item)
+            : [...cartItems, { ...product, quantity }];
         saveState('cart', updatedCart);
     };
 

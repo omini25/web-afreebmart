@@ -43,18 +43,18 @@ export default function Category() {
 
     const fetchAllProducts = async (categoryName) => {
         try {
-            const response = await axios.get(`${server}/products/category/${categoryName}`); // API request with subcategoryName
+            const response = await axios.get(`${server}/products/category/{categoryName}`);
             if (Array.isArray(response.data.products)) {
-                setAllProducts(response.data.products)
+                setAllProducts(response.data.products);
             } else {
-                console.error('Unexpected API response structure:', response.data)
-                setAllProducts([]) // Set to empty array if response is not as expected
+                console.error('Unexpected API response structure:', response.data);
+                setAllProducts([]); // Set to empty array if response is not as expected
             }
         } catch (error) {
-            console.error('Error fetching products:', error)
-            setAllProducts([]) // Set to empty array in case of error
+            console.error('Error fetching products:', error);
+            setAllProducts([]); // Set to empty array in case of error
         }
-    }
+    };
 
 
     const filters = useMemo(() => [
@@ -244,7 +244,7 @@ export default function Category() {
                             ))}
                             <li className="text-sm">
                                 <a href="#" aria-current="page" className="font-medium text-gray-500 hover:text-gray-600">
-                                    {subcategoryName}
+                                    {categoryName}
                                 </a>
                             </li>
                         </ol>

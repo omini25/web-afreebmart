@@ -188,8 +188,8 @@ export default function Checkout() {
                                                 />
                                                 <div className="flex flex-col justify-between space-y-4">
                                                     <div className="space-y-1 text-sm font-medium">
-                                                        <h3 className="text-gray-900">{product.product_name}</h3>
-                                                        <p className="text-gray-900">{product.price}</p>
+                                                        <h3 className="text-gray-900 font-semibold">{product.product_name}</h3>
+                                                        <p className="text-primary">${product.price}</p>
                                                         <p className="text-gray-500">{product.color}</p>
                                                         <p className="text-gray-500">{product.size}</p>
                                                     </div>
@@ -242,7 +242,7 @@ export default function Checkout() {
                                     <form className="mt-10">
                                         <label htmlFor="tip-mobile"
                                                className="block text-sm font-medium text-gray-700">
-                                            Tip
+                                            Delivery Tip
                                         </label>
                                         <div className="mt-1 flex space-x-4">
                                             <input
@@ -290,7 +290,7 @@ export default function Checkout() {
 
                                 <p className="mt-6 flex items-center justify-between border-t border-gray-200 pt-6 text-sm font-medium text-gray-900">
                                     <span className="text-base">Total</span>
-                                    <span className="text-base">{total}</span>
+                                    <span className="text-base">${total}</span>
                                 </p>
                             </>
                         )}
@@ -366,7 +366,7 @@ export default function Checkout() {
 
                         <form>
                             <label htmlFor="tip" className="block text-sm font-medium text-gray-700 mt-5">
-                                Tip
+                                Delivery Tip
                             </label>
                             <div className="mt-1 flex space-x-4">
                                 <input

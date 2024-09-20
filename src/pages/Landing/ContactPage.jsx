@@ -3,6 +3,7 @@ import Header from "../../components/Header.jsx";
 import Footer from "../../components/Footer.jsx";
 import { useState } from 'react';
 import contact from "../../assets/images/landing/contact-2.png"
+import {toast} from "react-toastify";
 
 export function ContactPage() {
     const [formData, setFormData] = useState({
@@ -21,7 +22,7 @@ export function ContactPage() {
         e.preventDefault();
 
         try {
-            const response = await fetch('/send-email', { // Replace with your backend endpoint
+            const response = await fetch('/send-email', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -32,6 +33,7 @@ export function ContactPage() {
             if (response.ok) {
                 // Email sent successfully
                 console.log('Email sent successfully!');
+                toast.success('Message sent successfully!')
                 // You can display a success message to the user here
             } else {
                 // Handle error
@@ -51,15 +53,15 @@ export function ContactPage() {
             <div className="relative bg-white">
                 <div className="lg:absolute lg:inset-0 lg:left-1/2">
                     <img
-                        className="h-64 w-full bg-gray-50 object-cover sm:h-80 lg:absolute lg:h-full"
+                        className="h-64 w-full bg-gray-50 object-contain sm:h-80 lg:absolute lg:h-full md:h-48"
                         src={contact}
                         alt=""
                     />
                 </div>
                 <div className="pb-24 pt-16 sm:pb-32 sm:pt-24 lg:mx-auto lg:grid lg:max-w-7xl lg:grid-cols-2 lg:pt-32">
-                    <div className="px-6 lg:px-8">
+                <div className="px-6 lg:px-8">
                         <div className="mx-auto max-w-xl lg:mx-0 lg:max-w-lg">
-                            <h1 className="max-w-2xl text-4xl font-bold tracking-tight text-gray-900 sm:text-6xl">Send us a message or ask a
+                            <h1 className="max-w-2xl text-4xl font-bold tracking-tight text-gray-900 sm:text-4xl">Send us a message or ask a
                                 question</h1>
                             <div className="flex gap-x-4 mt-5">
                                 <dt className="flex-none">

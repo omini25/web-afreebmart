@@ -122,11 +122,13 @@ export default function ProductPage( ) {
     const handleAddToCart = (e) => {
         e.preventDefault(); // Prevent form submission
         addProductToCart({ ...product, quantity: parseInt(quantity) });
+        toast.success(`${quantity} ${product.product_name}${quantity > 1 ? 's' : ''} added to cart!`);
     };
 
     const handleRemoveFromCart = (e) => {
-        e.preventDefault(); // Prevent form submission
+        e.preventDefault();
         removeProductFromCart(product.id);
+        toast.success(`${product.product_name} removed from cart!`);
     };
 
     const handleQuantityChange = (e) => {
@@ -314,14 +316,28 @@ export default function ProductPage( ) {
                                             )
                                         )}
 
-                                        <div className="ml-2">
+                                        <div className="flex items-center ml-4">
+                                            <button
+                                                type="button"
+                                                onClick={() => handleQuantityChange({target: {value: quantity - 1}})}
+                                                className="bg-gray-200 hover:bg-gray-300 rounded-l border border-gray-300 px-2 py-1"
+                                            >
+                                                -
+                                            </button>
                                             <input
-                                                type="number"
+                                                type="text"
                                                 min="1"
                                                 value={quantity}
                                                 onChange={handleQuantityChange}
-                                                className="w-12 text-center rounded-md border border-gray-300 px-2 py-2"
+                                                className="w-12 text-center rounded-none border border-gray-300 px-2 py-2"
                                             />
+                                            <button
+                                                type="button"
+                                                onClick={() => handleQuantityChange({target: {value: quantity + 1}})}
+                                                className="bg-gray-200 hover:bg-gray-300 rounded-r border border-gray-300 px-2 py-1"
+                                            >
+                                                +
+                                            </button>
                                         </div>
 
                                         <button
@@ -351,12 +367,18 @@ export default function ProductPage( ) {
                                         className="mx-auto mt-14 max-w-2xl sm:mt-16 lg:col-span-3 lg:row-span-2 lg:row-end-2 lg:mt-0 lg:max-w-none">
 
                                         <div className="mt-10 border-t border-gray-200 pt-10">
-                                            <h3 className="text-sm font-medium text-gray-900">Details</h3>
+                                        <h3 className="text-sm font-medium text-gray-900">Details</h3>
                                             <div className="prose prose-sm mt-4 text-gray-500">
                                                 <ul role="list">
-                                                    <li>Category: {product.category}</li>
-                                                    <li>Sub Category: {product.subcategory}</li>
-                                                    <li>Vendor: {product.store_name}</li>
+                                                    <li>Category: <Link to={`/category/${product.category}`}
+                                                                        className="font-medium text-indigo-600 hover:text-indigo-500">{product.category}</Link>
+                                                    </li>
+                                                    <li>Sub Category: <Link to={`/subcategory/${product.subcategory}`}
+                                                                            className="font-medium text-indigo-600 hover:text-indigo-500">{product.subcategory}</Link>
+                                                    </li>
+                                                    <li>Vendor: <Link to={`/vendor/products/${product.vendor_id}`}
+                                                                      className="font-medium text-indigo-600 hover:text-indigo-500">{product.store_name}</Link>
+                                                    </li>
                                                     <li>Unit: {product.unit}</li>
                                                     <li>Weight/Pieces: {product.shipping_weight}</li>
 
@@ -400,10 +422,10 @@ export default function ProductPage( ) {
                                     </h2>
 
                                     <div
-                                        className="mt-8 grid grid-cols-1 gap-y-12 sm:grid-cols-2 sm:gap-x-6 lg:grid-cols-4 xl:gap-x-8">
+                                        className="mt-8 grid grid-cols-2 sm:grid-cols-2 gap-y-12 gap-x-4 sm:gap-x-6 lg:grid-cols-4 xl:gap-x-8">
                                         {products
                                             .sort(() => 0.5 - Math.random())
-                                            .filter((p) => p.id !== product.id) // Filter out the current product
+                                            .filter((p) => p.id !== product.id)
                                             .slice(0, 4)
                                             .map((product) => (
                                                 <SingleProduct

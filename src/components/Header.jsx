@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import {useEffect, useState} from 'react';
 import { useSelector } from "react-redux";
 import {
     MagnifyingGlassIcon,
@@ -116,6 +116,7 @@ export default function Header() {
             {mobileMenuOpen && (
                 <div className="fixed inset-0 z-40 flex">
                     <div className="relative flex w-full max-w-xs flex-col overflow-y-auto bg-white pb-12 shadow-xl">
+                        {/* Close button */}
                         <div className="flex px-4 pb-2 pt-5">
                             <button
                                 type="button"
@@ -127,8 +128,19 @@ export default function Header() {
                             </button>
                         </div>
 
+                        {/* Logo */}
+                        <div className="flex justify-center py-4">
+                            <Link to="/">
+                                <img
+                                    className="h-10 w-auto" // Adjust size as needed
+                                    src={afreeblogo}
+                                    alt="Afreebmart Logo"
+                                />
+                            </Link>
+                        </div>
+
                         {/* Links */}
-                        <div className="mt-2">
+                        <div className="mt-2 space-y-6">
                             {/*<div className="border-b border-gray-200">*/}
                             {/*    <div className="-mb-px flex space-x-8 px-4">*/}
                             {/*        {navigation.categories.map((category) => (*/}
@@ -779,11 +791,11 @@ export default function Header() {
                                                                                 <div className="flex-1">
                                                                                     <h3 className="text-sm font-medium">{product.product_name}</h3>
                                                                                     <p className="text-sm text-gray-500">${product.price}</p>
-                                                                                    <p className="text-sm text-gray-500">{product.quantity}</p>
+                                                                                    <p className="text-sm text-gray-500">Quantity:{product.quantity}</p>
                                                                                 </div>
                                                                                 <button
                                                                                     className="absolute top-2 right-2"
-                                                                                    onClick={() => handleRemoveFromCart(product.id)} // Call remove function
+                                                                                    onClick={() => handleRemoveFromCart(product.id)}
                                                                                 >
                                                                                     <XMarkIcon
                                                                                         className="h-4 w-4 text-gray-500 hover:text-red-500"/>

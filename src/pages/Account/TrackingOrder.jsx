@@ -1,5 +1,6 @@
 import {Fragment, useEffect, useState} from 'react'
 import {
+    ChatBubbleBottomCenterIcon,
     CreditCardIcon,
     CubeIcon,
     MapPinIcon, RectangleGroupIcon,
@@ -14,6 +15,7 @@ const secondaryNavigation = [
     { name: 'Dashboard', href: '/dashboard', icon: UserCircleIcon, current: false },
     { name: 'Orders', href: '/orders', icon: CubeIcon, current: false },
     { name: 'Group Orders', href: '/group-orders', icon: RectangleGroupIcon, current: true },
+    { name: 'Messages', href: '/messages', icon: ChatBubbleBottomCenterIcon, current: false },
     { name: 'Payments', href: '/payments', icon: CreditCardIcon, current: false },
     { name: 'Addresses', href: '/address', icon: MapPinIcon, current: false },
     { name: 'Account', href: '/account', icon: UserCircleIcon, current: false },

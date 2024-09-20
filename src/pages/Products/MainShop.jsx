@@ -42,7 +42,10 @@ export default function MainShop() {
         try {
             const response = await axios.get(`${server}/products`)
             if (Array.isArray(response.data.products)) {
-                setAllProducts(response.data.products)
+                const filteredProducts = response.data.products.filter(
+                    (product) => !product.group.includes("1")
+                );
+                setAllProducts(filteredProducts)
             } else {
                 console.error('Unexpected API response structure:', response.data)
                 setAllProducts([]) // Set to empty array if response is not as expected

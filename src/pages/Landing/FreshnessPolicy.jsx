@@ -7,7 +7,7 @@ export function FreshnessPolicy() {
             <Header />
             <div className="bg-white ">
                 <div className="mx-auto max-w-7xl px-6 lg:px-8 mt-12">
-                    <h1 className="text-6xl font-bold mb-4">Freshness Criteria at Afreebmart</h1>
+                    <h1 className="text-4xl font-bold mb-4">Freshness Criteria at Afreebmart</h1>
                     <p className="mb-4">
                         At Afreebmart, we are committed to delivering freshness and quality in every product we offer. Our freshness criteria ensure that our customers receive the finest and safest agricultural food items, maintained by our trusted vendors who adhere to stringent standards throughout the supply chain.
                     </p>

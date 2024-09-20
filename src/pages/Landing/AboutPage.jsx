@@ -48,7 +48,7 @@ export default function AboutPage() {
                                 className="mx-auto max-w-2xl lg:mx-0 lg:grid lg:max-w-none lg:grid-cols-2 lg:gap-x-16 lg:gap-y-6">
                                 {/* Text content */}
                                 <div>
-                                    <h1 className="max-w-2xl text-4xl font-bold tracking-tight text-gray-900 sm:text-6xl">
+                                    <h1 className="max-w-2xl text-4xl font-bold tracking-tight text-gray-900 sm:text-4xl">
                                         Delivery Options and Timeline at Afreebmart
                                     </h1>
                                     <div className="mt-6 max-w-xl">

@@ -11,6 +11,7 @@ import { toast } from "react-toastify";
 
 export default function SingleProduct({ productId, productName }) {
     const [product, setProduct] = useState(null);
+    const [quantity, setQuantity] = useState(1)
     const [showQuickView, setShowQuickView] = useState(false);
     const {
         cartItems,
@@ -49,7 +50,7 @@ export default function SingleProduct({ productId, productName }) {
     };
 
     const handleAddToCart = () => {
-        addProductToCart(product);
+        addProductToCart({ ...product, quantity });
         toast.success(`${product.product_name} added to cart!`);
     };
 
@@ -121,9 +122,14 @@ export default function SingleProduct({ productId, productName }) {
                                     : product.product_name}
                             </Link>
                         </h3>
-                        <p className="mt-1 text-sm text-gray-500">By: {product.store_name}</p>
+                        <Link to={`/vendor/products/${product.vendor_id}`} className="mt-1 text-sm text-gray-500">
+                            By: {product.store_name.length > 10 ? `${product.store_name.substring(0, 10)}...` : product.store_name}
+                        </Link>
                     </div>
-                    <p className="text-sm font-medium text-newColor">${product.price}</p>
+                    <p className="text-sm font-medium text-newColor sm:text-xs">
+                        {/* Check if product.price is a number and if not, try converting it */}
+                        ${(typeof product.price === 'number' ? product.price : parseFloat(product.price)).toFixed(1)}
+                    </p>
                 </div>
                 <div className="mt-2">
                     {cartItems.some(item => item.id === product.id) ? (

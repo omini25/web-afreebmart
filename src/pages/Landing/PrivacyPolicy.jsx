@@ -7,7 +7,7 @@ export function PrivacyPolicy() {
             <Header />
             <div className="bg-white ">
                 <div className="mx-auto max-w-7xl px-6 lg:px-8 mt-12">
-                    <h1 className="text-6xl font-bold mb-4">Privacy Notice For Afreebmart</h1>
+                    <h1 className="text-4xl font-bold mb-4">Privacy Notice For Afreebmart</h1>
                     <p className="mb-4">
                         At Afreebmart, we are committed to protecting your privacy and ensuring the security of your
                         personal information. This Privacy Notice outlines how we collect, use, disclose, and protect

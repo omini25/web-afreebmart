@@ -12,7 +12,7 @@ import {
     CreditCardIcon,
     CubeIcon,
     MapPinIcon, RectangleGroupIcon,
-    UserCircleIcon,
+    UserCircleIcon, ChatBubbleBottomCenterIcon,
 } from '@heroicons/react/24/outline'
 import Header from "../../components/Header.jsx";
 import {useEffect, useState} from "react";
@@ -28,6 +28,7 @@ const secondaryNavigation = [
     { name: 'Dashboard', href: '/dashboard', icon: UserCircleIcon, current: false },
     { name: 'Orders', href: '/orders', icon: CubeIcon, current: false },
     { name: 'Group Orders', href: '/group-orders', icon: RectangleGroupIcon, current: false },
+    { name: 'Messages', href: '/messages', icon: ChatBubbleBottomCenterIcon, current: false },
     { name: 'Payments', href: '/payments', icon: CreditCardIcon, current: true },
     { name: 'Addresses', href: '/address', icon: MapPinIcon, current: false },
     { name: 'Account', href: '/account', icon: UserCircleIcon, current: false },
@@ -330,12 +331,12 @@ export default function Invoice() {
                                                 <div className="truncate text-gray-500">{invoices.order.description}</div>
                                             </td>
                                             <td className="hidden py-5 pl-8 pr-0 text-right align-top tabular-nums text-gray-700 sm:table-cell">
-                                                {invoices.order.price}
+                                                ${invoices.order.price}
                                             </td>
                                             <td className="hidden py-5 pl-8 pr-0 text-right align-top tabular-nums text-gray-700 sm:table-cell">
                                                 {invoices.order.quantity}
                                             </td>
-                                            <td className="py-5 pl-8 pr-0 text-right align-top tabular-nums text-gray-700">{invoices.order.total_price}</td>
+                                            <td className="py-5 pl-8 pr-0 text-right align-top tabular-nums text-gray-700">${invoices.order.total_price}</td>
                                         </tr>
                                     </tbody>
                                     <tfoot>
@@ -350,7 +351,7 @@ export default function Invoice() {
                                         >
                                             Subtotal
                                         </th>
-                                        <td className="pb-0 pl-8 pr-0 pt-6 text-right tabular-nums text-gray-900">{invoices.order.total_cost}</td>
+                                        <td className="pb-0 pl-8 pr-0 pt-6 text-right tabular-nums text-gray-900">${invoices.order.total_cost}</td>
                                     </tr>
                                     {/*<tr>*/}
                                     {/*    <th scope="row" className="pt-4 font-normal text-gray-700 sm:hidden">*/}
@@ -377,7 +378,7 @@ export default function Invoice() {
                                             Total
                                         </th>
                                         <td className="pb-0 pl-8 pr-0 pt-4 text-right font-semibold tabular-nums text-gray-900">
-                                            {invoices.payment.total_cost}
+                                            ${invoices.payment.total_cost}
                                         </td>
                                     </tr>
                                     </tfoot>
