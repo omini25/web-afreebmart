@@ -5,7 +5,7 @@ import {
     CubeIcon,
     MapPinIcon, RectangleGroupIcon,
     UserCircleIcon,
-    EllipsisVerticalIcon, ChatBubbleBottomCenterIcon
+    EllipsisVerticalIcon, ChatBubbleBottomCenterIcon, ShoppingCartIcon
 } from '@heroicons/react/24/outline'
 import { CheckCircleIcon } from '@heroicons/react/20/solid'
 import Header from "../../components/Header.jsx";
@@ -40,6 +40,8 @@ export default function GroupOrders() {
     const user = JSON.parse(localStorage.getItem('user')) || {};
     const { addProductToCart } = useShoppingHooks();
     const navigate = useNavigate();
+    const [currentPage, setCurrentPage] = useState(1);
+    const [itemsPerPage] = useState(5);
 
     // New state variables for modals
     const [createGroupOpen, setCreateGroupOpen] = useState(false);
@@ -67,7 +69,7 @@ export default function GroupOrders() {
 
     const fetchOrders = async () => {
         try {
-            const response = await axios(`${server}/user/group/${user.id}`);
+            const response = await axios.get(`${server}/user/group/${user.id}`);
             const data = response.data.groups;
             setOrders(data);
         } catch (error) {
@@ -82,10 +84,9 @@ export default function GroupOrders() {
 
 
     useEffect(() => {
-        // Fetch products from API
         const fetchProducts = async () => {
             try {
-                const response = await axios.get(`${server}/group-products`); // Replace with your actual products API endpoint
+                const response = await axios.get(`${server}/group-products`);
                 setProducts(response.data.group_products);
             } catch (error) {
                 console.error('Error fetching products:', error);
@@ -118,7 +119,7 @@ export default function GroupOrders() {
     const handleJoinGroup = async (e) => {
         e.preventDefault();
         try {
-            await axios.post(`${server}/user/join`, { groupId: joinGroupId, userId: user.id });
+            await axios.put(`${server}/user/join/${joinGroupId}/${user.id}`); // Pass as URL parameters
             setJoinGroupOpen(false);
             setJoinGroupId('');
             toast.success('Joined group successfully!');
@@ -132,7 +133,7 @@ export default function GroupOrders() {
     const handleAddUser = async (e) => {
         e.preventDefault();
         try {
-            await axios.post(`${server}/group/addUser`, { groupId: selectedGroupId, email: addUserEmail });
+            await axios.post(`${server}/add-user-to-group-by-email`, { groupId: selectedGroupId, email: addUserEmail });
             setAddUsersOpen(false);
             setAddUserEmail('');
             toast.success('User added successfully!');
@@ -143,9 +144,9 @@ export default function GroupOrders() {
         }
     };
 
-    const handleDeleteGroup = async () => {
+    const handleDeleteGroup = async (groupId) => {
         try {
-            await axios.delete(`${server}/user/group/${orders.group_id}`);
+            await axios.delete(`${server}/user/group/${groupId}`);
             setDeleteGroupOpen(false);
             toast.success('Group deleted successfully!');
             fetchOrders();
@@ -154,6 +155,21 @@ export default function GroupOrders() {
             toast.error('Failed to delete group');
         }
     };
+
+    // Calculate current items for the page
+    const indexOfLastItem = currentPage * itemsPerPage;
+    const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+    const currentOrders = orders
+        .sort((a, b) => new Date(b.group.created_at) - new Date(a.group.created_at)) // Sort by date descending
+        .slice(indexOfFirstItem, indexOfLastItem);
+
+    // Pagination controls
+    const totalPages = Math.ceil(orders.length / itemsPerPage);
+
+    const handlePageChange = (pageNumber) => {
+        setCurrentPage(pageNumber);
+    };
+
 
 
     if (isLoading) return (
@@ -167,26 +183,22 @@ export default function GroupOrders() {
         </div>
     );
 
-    const handleBuyAgain = async (productName) => {
+    const handleAddToCart = async (productName) => {
         try {
-            // 1. Fetch product details by name (you'll need an API endpoint for this)
             const response = await axios.get(`${server}/product/${productName}`);
             const product = response.data.product;
 
-            // 2. Add product to cart using the fetched details
             addProductToCart({
                 id: product.id,
                 name: product.product_name,
-                price: product.price,
+                price: product.group_price,
                 quantity: 1,
                 image: `${assetServer}/images/products/${product.image}`,
             });
 
-            // 3. Optional: Display a success message to the user
             toast.success(`${product.product_name} added to cart!`);
         } catch (error) {
             console.error('Error adding product to cart:', error);
-            // Handle error appropriately (e.g., display an error message to the user)
         }
     };
 
@@ -339,15 +351,15 @@ export default function GroupOrders() {
                             <div className="mt-6">
                                 <h2 className="sr-only">Products purchased</h2>
 
-                                <div className="space-y-8">
-                                    {orders.map((product) => (
+                                <div className="space-y-8 mx-10">
+                                    {currentOrders.map((product) => (
 
                                         <div
                                             key={product.id}
                                             className="border-b border-t border-gray-200 bg-white shadow-sm sm:rounded-lg sm:border"
                                         >
                                             <div
-                                                className="space-y-2 px-16 sm:flex sm:items-baseline sm:justify-between sm:space-y-0 sm:px-0 ">
+                                                className="space-y-2 px-16 sm:flex sm:items-baseline sm:justify-between sm:space-y-0 sm:px-0 mx-5 my-3">
                                                 <div className="flex sm:items-baseline sm:space-x-4">
                                                 <h1 className="text-2xl font-bold tracking-tight text-gray-900 sm:text-3xl">{product.name}
                                                         {' '}#{product.group_id}</h1>
@@ -355,7 +367,7 @@ export default function GroupOrders() {
                                                 <p className="text-sm text-gray-600">
                                                     Date Created{' '}
                                                     <time dateTime="2021-03-22" className="font-medium text-gray-900">
-                                                        {new Date(product.created_at).toLocaleDateString('en-US', {
+                                                        {new Date(product.group.created_at).toLocaleDateString('en-US', {
                                                             month: 'numeric',
                                                             day: 'numeric',
                                                             year: '2-digit'
@@ -375,18 +387,18 @@ export default function GroupOrders() {
                                                     <div
                                                         className="aspect-h-1 aspect-w-1 w-full flex-shrink-0 overflow-hidden rounded-lg sm:aspect-none sm:h-40 sm:w-40">
                                                         <img
-                                                            src={`${assetServer}/images/products/${product.product_image}`}
-                                                            alt={product.product_name}
+                                                            src={`${assetServer}/images/products/${product.product_details?.image}`}
+                                                            alt={product.product_details?.product_name || ''}
                                                             className="h-full w-full object-cover object-center sm:h-full sm:w-full"
                                                         />
                                                     </div>
 
                                                     <div className="mt-6 sm:ml-6 sm:mt-0">
                                                         <h3 className="text-base font-medium text-gray-900">
-                                                            <a href="#">{product.product_name}</a>
+                                                        <a href="#">{product.product_details?.product_name || ''}</a>
                                                         </h3>
-                                                        <p className="mt-2 text-sm font-medium text-gray-900">${product.product_price}</p>
-                                                        <p className="mt-3 text-sm text-gray-500">{product.product_description}</p>
+                                                        <p className="mt-2 text-sm font-medium text-gray-900">${product.product_details?.group_price || ''}</p>
+                                                        <p className="mt-3 text-sm text-gray-500">{product.product_details?.description || ''}</p>
                                                     </div>
                                                 </div>
 
@@ -396,8 +408,8 @@ export default function GroupOrders() {
                                                             <dt className="font-medium text-gray-900">Group Information
                                                             </dt>
                                                             <dd className="mt-3 text-gray-500">
-                                                                <span className="block">Status: {product.status}</span>
-                                                                <span className="block">Role: {product.role}</span>
+                                                                <span className="block">Status: {product.group.status}</span>
+                                                                <span className="block">Role: {product.group.role}</span>
                                                                 <span
                                                                     className="block">Users: {product.users_count}</span>
                                                             </dd>
@@ -449,16 +461,18 @@ export default function GroupOrders() {
 
                                                             <dd className="mt-3 space-y-3 text-gray-500">
 
-                                                                <button
-                                                                    type="button"
-                                                                    onClick={() => {
-                                                                        setSelectedGroupId(product.group_id);
-                                                                        setDeleteGroupOpen(true);
-                                                                    }}
-                                                                    className="font-medium text-red-600 hover:text-secondary"
-                                                                >
-                                                                    Delete Group
-                                                                </button>
+                                                                {product.group.role === 'admin' && (
+                                                                    <button
+                                                                        type="button"
+                                                                        onClick={() => {
+                                                                            setSelectedGroupId(product.group_id);
+                                                                            setDeleteGroupOpen(true);
+                                                                        }}
+                                                                        className="font-medium text-red-600 hover:text-secondary"
+                                                                    >
+                                                                        Delete Group
+                                                                    </button>
+                                                                )}
 
                                                                 <Dialog open={deleteGroupOpen}
                                                                         onClose={() => setDeleteGroupOpen(false)}>
@@ -481,8 +495,10 @@ export default function GroupOrders() {
                                                                                     className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200">
                                                                                     Cancel
                                                                                 </button>
-                                                                                <button onClick={handleDeleteGroup}
-                                                                                        className="px-4 py-2 text-sm font-medium text-white bg-red-500 rounded-md hover:bg-red-600">
+                                                                                <button
+                                                                                    onClick={() => handleDeleteGroup(product.group_id)}
+                                                                                    className="px-4 py-2 text-sm font-medium text-white bg-red-500 rounded-md hover:bg-red-600"
+                                                                                >
                                                                                     Delete
                                                                                 </button>
                                                                             </div>
@@ -490,6 +506,20 @@ export default function GroupOrders() {
                                                                     </div>
                                                                 </Dialog>
                                                             </dd>
+
+                                                            <div className="mt-5">
+                                                                {product.users_count === 5 && (
+                                                                    <button
+                                                                        onClick={() => handleAddToCart(product.product_details?.product_name)}
+                                                                        className="relative w-full flex items-center justify-center rounded-md border border-transparent bg-altBackground px-4 py-2 text-sm font-medium text-gray-900 hover:bg-newColor group"
+                                                                    >
+                                                                        <ShoppingCartIcon className="h-5 w-5 mr-2 text-newColor group-hover:text-white" aria-hidden="true" />
+                                                                        <p className="text-newColor group-hover:text-white">Buy Now</p>
+                                                                        <span className="sr-only">, {product.product_name}</span>
+                                                                    </button>
+                                                                )}
+                                                            </div>
+
                                                         </div>
                                                     </dl>
                                                 </div>
@@ -499,7 +529,7 @@ export default function GroupOrders() {
                                                 <h4 className="sr-only">Status</h4>
                                                 <p className="text-sm font-medium text-gray-900">
                                                     Last Updated on <time
-                                                    dateTime={product.updated_at}>{new Date(product.updated_at).toLocaleDateString('en-US', {
+                                                    dateTime={product.group.updated_at}>{new Date(product.group.updated_at).toLocaleDateString('en-US', {
                                                     month: 'numeric',
                                                     day: 'numeric',
                                                     year: '2-digit'
@@ -509,7 +539,7 @@ export default function GroupOrders() {
                                                     <div className="overflow-hidden rounded-full bg-gray-200">
                                                         <div
                                                             className="h-2 rounded-full bg-primary"
-                                                            style={{width: `${(product.users_count / 10) * 100}%`}}
+                                                            style={{width: `${(product.users_count / 5) * 100}%`}}
                                                         />
                                                     </div>
                                                     <div
@@ -520,11 +550,11 @@ export default function GroupOrders() {
                                                             Just Starting
                                                         </div>
                                                         <div
-                                                            className={classNames(product.users_count >= 5 ? 'text-primary' : '', 'text-center')}>
+                                                            className={classNames(product.users_count >= 2 ? 'text-primary' : '', 'text-center')}>
                                                             Halfway There
                                                         </div>
                                                         <div
-                                                            className={classNames(product.users_count >= 10 ? 'text-primary' : '', 'text-right')}>
+                                                            className={classNames(product.users_count >= 5 ? 'text-primary' : '', 'text-right')}>
                                                             Group Completed
                                                         </div>
                                                     </div>
@@ -533,6 +563,47 @@ export default function GroupOrders() {
                                         </div>
                                     ))}
                                 </div>
+                            </div>
+
+                            {/* Pagination */}
+                            <div className="mt-6 sm:flex sm:justify-between">
+                                <nav className="flex items-center justify-center">
+                                    <ul className="inline-flex -space-x-px shadow-sm text-sm font-medium">
+                                        <li>
+                                            <button
+                                                onClick={() => handlePageChange(currentPage - 1)}
+                                                disabled={currentPage === 1}
+                                                className="inline-flex items-center rounded-l-md border border-gray-300 bg-white px-2 py-2 text-gray-700 hover:bg-gray-50 focus:z-20 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
+                                            >
+                                                Previous
+                                            </button>
+                                        </li>
+                                        {Array.from({ length: totalPages }, (_, index) => (
+                                            <li key={index + 1}>
+                                                <button
+                                                    onClick={() => handlePageChange(index + 1)}
+                                                    className={classNames(
+                                                        currentPage === index + 1
+                                                            ? 'border-indigo-500 bg-indigo-50 text-indigo-600'
+                                                            : 'border-gray-300 bg-white text-gray-700 hover:bg-gray-50',
+                                                        'inline-flex items-center border px-4 py-2 text-gray-700 hover:bg-gray-50 focus:z-20 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500'
+                                                    )}
+                                                >
+                                                    {index + 1}
+                                                </button>
+                                            </li>
+                                        ))}
+                                        <li>
+                                            <button
+                                                onClick={() => handlePageChange(currentPage + 1)}
+                                                disabled={currentPage === totalPages}
+                                                className="inline-flex items-center rounded-r-md border border-gray-300 bg-white px-2 py-2 text-gray-700 hover:bg-gray-50 focus:z-20 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
+                                            >
+                                                Next
+                                            </button>
+                                        </li>
+                                    </ul>
+                                </nav>
                             </div>
 
 

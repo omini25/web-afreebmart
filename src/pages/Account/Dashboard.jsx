@@ -74,6 +74,8 @@ export default function Dashboard() {
         fetchOrders();
     }, []);
 
+    console.log(recentOrders)
+
 
     return (
         <>
@@ -176,66 +178,129 @@ export default function Dashboard() {
                                                                 className="absolute inset-y-0 left-0 -z-10 w-screen border-b border-gray-200 bg-gray-50"/>
                                                         </th>
                                                     </tr>
-                                                    {recentOrders.map((order) => (
-                                                        <tr key={order.id}>
-                                                            <td className="relative py-5 pr-6">
-                                                                <div className="flex gap-x-6">
-                                                                    <CubeIcon
-                                                                        className="hidden h-6 w-5 flex-none text-gray-400 sm:block"
-                                                                        aria-hidden="true"
-                                                                    />
-                                                                    <div className="flex-auto">
-                                                                        <div className="flex items-start gap-x-3">
-                                                                            <div
-                                                                                className="text-sm font-medium leading-6 text-gray-900">
-                                                                                ${order.total_price}
+                                                    {recentOrders
+                                                        .sort((a, b) => new Date(b.created_at) - new Date(a.created_at)) // Sort by date descending
+                                                        .slice(0, 5) // Take only the first 5 orders
+                                                        .map((order) => (
+                                                            order.order_items ? (
+                                                                JSON.parse(order.order_items).map((item, index) => (
+                                                                    <tr key={index}>
+                                                                        <td className="relative py-5 pr-6">
+                                                                            <div className="flex gap-x-6">
+                                                                                <CubeIcon
+                                                                                    className="hidden h-6 w-5 flex-none text-gray-400 sm:block"
+                                                                                    aria-hidden="true"
+                                                                                />
+                                                                                <div className="flex-auto">
+                                                                                    <div className="flex items-start gap-x-3">
+                                                                                        <div className="text-sm font-medium leading-6 text-gray-900">
+                                                                                            ${Math.round(item.total_price * 100) / 100}
+                                                                                        </div>
+                                                                                        <div
+                                                                                            className={classNames(
+                                                                                                statuses[order.status],
+                                                                                                'rounded-md py-1 px-2 text-xs font-medium ring-1 ring-inset'
+                                                                                            )}
+                                                                                        >
+                                                                                            {order.status}
+                                                                                        </div>
+                                                                                    </div>
+                                                                                    <p className="text-xs leading-5 text-gray-500">
+                                                                                        {new Date(order.created_at).toLocaleDateString('en-US', {
+                                                                                            month: 'numeric',
+                                                                                            day: 'numeric',
+                                                                                            year: 'numeric'
+                                                                                        })}
+                                                                                    </p>
+                                                                                </div>
                                                                             </div>
-                                                                            <div
-                                                                                className={classNames(
-                                                                                    statuses[order.status],
-                                                                                    'rounded-md py-1 px-2 text-xs font-medium ring-1 ring-inset'
-                                                                                )}
-                                                                            >
-                                                                                {order.status}
+                                                                            <div className="absolute bottom-0 right-full h-px w-screen bg-gray-100" />
+                                                                            <div className="absolute bottom-0 left-0 h-px w-screen bg-gray-100" />
+                                                                        </td>
+                                                                        <td className="hidden py-5 pr-6 sm:table-cell">
+                                                                            <div className="text-sm leading-6 text-gray-900">
+                                                                                {item.quantity} {item.product_name}
+                                                                            </div>
+                                                                            <div className="mt-1 text-xs leading-5 text-gray-500">
+                                                                                {order.shipping_address}
+                                                                            </div>
+                                                                        </td>
+                                                                        <td className="py-5 text-right">
+                                                                            <div className="flex justify-end">
+                                                                                <a
+                                                                                    href={`/order/${order.id}`}
+                                                                                    className="text-sm font-medium leading-6 text-primary hover:text-secondary"
+                                                                                >
+                                                                                    <span className="hidden sm:inline">Order Details</span>
+                                                                                    <span className="sr-only">, Order #{order.id}</span>
+                                                                                </a>
+                                                                            </div>
+                                                                            <div className="mt-1 text-xs leading-5 text-gray-500">
+                                                                                <span className="text-gray-900">#{order.id}-{item.product_id}</span>
+                                                                            </div>
+                                                                        </td>
+                                                                    </tr>
+                                                                ))
+                                                            ) : (
+                                                                <tr key={order.id}>
+                                                                    <td className="relative py-5 pr-6">
+                                                                        <div className="flex gap-x-6">
+                                                                            <CubeIcon
+                                                                                className="hidden h-6 w-5 flex-none text-gray-400 sm:block"
+                                                                                aria-hidden="true"
+                                                                            />
+                                                                            <div className="flex-auto">
+                                                                                <div className="flex items-start gap-x-3">
+                                                                                    <div className="text-sm font-medium leading-6 text-gray-900">
+                                                                                        ${order.total_price}
+                                                                                    </div>
+                                                                                    <div
+                                                                                        className={classNames(
+                                                                                            statuses[order.status],
+                                                                                            'rounded-md py-1 px-2 text-xs font-medium ring-1 ring-inset'
+                                                                                        )}
+                                                                                    >
+                                                                                        {order.status}
+                                                                                    </div>
+                                                                                </div>
+                                                                                <p className="text-xs leading-5 text-gray-500">
+                                                                                    {new Date(order.created_at).toLocaleDateString('en-US', {
+                                                                                        month: 'numeric',
+                                                                                        day: 'numeric',
+                                                                                        year: 'numeric'
+                                                                                    })}
+                                                                                </p>
                                                                             </div>
                                                                         </div>
-                                                                        <p className="text-xs leading-5 text-gray-500">
-                                                                            {new Date(order.created_at).toLocaleDateString('en-US', {
-                                                                                month: 'numeric',
-                                                                                day: 'numeric',
-                                                                                year: 'numeric'
-                                                                            })}
-                                                                        </p>
-                                                                    </div>
-                                                                </div>
-                                                                <div
-                                                                    className="absolute bottom-0 right-full h-px w-screen bg-gray-100"/>
-                                                                <div
-                                                                    className="absolute bottom-0 left-0 h-px w-screen bg-gray-100"/>
-                                                            </td>
-                                                            <td className="hidden py-5 pr-6 sm:table-cell">
-                                                                <div
-                                                                    className="text-sm leading-6 text-gray-900">{order.product_name}</div>
-                                                                <div
-                                                                    className="mt-1 text-xs leading-5 text-gray-500">{order.shipping_address}</div>
-                                                            </td>
-                                                            <td className="py-5 text-right">
-                                                                <div className="flex justify-end">
-                                                                    <a
-                                                                        href={`/order/${order.id}`}
-                                                                        className="text-sm font-medium leading-6 text-primary hover:text-secondary"
-                                                                    >
-                                                                        <span className="hidden sm:inline">Order Details</span>
-                                                                        <span className="sr-only">, Order #{order.id}</span>
-                                                                    </a>
-                                                                </div>
-                                                                <div className="mt-1 text-xs leading-5 text-gray-500">
-                                                                   <span
-                                                                    className="text-gray-900">#{order.id}</span>
-                                                                </div>
-                                                            </td>
-                                                        </tr>
-                                                    ))}
+                                                                        <div className="absolute bottom-0 right-full h-px w-screen bg-gray-100" />
+                                                                        <div className="absolute bottom-0 left-0 h-px w-screen bg-gray-100" />
+                                                                    </td>
+                                                                    <td className="hidden py-5 pr-6 sm:table-cell">
+                                                                        <div className="text-sm leading-6 text-gray-900">
+                                                                            {order.quantity} {order.product_name}
+                                                                        </div>
+                                                                        <div className="mt-1 text-xs leading-5 text-gray-500">
+                                                                            {order.shipping_address}
+                                                                        </div>
+                                                                    </td>
+                                                                    <td className="py-5 text-right">
+                                                                        <div className="flex justify-end">
+                                                                            <a
+                                                                                href={`/order/${order.id}`}
+                                                                                className="text-sm font-medium leading-6 text-primary hover:text-secondary"
+                                                                            >
+                                                                                <span className="hidden sm:inline">Order Details</span>
+                                                                                <span className="sr-only">, Order #{order.id}</span>
+                                                                            </a>
+                                                                        </div>
+                                                                        <div className="mt-1 text-xs leading-5 text-gray-500">
+                                                                            <span className="text-gray-900">#{order.id}</span>
+                                                                        </div>
+                                                                    </td>
+                                                                </tr>
+                                                            )
+                                                        ))
+                                                    }
 
                                             </tbody>
                                         </table>

@@ -4,6 +4,7 @@ import Footer from "../../components/Footer.jsx";
 import { useState } from 'react';
 import contact from "../../assets/images/landing/contact-2.png"
 import {toast} from "react-toastify";
+import axios from "axios";
 
 export function ContactPage() {
     const [formData, setFormData] = useState({
@@ -22,27 +23,26 @@ export function ContactPage() {
         e.preventDefault();
 
         try {
-            const response = await fetch('/send-email', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(formData)
-            });
+            // Send form data to your external API
+            const response = await axios.post(`{server}/contact-form`, formData);
 
-            if (response.ok) {
-                // Email sent successfully
-                console.log('Email sent successfully!');
-                toast.success('Message sent successfully!')
-                // You can display a success message to the user here
+            // Handle the API response (e.g., check for success)
+            if (response.status === 200) {
+                toast.success('Message sent successfully!');
+                // Optionally clear the form after successful submission
+                setFormData({
+                    firstName: '',
+                    lastName: '',
+                    email: '',
+                    phoneNumber: '',
+                    message: ''
+                });
             } else {
-                // Handle error
-                console.error('Error sending email:', response.status);
-                // Display an error message to the user
+                toast.error('Failed to send message. Please try again.');
             }
         } catch (error) {
-            console.error('Error sending email:', error);
-            // Display an error message to the user
+            console.error('Error sending message:', error);
+            toast.error('Failed to send message. Please try again.');
         }
     };
 
@@ -85,7 +85,7 @@ export function ContactPage() {
                                             <div className="mt-2.5">
                                                 <input
                                                     type="text"
-                                                    name="first-name"
+                                                    name="firstName"
                                                     id="first-name"
                                                     autoComplete="given-name"
                                                     value={formData.firstName}
@@ -102,7 +102,7 @@ export function ContactPage() {
                                             <div className="mt-2.5">
                                                 <input
                                                     type="text"
-                                                    name="last-name"
+                                                    name="lastName"
                                                     id="last-name"
                                                     autoComplete="family-name"
                                                     value={formData.lastName}
@@ -136,7 +136,7 @@ export function ContactPage() {
                                             <div className="mt-2.5">
                                                 <input
                                                     type="tel"
-                                                    name="phone-number"
+                                                    name="phoneNumber"
                                                     id="phone-number"
                                                     autoComplete="tel"
                                                     value={formData.phoneNumber}

@@ -19,7 +19,7 @@ function classNames(...classes) {
 export default function VendorProducts() {
     const {vendorId} = useParams()
     const user = JSON.parse(localStorage.getItem('user')) || {};
-    const userId = user.user.id;
+    const userId = user.id;
     const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false)
     const [allProducts, setAllProducts] = useState([])
     const [categories, setCategories] = useState([])

@@ -47,7 +47,7 @@ export function FreshnessPolicy() {
                     <ul className="list-disc list-inside mb-4">
                         <li>Vendors must use durable and tamper-evident packaging to protect products during transit and storage.
                         </li>
-                        <li>Any compromised packaging is flagged by vendors to ensure product quality and safety.
+                        <li>Any compromised packaging is flagged by Afreebmart to ensure product quality and safety.
                         </li>
 
                     </ul>

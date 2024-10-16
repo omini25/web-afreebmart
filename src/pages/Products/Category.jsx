@@ -45,7 +45,11 @@ export default function Category() {
         try {
             const response = await axios.get(`${server}/products/category/{categoryName}`);
             if (Array.isArray(response.data.products)) {
-                setAllProducts(response.data.products);
+                // Filter out products with 'pending' or 'suspended' status
+                const filteredProducts = response.data.products.filter(
+                    (product) => product.status !== 'pending' && product.status !== 'suspended'
+                );
+                setAllProducts(filteredProducts);
             } else {
                 console.error('Unexpected API response structure:', response.data);
                 setAllProducts([]); // Set to empty array if response is not as expected

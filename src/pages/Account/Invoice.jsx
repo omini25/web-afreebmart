@@ -1,14 +1,6 @@
 import {Fragment} from 'react'
 import {
-
     CalendarDaysIcon,
-    FaceFrownIcon,
-    FaceSmileIcon,
-    FireIcon,
-    HandThumbUpIcon,
-    HeartIcon,
-
-    XMarkIcon as XMarkIconMini,
     CreditCardIcon,
     CubeIcon,
     MapPinIcon, RectangleGroupIcon,
@@ -46,6 +38,7 @@ export default function Invoice() {
     const [isLoading, setIsLoading] = useState(true);
     const user = JSON.parse(localStorage.getItem('user')) || {};
     const navigate = useNavigate();
+    const logoUrl = 'https://afreebmart.com/assets/afreemart-logo-CUreYwDY.png';
 
     useEffect(() => {
         // Check if localStorage.isLoggedIn is true
@@ -77,80 +70,127 @@ export default function Invoice() {
     const handleDownloadReceipt = () => {
         const doc = new jsPDF();
 
-        // Set font
-        doc.setFont('Helvetica');
+        // Load the image
+        const img = new Image();
+        img.crossOrigin = "Anonymous";  // Handle CORS issues
+        img.onload = () => {
+            try {
+                // Convert image to Base64
+                const base64Logo = getBase64Image(img);
 
-        // Add receipt title
-        doc.setFontSize(22);
-        doc.setTextColor(44, 62, 80);
-        doc.text('Afreebmart Receipt', 105, 20, { align: 'center' });
+                // Set font
+                doc.setFont('Helvetica');
 
-        // Add logo placeholder
-        doc.setDrawColor(52, 152, 219);
-        doc.rect(10, 10, 30, 15);
-        doc.setFontSize(8);
-        doc.text('LOGO', 25, 20, { align: 'center' });
+                // Add receipt title
+                doc.setFontSize(22);
+                doc.setTextColor(44, 62, 80);
+                doc.text('Afreebmart Receipt', 105, 20, { align: 'center' });
 
-        // Add invoice details
-        doc.setFontSize(10);
-        doc.setTextColor(52, 73, 94);
-        doc.text(`Invoice ID: ${invoiceId}`, 10, 40);
-        doc.text(`Issued on: ${new Date(invoices.order.created_at).toLocaleDateString()}`, 10, 45);
-        doc.text(`Paid on: ${new Date(invoices.payment.created_at).toLocaleDateString()}`, 10, 50);
+                // Add the Base64 encoded image to the PDF
+                if (base64Logo) {
+                    doc.addImage(base64Logo, 'PNG', 10, 10, 30, 15);
+                } else {
+                    console.warn('Logo could not be added to the PDF');
+                }
 
-        // Add separator line
-        doc.setDrawColor(189, 195, 199);
-        doc.line(10, 55, 200, 55);
+                // Add invoice details
+                doc.setFontSize(10);
+                doc.setTextColor(52, 73, 94);
+                doc.text(`Invoice ID: ${invoiceId}`, 10, 40);
+                doc.text(`Issued on: ${new Date(invoices.order.created_at).toLocaleDateString()}`, 10, 45);
+                doc.text(`Paid on: ${new Date(invoices.payment.created_at).toLocaleDateString()}`, 10, 50);
 
-        // Add customer details
-        doc.setFontSize(12);
-        doc.setTextColor(44, 62, 80);
-        doc.text('Billed To:', 10, 65);
-        doc.setFontSize(10);
-        doc.setTextColor(52, 73, 94);
-        doc.text(`${invoices.order.user_name}`, 10, 70);
-        doc.text(`${invoices.order.shipping_address}`, 10, 75);
+                // Add separator line
+                doc.setDrawColor(189, 195, 199);
+                doc.line(10, 55, 200, 55);
 
-        // Add order details
-        doc.setFontSize(14);
-        doc.setTextColor(44, 62, 80);
-        doc.text('Order Summary', 105, 90, { align: 'center' });
+                // Add customer details
+                doc.setFontSize(12);
+                doc.setTextColor(44, 62, 80);
+                doc.text('Billed To:', 10, 65);
+                doc.setFontSize(10);
+                doc.setTextColor(52, 73, 94);
+                doc.text(`${invoices.order.user_name}`, 10, 70);
+                doc.text(`${invoices.order.shipping_address}`, 10, 75);
 
-        const headers = [['Product', 'Price', 'Quantity', 'Total']];
-        const data = [
-            [
-                invoices.order.product_name,
-                `$${invoices.order.price}`,
-                invoices.order.quantity,
-                `$${invoices.order.total_price}`,
-            ],
-        ];
+                // Add order details
+                doc.setFontSize(14);
+                doc.setTextColor(44, 62, 80);
+                doc.text('Order Summary', 105, 90, { align: 'center' });
 
-        autoTable(doc, {
-            head: headers,
-            body: data,
-            startY: 95,
-            theme: 'striped',
-            headStyles: { fillColor: [52, 152, 219], textColor: 255 },
-            bodyStyles: { textColor: 50 },
-            alternateRowStyles: { fillColor: [241, 245, 249] },
-        });
+                const headers = [['Product', 'Price', 'Quantity', 'Total']];
+                const data = [
+                    [
+                        invoices.order.product_name,
+                        `$${invoices.order.price}`,
+                        invoices.order.quantity,
+                        `$${(invoices.order.price * invoices.order.quantity).toFixed(2)}`,
+                    ],
+                    // ['Tip', '', '', `$${invoices.order.tip || '0.00'}`],
+                    ['Taxes (5%)', '', '', `$${(invoices.order.total_price * 0.05).toFixed(2)}`],
+                    ['Shipping', '', '', '$5.99'],
+                ];
 
-        // Add total amount
-        doc.setFontSize(12);
-        doc.setTextColor(44, 62, 80);
-        doc.setFont('Helvetica', 'bold');
-        doc.text(`Total: $${invoices.payment.total_cost}.00`, 190, doc.lastAutoTable.finalY + 10, { align: 'right' });
+                autoTable(doc, {
+                    head: headers,
+                    body: data,
+                    startY: 95,
+                    theme: 'striped',
+                    headStyles: { fillColor: [52, 152, 219], textColor: 255 },
+                    bodyStyles: { textColor: 50 },
+                    alternateRowStyles: { fillColor: [241, 245, 249] },
+                });
 
-        // Add footer
-        doc.setFontSize(8);
-        doc.setTextColor(127, 140, 141);
-        doc.text('Thank you for your purchase!', 105, 280, { align: 'center' });
-        doc.text('For any questions, please contact support@afreebmart.com', 105, 285, { align: 'center' });
+                // Add total amount
+                doc.setFontSize(12);
+                doc.setTextColor(44, 62, 80);
+                doc.setFont('Helvetica', 'bold');
+                doc.text(`Total: $${invoices.payment.total_cost}`, 190, doc.lastAutoTable.finalY + 10, { align: 'right' });
 
-        // Save and download the PDF
-        doc.save(`Afreebmart_Receipt_${invoiceId}.pdf`);
+                // Add footer
+                doc.setFontSize(8);
+                doc.setTextColor(127, 140, 141);
+                doc.text('Thank you for your purchase!', 105, 280, { align: 'center' });
+                doc.text('For any questions, please contact support@afreebmart.com', 105, 285, { align: 'center' });
+
+                // Save and download the PDF
+                doc.save(`Afreebmart_Receipt_${invoiceId}.pdf`);
+            } catch (error) {
+                console.error('Error generating PDF:', error);
+                toast.error('Failed to generate receipt. Please try again.');
+            }
+        };
+        img.onerror = () => {
+            console.error('Error loading logo image:', logoUrl);
+            toast.error('Failed to load logo for the receipt.');
+            // Generate PDF without logo
+            handleDownloadReceiptWithoutLogo();
+        };
+        img.src = logoUrl;
     };
+
+// Helper function to generate PDF without logo
+    const handleDownloadReceiptWithoutLogo = () => {
+        const doc = new jsPDF();
+        // ... (same PDF generation code as above, without the logo part)
+        // This ensures the user can still get a receipt even if the logo fails to load
+    };
+
+// Function to convert image to Base64
+    function getBase64Image(img) {
+        try {
+            const canvas = document.createElement("canvas");
+            canvas.width = img.width;
+            canvas.height = img.height;
+            const ctx = canvas.getContext("2d");
+            ctx.drawImage(img, 0, 0);
+            const dataURL = canvas.toDataURL("image/png");
+            return dataURL;
+        } catch (error) {
+            console.error("Error in getBase64Image:", error);
+            return null;
+        }
+    }
 
 
 
@@ -336,7 +376,33 @@ export default function Invoice() {
                                             <td className="hidden py-5 pl-8 pr-0 text-right align-top tabular-nums text-gray-700 sm:table-cell">
                                                 {invoices.order.quantity}
                                             </td>
-                                            <td className="py-5 pl-8 pr-0 text-right align-top tabular-nums text-gray-700">${invoices.order.total_price}</td>
+                                            <td className="py-5 pl-8 pr-0 text-right align-top tabular-nums text-gray-700">${(invoices.order.price * invoices.order.quantity).toFixed(2)}</td>
+                                        </tr>
+
+                                        <tr  className="border-b border-gray-100">
+                                            <td className="max-w-0 px-0 py-5 align-top">
+                                                <div className="truncate font-medium text-gray-900">Delivery Fees</div>
+                                            </td>
+                                            <td className="hidden py-5 pl-8 pr-0 text-right align-top tabular-nums text-gray-700 sm:table-cell">
+                                                $ 5.99
+                                            </td>
+                                            <td className="hidden py-5 pl-8 pr-0 text-right align-top tabular-nums text-gray-700 sm:table-cell">
+                                                1
+                                            </td>
+                                            <td className="py-5 pl-8 pr-0 text-right align-top tabular-nums text-gray-700">$ 5.99</td>
+                                        </tr>
+
+                                        <tr  className="border-b border-gray-100">
+                                            <td className="max-w-0 px-0 py-5 align-top">
+                                                <div className="truncate font-medium text-gray-900">Tax</div>
+                                            </td>
+                                            <td className="hidden py-5 pl-8 pr-0 text-right align-top tabular-nums text-gray-700 sm:table-cell">
+                                                ${invoices.order.price * 0.05}
+                                            </td>
+                                            <td className="hidden py-5 pl-8 pr-0 text-right align-top tabular-nums text-gray-700 sm:table-cell">
+                                                5%
+                                            </td>
+                                            <td className="py-5 pl-8 pr-0 text-right align-top tabular-nums text-gray-700"> ${invoices.order.price * 0.05}</td>
                                         </tr>
                                     </tbody>
                                     <tfoot>

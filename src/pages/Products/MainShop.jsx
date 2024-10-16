@@ -43,7 +43,9 @@ export default function MainShop() {
             const response = await axios.get(`${server}/products`)
             if (Array.isArray(response.data.products)) {
                 const filteredProducts = response.data.products.filter(
-                    (product) => !product.group.includes("1")
+                    (product) => !product.group.includes("1") &&
+                        product.status !== 'pending' &&
+                        product.status !== 'suspended'
                 );
                 setAllProducts(filteredProducts)
             } else {

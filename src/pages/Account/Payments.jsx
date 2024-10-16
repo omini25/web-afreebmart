@@ -33,6 +33,9 @@ export default function Payments() {
     const [isLoading, setIsLoading] = useState(true);
     const user = JSON.parse(localStorage.getItem('user')) || {};
     const navigate = useNavigate();
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 10;
+
 
     useEffect(() => {
         // Check if localStorage.isLoggedIn is true
@@ -59,6 +62,20 @@ export default function Payments() {
 
         fetchPlans();
     }, []);
+
+    // Get current items for the page
+    const indexOfLastItem = currentPage * itemsPerPage;
+    const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+    const currentItems = plans
+        .sort((a, b) => new Date(b.created_at) - new Date(a.created_at)) // Sort by date descending
+        .slice(indexOfFirstItem, indexOfLastItem);
+
+    // Pagination controls
+    const totalPages = Math.ceil(plans.length / itemsPerPage);
+    const pageNumbers = [];
+    for (let i = 1; i <= totalPages; i++) {
+        pageNumbers.push(i);
+    }
 
 
     if (isLoading) return (
@@ -152,12 +169,12 @@ export default function Payments() {
                                 </tr>
                                 </thead>
                                 <tbody>
-                                {plans.map((plan, planIdx) => (
+                                {currentItems.map((plan, planIdx) => (
                                     <tr key={plan.id}>
                                         <td
                                             className={classNames(
-                                                planIdx === 0 ? '' : 'border-t border-transparent',
-                                                'relative py-4 pl-4 pr-3 text-sm sm:pl-6'
+                                                planIdx === 0 ? '' : 'border-t border-gray-200',
+                                                'relative py-4 pl-4 pr-3 text-sm sm:pl-3'
                                             )}
                                         >
                                             <div className="font-medium text-gray-900">
@@ -221,6 +238,47 @@ export default function Payments() {
                                     </tr>
                                 ))}
                                 </tbody>
+
+                                {/* Pagination */}
+                                <div className="mt-6 sm:flex sm:justify-between">
+                                    <nav className="flex items-center justify-center">
+                                        <ul className="inline-flex -space-x-px shadow-sm text-sm font-medium">
+                                            <li>
+                                                <button
+                                                    onClick={() => setCurrentPage(currentPage - 1)}
+                                                    disabled={currentPage === 1}
+                                                    className="inline-flex items-center rounded-l-md border border-gray-300 bg-white px-2 py-2 text-gray-700 hover:bg-gray-50 focus:z-20 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
+                                                >
+                                                    Previous
+                                                </button>
+                                            </li>
+                                            {pageNumbers.map((number) => (
+                                                <li key={number}>
+                                                    <button
+                                                        onClick={() => setCurrentPage(number)}
+                                                        className={classNames(
+                                                            currentPage === number
+                                                                ? 'border-indigo-500 bg-indigo-50 text-indigo-600'
+                                                                : 'border-gray-300 bg-white text-gray-700 hover:bg-gray-50',
+                                                            'inline-flex items-center border px-4 py-2 text-gray-700 hover:bg-gray-50 focus:z-20 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500'
+                                                        )}
+                                                    >
+                                                        {number}
+                                                    </button>
+                                                </li>
+                                            ))}
+                                            <li>
+                                                <button
+                                                    onClick={() => setCurrentPage(currentPage + 1)}
+                                                    disabled={currentPage === totalPages}
+                                                    className="inline-flex items-center rounded-r-md border border-gray-300 bg-white px-2 py-2 text-gray-700 hover:bg-gray-50 focus:z-20 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
+                                                >
+                                                    Next
+                                                </button>
+                                            </li>
+                                        </ul>
+                                    </nav>
+                                </div>
                             </table>
                         </div>
                     </div>

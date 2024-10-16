@@ -31,6 +31,13 @@ export default function Header() {
     const [isOpen1, setIsOpen1] = useState(false);
     const [isOpen2, setIsOpen2] = useState(false);
     const [isOpen3, setIsOpen3] = useState(false);
+    const [isOpen4, setIsOpen4] = useState(false);
+    const [isOpen5, setIsOpen5] = useState(false);
+    const [isOpen6, setIsOpen6] = useState(false);
+    const [isOpen7, setIsOpen7] = useState(false);
+    const [isOpen8, setIsOpen8] = useState(false);
+    const [isOpen9, setIsOpen9] = useState(false);
+    const [isOpen10, setIsOpen10] = useState(false);
     const [searchModalOpen, setSearchModalOpen] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
     const navigate = useNavigate();
@@ -53,27 +60,95 @@ export default function Header() {
         categories: [
             {
                 name: 'Main Shop',
-                featured: [
-                    { name: 'Produce', href: '/subcategory/Produce' },
-                    { name: 'Bread & Bakery', href: '/subcategory/Bread & Bakery' },
-                    { name: 'Breakfast & Cereal', href: '/subcategory/Breakfast & Cereal' },
-                    { name: 'Dairy & Eggs', href: '/subcategory/Dairy & Eggs' },
-                    { name: 'Meat & Seafood', href: '/subcategory/Meat & Seafood' },
-                    { name: 'Snacks', href: '/subcategory/Snacks' },
-                    { name: 'Beverage', href: '/subcategory/Beverage' },
-                    { name: 'Coffee', href: '/subcategory/Coffee' },
-                    { name: 'Cooking Oil', href: '/subcategory/Cooking Oil' },
-                    { name: 'Seasoning Spice', href: '/subcategory/Seasoning Spice' },
+
+                beverage: [
+                    { name: 'Tea', href: '/subcategory/Tea'},
+                    { name: 'Juices', href: '/subcategory/Juices'},
+                    { name: 'Others', href: '/subcategory/Others'},
+                    { name: 'Alcoholic Drinks', href: '/subcategory/Alcoholic Drinks'},
+                    { name: 'Soft Drinks', href: '/subcategory/Soft Drinks'},
                 ],
-                collection: [
-                    { name: 'Caribbean', href: '/subcategory/Caribbean' },
-                    { name: 'African', href: '/subcategory/African' },
-                    { name: 'Others', href: '/subcategory/Others' },
+
+                baking: [
+                    { name: 'Flours', href: '/subcategory/Flours'},
+                    { name: 'Baking Mixes', href: '/subcategory/Baking Mixes'},
+                    { name: 'Sweeteners', href: '/subcategory/Sweeteners'},
+                    { name: 'Leavening Agents', href: '/subcategory/Leavening Agents'},
+                    { name: 'Others', href: '/subcategory/Others'},
                 ],
-                categories: [
-                    { name: 'Meat', href: '/subcategory/Meat' },
-                    { name: 'Poultry', href: '/subcategory/Poultry' },
+
+                canned: [
+                    { name: 'Canned Fish', href: '/subcategory/Canned Fish'},
+                    { name: 'Canned Meat', href: '/subcategory/Canned Meat'},
+                    { name: 'Canned Vegetables', href: '/subcategory/Canned Vegetables'},
+                    { name: 'Canned Bean', href: '/subcategory/Canned Bean'},
+                    { name: 'Jams & Spreads', href: '/subcategory/Jams & Spreads'},
+                    { name: 'Others', href: '/subcategory/Others'},
+
                 ],
+
+                diary: [
+                    { name: 'Dairy', href: '/subcategory/Dairy'},
+                    { name: 'Dairy Alternatives', href: '/subcategory/Dairy Alternatives'},
+                    { name: 'Others', href: '/subcategory/Others'},
+                ],
+
+                fruit: [
+                    { name: 'Fresh Fruits', href: '/subcategory/Fresh Fruits'},
+                    { name: 'Fresh Vegetable', href: '/subcategory/Fresh Vegetable'},
+                    { name: 'Frozen Fruits', href: '/subcategory/Frozen Fruits'},
+                    { name: 'Dried Vegetables', href: '/subcategory/Dried Vegetables'},
+                    { name: 'Others', href: '/subcategory/Others'},
+
+                ],
+
+                frozen: [
+                    { name: 'Frozen Meats', href:'/subcategory/Frozen Meats'},
+                    { name: 'Frozen Seafood', href:'/subcategory/Frozen Seafood'},
+                    { name: 'Frozen Doughs', href:'/subcategory/Frozen Doughs'},
+                    { name: 'Others', href:'/subcategory/Others'},
+                ],
+
+                grains: [
+                    { name: 'Rice', href:'/subcategory/Rice'},
+                    { name: 'Flours', href:'/subcategory/Flours'},
+                    { name: 'Yam & Cassava', href:'/subcategory/Yam & Cassava'},
+                    { name: 'Plantain', href:'/subcategory/Plantain'},
+                    { name: 'Beans & Lentils', href:'/subcategory/Beans & Lentils'},
+                    { name: 'Couscous', href:'/subcategory/Couscous'},
+                    { name: 'Others', href:'/subcategory/Others'},
+                ],
+
+                meats: [
+                    { name: 'Fresh Meats', href:'/subcategory/Fresh Meats'},
+                    { name: 'Dried/Smoked Meats', href:'/subcategory/Dried/Smoked Meats'},
+                    { name: 'Fresh Seafood', href:'/subcategory/Fresh Seadood'},
+                    { name: 'Dried Seafood', href:'/subcategory/Dried Seafood'},
+                    { name: 'Others', href:'/subcategory/Others'},
+                ],
+
+                oils: [
+                    { name: 'Palm Oil', href:'/subcategory/Palm Oil'},
+                    { name: 'Coconut Oil', href:'/subcategory/Coconut Oil'},
+                    { name: 'Groundnut Oil', href:'/subcategory/Groundnut Oil'},
+                    { name: 'Other Oils', href:'/subcategory/Other Oils'},
+                ],
+
+                snacks: [
+                    { name: 'African Snacks', href:'/subcategory/African Snacks'},
+                    { name: 'Caribbean Snacks', href:'/subcategory/Caribbean Snacks'},
+                    { name: 'Desserts', href:'/subcategory/Desserts'},
+                    { name: 'Others', href:'/subcategory/Others'},
+                ],
+
+                spices: [
+                    { name: 'African Spices', href:'/subcategory/African Spices'},
+                    { name: 'Caribbean Seasonings', href:'/subcategory/Caribbean Seasonings'},
+                    { name: 'Herbs', href:'/subcategory/Herbs'},
+                    { name: 'Bouillon Cubes', href:'/subcategory/Bouillon Cubes'},
+                    { name: 'Chili Powders', href:'/subcategory/Chili Powders'},
+                    { name: 'Others', href:'/subcategory/Others'},
+                ]
             },
         ],
         vendors: [
@@ -87,7 +162,7 @@ export default function Header() {
             },
         ],
         pages: [
-            { name: 'Group Shop', href: '/bulk-shop' },
+            { name: 'Bulk Shop', href: '/bulk-shop' },
         ],
     };
 
@@ -165,7 +240,7 @@ export default function Header() {
                                                 className="flex items-center justify-between w-full text-gray-900"
                                             >
                                                 <p id="mobile-featured-heading" className="font-medium">
-                                                    Fresh Food
+                                                    Beverages
                                                 </p>
                                                 <ChevronDownIcon
                                                     className={`h-5 w-5 transition-transform ${isOpen ? 'rotate-180' : ''}`}
@@ -174,7 +249,7 @@ export default function Header() {
                                             {isOpen && (
                                                 <ul role="list" aria-labelledby="mobile-featured-heading"
                                                     className="mt-6 space-y-6">
-                                                    {category.featured.map((item) => (
+                                                    {category.beverage.map((item) => (
                                                         <li key={item.name} className="flex">
                                                             <a href={item.href} className="text-gray-500">
                                                                 {item.name}
@@ -190,7 +265,7 @@ export default function Header() {
                                                 className="flex items-center justify-between w-full text-gray-900"
                                             >
                                                 <p id="mobile-categories-heading" className="font-medium">
-                                                   Frozen Foods
+                                                    Baking Ingredients
                                                 </p>
                                                 <ChevronDownIcon
                                                     className={`h-5 w-5 transition-transform ${isOpen1 ? 'rotate-180' : ''}`}
@@ -200,7 +275,7 @@ export default function Header() {
                                             {isOpen1 && (
                                                 <ul role="list" aria-labelledby="mobile-categories-heading"
                                                     className="mt-6 space-y-6">
-                                                    {category.categories.map((item) => (
+                                                    {category.baking.map((item) => (
                                                         <li key={item.name} className="flex">
                                                             <a href={item.href} className="text-gray-500">
                                                                 {item.name}
@@ -217,7 +292,7 @@ export default function Header() {
                                                 className="flex items-center justify-between w-full text-gray-900"
                                             >
                                                 <p id="mobile-collection-heading" className="font-medium">
-                                                   Foodie (Hot Food)
+                                                    Canned & Preserved Goods
                                                 </p>
                                                 <ChevronDownIcon
                                                     className={`h-5 w-5 transition-transform ${isOpen2 ? 'rotate-180' : ''}`}
@@ -227,7 +302,223 @@ export default function Header() {
                                             {isOpen2 && (
                                                 <ul role="list" aria-labelledby="mobile-collection-heading"
                                                     className="mt-6 space-y-6">
-                                                    {category.collection.map((item) => (
+                                                    {category.canned.map((item) => (
+                                                        <li key={item.name} className="flex">
+                                                            <a href={item.href} className="text-gray-500">
+                                                                {item.name}
+                                                            </a>
+                                                        </li>
+                                                    ))}
+                                                </ul>
+                                            )}
+                                        </div>
+
+                                        <div>
+                                            <button
+                                                onClick={() => setIsOpen3(!isOpen3)}
+                                                className="flex items-center justify-between w-full text-gray-900"
+                                            >
+                                                <p id="mobile-collection-heading" className="font-medium">
+                                                    Dairy & Dairy Alternatives
+                                                </p>
+                                                <ChevronDownIcon
+                                                    className={`h-5 w-5 transition-transform ${isOpen3 ? 'rotate-180' : ''}`}
+                                                />
+
+                                            </button>
+                                            {isOpen3 && (
+                                                <ul role="list" aria-labelledby="mobile-collection-heading"
+                                                    className="mt-6 space-y-6">
+                                                    {category.diary.map((item) => (
+                                                        <li key={item.name} className="flex">
+                                                            <a href={item.href} className="text-gray-500">
+                                                                {item.name}
+                                                            </a>
+                                                        </li>
+                                                    ))}
+                                                </ul>
+                                            )}
+                                        </div>
+
+                                        <div>
+                                            <button
+                                                onClick={() => setIsOpen4(!isOpen4)}
+                                                className="flex items-center justify-between w-full text-gray-900"
+                                            >
+                                                <p id="mobile-collection-heading" className="font-medium">
+                                                    Fruits & Vegetables
+                                                </p>
+                                                <ChevronDownIcon
+                                                    className={`h-5 w-5 transition-transform ${isOpen4 ? 'rotate-180' : ''}`}
+                                                />
+
+                                            </button>
+                                            {isOpen4 && (
+                                                <ul role="list" aria-labelledby="mobile-collection-heading"
+                                                    className="mt-6 space-y-6">
+                                                    {category.fruit.map((item) => (
+                                                        <li key={item.name} className="flex">
+                                                            <a href={item.href} className="text-gray-500">
+                                                                {item.name}
+                                                            </a>
+                                                        </li>
+                                                    ))}
+                                                </ul>
+                                            )}
+                                        </div>
+
+                                        <div>
+                                            <button
+                                                onClick={() => setIsOpen5(!isOpen5)}
+                                                className="flex items-center justify-between w-full text-gray-900"
+                                            >
+                                                <p id="mobile-collection-heading" className="font-medium">
+                                                    Frozen Foods
+                                                </p>
+                                                <ChevronDownIcon
+                                                    className={`h-5 w-5 transition-transform ${isOpen5 ? 'rotate-180' : ''}`}
+                                                />
+
+                                            </button>
+                                            {isOpen5 && (
+                                                <ul role="list" aria-labelledby="mobile-collection-heading"
+                                                    className="mt-6 space-y-6">
+                                                    {category.frozen.map((item) => (
+                                                        <li key={item.name} className="flex">
+                                                            <a href={item.href} className="text-gray-500">
+                                                                {item.name}
+                                                            </a>
+                                                        </li>
+                                                    ))}
+                                                </ul>
+                                            )}
+                                        </div>
+
+                                        <div>
+                                            <button
+                                                onClick={() => setIsOpen6(!isOpen6)}
+                                                className="flex items-center justify-between w-full text-gray-900"
+                                            >
+                                                <p id="mobile-collection-heading" className="font-medium">
+                                                    Grains & Staples
+                                                </p>
+                                                <ChevronDownIcon
+                                                    className={`h-5 w-5 transition-transform ${isOpen6 ? 'rotate-180' : ''}`}
+                                                />
+
+                                            </button>
+                                            {isOpen6 && (
+                                                <ul role="list" aria-labelledby="mobile-collection-heading"
+                                                    className="mt-6 space-y-6">
+                                                    {category.grains.map((item) => (
+                                                        <li key={item.name} className="flex">
+                                                            <a href={item.href} className="text-gray-500">
+                                                                {item.name}
+                                                            </a>
+                                                        </li>
+                                                    ))}
+                                                </ul>
+                                            )}
+                                        </div>
+
+                                        <div>
+                                            <button
+                                                onClick={() => setIsOpen7(!isOpen7)}
+                                                className="flex items-center justify-between w-full text-gray-900"
+                                            >
+                                                <p id="mobile-collection-heading" className="font-medium">
+                                                    Meats & Seafood
+                                                </p>
+                                                <ChevronDownIcon
+                                                    className={`h-5 w-5 transition-transform ${isOpen7 ? 'rotate-180' : ''}`}
+                                                />
+
+                                            </button>
+                                            {isOpen7 && (
+                                                <ul role="list" aria-labelledby="mobile-collection-heading"
+                                                    className="mt-6 space-y-6">
+                                                    {category.meats.map((item) => (
+                                                        <li key={item.name} className="flex">
+                                                            <a href={item.href} className="text-gray-500">
+                                                                {item.name}
+                                                            </a>
+                                                        </li>
+                                                    ))}
+                                                </ul>
+                                            )}
+                                        </div>
+
+                                        <div>
+                                            <button
+                                                onClick={() => setIsOpen8(!isOpen8)}
+                                                className="flex items-center justify-between w-full text-gray-900"
+                                            >
+                                                <p id="mobile-collection-heading" className="font-medium">
+                                                    Oils & Fats
+                                                </p>
+                                                <ChevronDownIcon
+                                                    className={`h-5 w-5 transition-transform ${isOpen8 ? 'rotate-180' : ''}`}
+                                                />
+
+                                            </button>
+                                            {isOpen8 && (
+                                                <ul role="list" aria-labelledby="mobile-collection-heading"
+                                                    className="mt-6 space-y-6">
+                                                    {category.oils.map((item) => (
+                                                        <li key={item.name} className="flex">
+                                                            <a href={item.href} className="text-gray-500">
+                                                                {item.name}
+                                                            </a>
+                                                        </li>
+                                                    ))}
+                                                </ul>
+                                            )}
+                                        </div>
+
+                                        <div>
+                                            <button
+                                                onClick={() => setIsOpen9(!isOpen9)}
+                                                className="flex items-center justify-between w-full text-gray-900"
+                                            >
+                                                <p id="mobile-collection-heading" className="font-medium">
+                                                    Snacks & Sweets
+                                                </p>
+                                                <ChevronDownIcon
+                                                    className={`h-5 w-5 transition-transform ${isOpen9 ? 'rotate-180' : ''}`}
+                                                />
+
+                                            </button>
+                                            {isOpen9 && (
+                                                <ul role="list" aria-labelledby="mobile-collection-heading"
+                                                    className="mt-6 space-y-6">
+                                                    {category.snacks.map((item) => (
+                                                        <li key={item.name} className="flex">
+                                                            <a href={item.href} className="text-gray-500">
+                                                                {item.name}
+                                                            </a>
+                                                        </li>
+                                                    ))}
+                                                </ul>
+                                            )}
+                                        </div>
+
+                                        <div>
+                                            <button
+                                                onClick={() => setIsOpen10(!isOpen10)}
+                                                className="flex items-center justify-between w-full text-gray-900"
+                                            >
+                                                <p id="mobile-collection-heading" className="font-medium">
+                                                    Spices & Seasonings
+                                                </p>
+                                                <ChevronDownIcon
+                                                    className={`h-5 w-5 transition-transform ${isOpen10 ? 'rotate-180' : ''}`}
+                                                />
+
+                                            </button>
+                                            {isOpen10 && (
+                                                <ul role="list" aria-labelledby="mobile-collection-heading"
+                                                    className="mt-6 space-y-6">
+                                                    {category.spices.map((item) => (
                                                         <li key={item.name} className="flex">
                                                             <a href={item.href} className="text-gray-500">
                                                                 {item.name}
@@ -298,7 +589,7 @@ export default function Header() {
                                     </div>
                                     <div className="flow-root">
                                         <a href="#" className="-m-2 block p-2 font-medium text-gray-900">
-                                            Group Orders
+                                            Bulk Orders
                                         </a>
                                     </div>
 
@@ -348,8 +639,8 @@ export default function Header() {
                 </div>
             )}
 
-            <header className="sticky top-0 z-10">
-                <nav aria-label="Top">
+            <header className="sticky z-50 top-0">
+                <nav aria-label="Top sticky top-0">
                     {/* Top navigation */}
                     <div className="bg-newColor">
                         <div className="mx-auto flex h-10 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
@@ -442,22 +733,22 @@ export default function Header() {
                                                                 <div className="relative bg-white">
                                                                     <div className="mx-auto max-w-7xl px-8">
                                                                         <div
-                                                                            className="grid grid-cols-3 items-start gap-x-8 gap-y-10 pb-12 pt-10">
+                                                                            className="grid-cols-5 items-start  pb-12 pt-10">
                                                                             <div
-                                                                                className="grid grid-cols-2 gap-x-8 gap-y-10">
+                                                                                className="grid grid-cols-6 gap-x-16 gap-y-4 text-sm text-gray-500">
                                                                                 <div>
                                                                                     <p
                                                                                         id={`desktop-featured-heading-${categoryIdx}`}
-                                                                                        className="font-bold text-newColor hover:text-secondary text-xl"
+                                                                                        className="text-newColor hover:text-secondary text-lg font-medium"
                                                                                     >
-                                                                                        Fresh Food
+                                                                                        Beverages
                                                                                     </p>
                                                                                     <ul
                                                                                         role="list"
                                                                                         aria-labelledby={`desktop-featured-heading-${categoryIdx}`}
                                                                                         className="mt-6 space-y-6 sm:mt-4 sm:space-y-4"
                                                                                     >
-                                                                                        {category.featured.map((item) => (
+                                                                                        {category.beverage.map((item) => (
                                                                                             <li key={item.name}
                                                                                                 className="flex">
                                                                                                 <a href={item.href}
@@ -471,16 +762,16 @@ export default function Header() {
                                                                                 <div>
                                                                                     <p
                                                                                         id="desktop-categories-heading"
-                                                                                        className="font-bold text-newColor hover:text-secondary text-xl"
+                                                                                        className="text-newColor hover:text-secondary text-lg font-medium"
                                                                                     >
-                                                                                        Foodie (Hot Food)
+                                                                                        Baking Ingredients
                                                                                     </p>
                                                                                     <ul
                                                                                         role="list"
                                                                                         aria-labelledby="desktop-categories-heading"
                                                                                         className="mt-6 space-y-6 sm:mt-4 sm:space-y-4"
                                                                                     >
-                                                                                        {category.categories.map((item) => (
+                                                                                        {category.baking.map((item) => (
                                                                                             <li key={item.name}
                                                                                                 className="flex">
                                                                                                 <a href={item.href}
@@ -491,73 +782,292 @@ export default function Header() {
                                                                                         ))}
                                                                                     </ul>
                                                                                 </div>
-                                                                            </div>
-                                                                            <div
-                                                                                className="grid grid-cols-2 gap-x-8 gap-y-10">
-                                                                                <div>
-                                                                                    <p
-                                                                                        id="desktop-collection-heading"
-                                                                                        className="font-bold text-newColor hover:text-secondary text-xl"
-                                                                                    >
-                                                                                        Frozen Food
-                                                                                    </p>
-                                                                                    <ul
-                                                                                        role="list"
-                                                                                        aria-labelledby="desktop-collection-heading"
-                                                                                        className="mt-6 space-y-6 sm:mt-4 sm:space-y-4"
-                                                                                    >
-                                                                                        {category.collection.map((item) => (
-                                                                                            <li key={item.name}
-                                                                                                className="flex">
-                                                                                                <a href={item.href}
-                                                                                                   className="hover:text-secondary text-sm">
-                                                                                                    {item.name}
-                                                                                                </a>
-                                                                                            </li>
-                                                                                        ))}
-                                                                                    </ul>
+
+                                                                                <div
+                                                                                    className="grid grid-cols-2 gap-x-8 gap-y-10">
+                                                                                    <div>
+                                                                                        <p
+                                                                                            id="desktop-collection-heading"
+                                                                                            className="text-newColor hover:text-secondary text-lg font-medium"
+                                                                                        >
+                                                                                            Canned & Preserved Goods
+                                                                                        </p>
+                                                                                        <ul
+                                                                                            role="list"
+                                                                                            aria-labelledby="desktop-collection-heading"
+                                                                                            className="mt-6 space-y-6 sm:mt-4 sm:space-y-4"
+                                                                                        >
+                                                                                            {category.canned.map((item) => (
+                                                                                                <li key={item.name}
+                                                                                                    className="flex">
+                                                                                                    <a href={item.href}
+                                                                                                       className="hover:text-secondary text-sm">
+                                                                                                        {item.name}
+                                                                                                    </a>
+                                                                                                </li>
+                                                                                            ))}
+                                                                                        </ul>
+                                                                                    </div>
+                                                                                </div>
+
+                                                                                <div
+                                                                                    className="grid grid-cols-2 gap-x-8 gap-y-10">
+                                                                                    <div>
+                                                                                        <p
+                                                                                            id="desktop-collection-heading"
+                                                                                            className="text-newColor hover:text-secondary text-lg font-medium"
+                                                                                        >
+                                                                                            Dairy & Dairy Alternatives
+                                                                                        </p>
+                                                                                        <ul
+                                                                                            role="list"
+                                                                                            aria-labelledby="desktop-collection-heading"
+                                                                                            className="mt-6 space-y-6 sm:mt-4 sm:space-y-4"
+                                                                                        >
+                                                                                            {category.diary.map((item) => (
+                                                                                                <li key={item.name}
+                                                                                                    className="flex">
+                                                                                                    <a href={item.href}
+                                                                                                       className="hover:text-secondary text-sm">
+                                                                                                        {item.name}
+                                                                                                    </a>
+                                                                                                </li>
+                                                                                            ))}
+                                                                                        </ul>
+                                                                                    </div>
+                                                                                </div>
+
+                                                                                <div
+                                                                                    className="grid grid-cols-2 gap-x-8 gap-y-10">
+                                                                                    <div>
+                                                                                        <p
+                                                                                            id="desktop-collection-heading"
+                                                                                            className="text-newColor hover:text-secondary text-lg font-medium"
+                                                                                        >
+                                                                                            Fruits & Vegetables
+                                                                                        </p>
+                                                                                        <ul
+                                                                                            role="list"
+                                                                                            aria-labelledby="desktop-collection-heading"
+                                                                                            className="mt-6 space-y-6 sm:mt-4 sm:space-y-4"
+                                                                                        >
+                                                                                            {category.fruit.map((item) => (
+                                                                                                <li key={item.name}
+                                                                                                    className="flex">
+                                                                                                    <a href={item.href}
+                                                                                                       className="hover:text-secondary text-sm">
+                                                                                                        {item.name}
+                                                                                                    </a>
+                                                                                                </li>
+                                                                                            ))}
+                                                                                        </ul>
+                                                                                    </div>
+                                                                                </div>
+
+                                                                                <div
+                                                                                    className="grid grid-cols-2 gap-x-8 gap-y-10">
+                                                                                    <div>
+                                                                                        <p
+                                                                                            id="desktop-collection-heading"
+                                                                                            className="text-newColor hover:text-secondary text-lg font-medium"
+                                                                                        >
+                                                                                            Frozen Foods
+                                                                                        </p>
+                                                                                        <ul
+                                                                                            role="list"
+                                                                                            aria-labelledby="desktop-collection-heading"
+                                                                                            className="mt-6 space-y-6 sm:mt-4 sm:space-y-4"
+                                                                                        >
+                                                                                            {category.frozen.map((item) => (
+                                                                                                <li key={item.name}
+                                                                                                    className="flex">
+                                                                                                    <a href={item.href}
+                                                                                                       className="hover:text-secondary text-sm">
+                                                                                                        {item.name}
+                                                                                                    </a>
+                                                                                                </li>
+                                                                                            ))}
+                                                                                        </ul>
+                                                                                    </div>
+                                                                                </div>
+
+                                                                                <div
+                                                                                    className="grid grid-cols-2 gap-x-8 gap-y-10">
+                                                                                    <div>
+                                                                                        <p
+                                                                                            id="desktop-collection-heading"
+                                                                                            className="text-newColor hover:text-secondary text-lg font-medium"
+                                                                                        >
+                                                                                            Grains & Staples
+                                                                                        </p>
+                                                                                        <ul
+                                                                                            role="list"
+                                                                                            aria-labelledby="desktop-collection-heading"
+                                                                                            className="mt-6 space-y-6 sm:mt-4 sm:space-y-4"
+                                                                                        >
+                                                                                            {category.grains.map((item) => (
+                                                                                                <li key={item.name}
+                                                                                                    className="flex">
+                                                                                                    <a href={item.href}
+                                                                                                       className="hover:text-secondary text-sm">
+                                                                                                        {item.name}
+                                                                                                    </a>
+                                                                                                </li>
+                                                                                            ))}
+                                                                                        </ul>
+                                                                                    </div>
+                                                                                </div>
+
+
+                                                                                <div
+                                                                                    className="grid grid-cols-2 gap-x-8 gap-y-10">
+                                                                                    <div>
+                                                                                        <p
+                                                                                            id="desktop-collection-heading"
+                                                                                            className="text-newColor hover:text-secondary text-lg font-medium"
+                                                                                        >
+                                                                                            Meats & Seafood
+                                                                                        </p>
+                                                                                        <ul
+                                                                                            role="list"
+                                                                                            aria-labelledby="desktop-collection-heading"
+                                                                                            className="mt-6 space-y-6 sm:mt-4 sm:space-y-4"
+                                                                                        >
+                                                                                            {category.meats.map((item) => (
+                                                                                                <li key={item.name}
+                                                                                                    className="flex">
+                                                                                                    <a href={item.href}
+                                                                                                       className="hover:text-secondary text-sm">
+                                                                                                        {item.name}
+                                                                                                    </a>
+                                                                                                </li>
+                                                                                            ))}
+                                                                                        </ul>
+                                                                                    </div>
+                                                                                </div>
+
+                                                                                <div
+                                                                                    className="grid grid-cols-2 gap-x-8 gap-y-10">
+                                                                                    <div>
+                                                                                        <p
+                                                                                            id="desktop-collection-heading"
+                                                                                            className="text-newColor hover:text-secondary text-lg font-medium"
+                                                                                        >
+                                                                                            Oils & Fats
+                                                                                        </p>
+                                                                                        <ul
+                                                                                            role="list"
+                                                                                            aria-labelledby="desktop-collection-heading"
+                                                                                            className="mt-6 space-y-6 sm:mt-4 sm:space-y-4"
+                                                                                        >
+                                                                                            {category.oils.map((item) => (
+                                                                                                <li key={item.name}
+                                                                                                    className="flex">
+                                                                                                    <a href={item.href}
+                                                                                                       className="hover:text-secondary text-sm">
+                                                                                                        {item.name}
+                                                                                                    </a>
+                                                                                                </li>
+                                                                                            ))}
+                                                                                        </ul>
+                                                                                    </div>
+                                                                                </div>
+
+
+                                                                                <div
+                                                                                    className="grid grid-cols-2 gap-x-8 gap-y-10">
+                                                                                    <div>
+                                                                                        <p
+                                                                                            id="desktop-collection-heading"
+                                                                                            className="text-newColor hover:text-secondary text-lg font-medium"
+                                                                                        >
+                                                                                            Snacks & Sweets
+                                                                                        </p>
+                                                                                        <ul
+                                                                                            role="list"
+                                                                                            aria-labelledby="desktop-collection-heading"
+                                                                                            className="mt-6 space-y-6 sm:mt-4 sm:space-y-4"
+                                                                                        >
+                                                                                            {category.snacks.map((item) => (
+                                                                                                <li key={item.name}
+                                                                                                    className="flex">
+                                                                                                    <a href={item.href}
+                                                                                                       className="hover:text-secondary text-sm">
+                                                                                                        {item.name}
+                                                                                                    </a>
+                                                                                                </li>
+                                                                                            ))}
+                                                                                        </ul>
+                                                                                    </div>
+                                                                                </div>
+
+                                                                                <div
+                                                                                    className="grid grid-cols-2 gap-x-8 gap-y-10">
+                                                                                    <div>
+                                                                                        <p
+                                                                                            id="desktop-collection-heading"
+                                                                                            className="text-newColor hover:text-secondary text-lg font-medium"
+                                                                                        >
+                                                                                            Spices & Seasonings
+                                                                                        </p>
+                                                                                        <ul
+                                                                                            role="list"
+                                                                                            aria-labelledby="desktop-collection-heading"
+                                                                                            className="mt-6 space-y-6 sm:mt-4 sm:space-y-4"
+                                                                                        >
+                                                                                            {category.spices.map((item) => (
+                                                                                                <li key={item.name}
+                                                                                                    className="flex">
+                                                                                                    <a href={item.href}
+                                                                                                       className="hover:text-secondary text-sm">
+                                                                                                        {item.name}
+                                                                                                    </a>
+                                                                                                </li>
+                                                                                            ))}
+                                                                                        </ul>
+                                                                                    </div>
                                                                                 </div>
                                                                             </div>
 
 
                                                                             {/* Banner on the right */}
-                                                                            <li className="sub-mega-menu sub-mega-menu-width-34">
-                                                                                <div
-                                                                                    className="menu-banner-wrap relative">
-                                                                                    <a href="#">
-                                                                                        <img
-                                                                                            src={banner}
-                                                                                            alt="Afreebmart Banner"
-                                                                                        />
-                                                                                    </a>
-                                                                                    <div
-                                                                                        className="menu-banner-content absolute top-0 left-0 w-1/2 h-full flex flex-col justify-center items-start text-white p-8">
-                                                                                        <div>
-                                                                                            <h4 className="text-black text-xl font-medium">Hot
-                                                                                                deals</h4>
-                                                                                            <h3 className="text-black text-xl font-medium">
-                                                                                                Don't miss<br/>Trending
-                                                                                            </h3>
+                                                                            {/*<li className="grid sub-mega-menu sub-mega-menu-width-34">*/}
+                                                                            {/*    <div*/}
+                                                                            {/*        className="menu-banner-wrap relative">*/}
+                                                                            {/*        <a href="#">*/}
+                                                                            {/*            <img*/}
+                                                                            {/*                src={banner}*/}
+                                                                            {/*                alt="Afreebmart Banner"*/}
+                                                                            {/*            />*/}
+                                                                            {/*        </a>*/}
+                                                                            {/*        <div*/}
+                                                                            {/*            className="menu-banner-content absolute top-0 left-0 w-1/2 h-full flex flex-col justify-center items-start text-white p-8">*/}
+                                                                            {/*            <div>*/}
+                                                                            {/*                <h4 className="text-black text-xl font-medium">Hot*/}
+                                                                            {/*                    deals</h4>*/}
+                                                                            {/*                <h3 className="text-black text-xl font-medium">*/}
+                                                                            {/*                    Don't miss<br/>Trending*/}
+                                                                            {/*                </h3>*/}
 
-                                                                                            <div
-                                                                                                className="menu-banner-btn mt-2">
-                                                                                                <Link to="/shop">
-                                                                                                    <button
-                                                                                                        className="px-4 py-2 bg-newColor text-white rounded-md hover:bg-blue-600">
-                                                                                                        Shop now
-                                                                                                    </button>
-                                                                                                </Link>
-                                                                                            </div>
-                                                                                        </div>
-                                                                                    </div>
-                                                                                    <div
-                                                                                        className="menu-banner-discount absolute -top-4 -right-4 bg-red-500 text-white py-2 px-4 rounded-bl-lg">
-                                                                                        <h3>
-                                                                                            <span>25%</span> off
-                                                                                        </h3>
-                                                                                    </div>
-                                                                                </div>
-                                                                            </li>
+                                                                            {/*                <div*/}
+                                                                            {/*                    className="menu-banner-btn mt-2">*/}
+                                                                            {/*                    <Link to="/shop">*/}
+                                                                            {/*                        <button*/}
+                                                                            {/*                            className="px-4 py-2 bg-newColor text-white rounded-md hover:bg-blue-600">*/}
+                                                                            {/*                            Shop now*/}
+                                                                            {/*                        </button>*/}
+                                                                            {/*                    </Link>*/}
+                                                                            {/*                </div>*/}
+                                                                            {/*            </div>*/}
+                                                                            {/*        </div>*/}
+                                                                            {/*        <div*/}
+                                                                            {/*            className="menu-banner-discount absolute -top-4 -right-4 bg-red-500 text-white py-2 px-4 rounded-bl-lg">*/}
+                                                                            {/*            <h3>*/}
+                                                                            {/*                <span>25%</span> off*/}
+                                                                            {/*            </h3>*/}
+                                                                            {/*        </div>*/}
+                                                                            {/*    </div>*/}
+                                                                            {/*</li>*/}
                                                                         </div>
                                                                     </div>
                                                                 </div>
@@ -815,7 +1325,7 @@ export default function Header() {
                                                                 </Link>
                                                                 <p className="mt-6 text-center">
                                                                     <a href="/cart"
-                                                                       className="text-sm font-medium text-secondary hover:text-primary">
+                                                                       className="text font-medium text-black hover:text-primary">
                                                                         View Cart
                                                                     </a>
                                                                 </p>

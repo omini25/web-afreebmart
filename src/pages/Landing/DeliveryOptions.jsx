@@ -10,15 +10,15 @@ const faqs = [
         title: "Delivery Options",
         question: "Standard Delivery:",
         answer:
-            "    Available for all orders within our designated delivery areas\n" +
+            "    Available for all orders within our designated delivery areas.\n" +
             "    Delivery fees may apply based on order category, type size and location.\n" +
-            "    Estimated delivery time: estimated at 1-7 business days after order.",
+            "    Estimated delivery time is within  1-7 business days after order.",
     }
     ,{
         title: "Delivery Areas: Available delivery areas",
         question: "Local Delivery:",
         answer:
-            "    We offer local delivery within Milwaukee\n" +
+            "    We offer local delivery within Milwaukee.\n" +
             "    Delivery availability and fees are based on the delivery address provided during checkout. ",
         question2: "Citywide Delivery:",
         answer2: "    Afreebmart provides citywide delivery across Wisconsin.\n" +
@@ -37,7 +37,7 @@ const faqs = [
         answer2: " Transit times depend on the delivery location.",
 
         question3: "Estimated Delivery Time:",
-        answer3: " For standard delivery: estimated timeframe of 1-7 business days from order processing.",
+        answer3: " Standard delivery time is estimated with 1-7 business days from order processing.",
 
     },
 
@@ -66,7 +66,7 @@ const faqs = [
     {
         title: "Delivery Schedule",
         question: "Delivery Days:",
-        answer: "    Deliveries are typically made on [Specify delivery days, e.g., Monday to Friday].\n" +
+        answer: "    Deliveries are typically made on [Monday to Friday].\n" +
             "    Weekend or holiday delivery options may be available in some areas.",
 
         question1: "Delivery Hours:",
@@ -76,10 +76,10 @@ const faqs = [
     },
 
     {
-        title: "Group Purchase",
-        question: "Group Purchase Option:",
-        answer: "     Customers have the option to buy items in groups as a team.\n" +
-            "    Individuals participating in group purchases will bear the cost of their own items.",
+        title: "Bulk Purchase",
+        question: "Bulk Purchase Option:",
+        answer: "     Customers have the option to buy items in bulk as a team.\n" +
+            "    Individuals participating in bulk purchases will bear the cost of their own items.",
 
     },
 

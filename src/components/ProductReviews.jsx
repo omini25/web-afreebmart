@@ -26,7 +26,7 @@ const ProductReviews = ({ productId, vendorId }) => {
             setReviews(response.data.reviews);
         } catch (error) {
             console.error('Error fetching reviews:', error);
-            setReviews([]); // Set to empty array if fetch fails
+            setReviews([]);
         }
     };
 

@@ -40,18 +40,22 @@ export default function BulkShop() {
 
     const fetchAllProducts = async () => {
         try {
-            const response = await axios.get(`${server}/group-products`)
+            const response = await axios.get(`${server}/group-products`);
             if (Array.isArray(response.data.group_products)) {
-                setAllProducts(response.data.group_products)
+                // Filter out products with 'pending' or 'suspended' status
+                const filteredProducts = response.data.group_products.filter(
+                    (product) => product.status !== 'pending' && product.status !== 'suspended'
+                );
+                setAllProducts(filteredProducts);
             } else {
-                console.error('Unexpected API response structure:', response.data)
-                setAllProducts([]) // Set to empty array if response is not as expected
+                console.error('Unexpected API response structure:', response.data);
+                setAllProducts([]); // Set to empty array if response is not as expected
             }
         } catch (error) {
-            console.error('Error fetching products:', error)
-            setAllProducts([]) // Set to empty array in case of error
+            console.error('Error fetching products:', error);
+            setAllProducts([]); // Set to empty array in case of error
         }
-    }
+    };
 
     const filters = useMemo(() => [
         {

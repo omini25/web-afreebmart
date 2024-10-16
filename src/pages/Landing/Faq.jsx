@@ -33,11 +33,11 @@ const faqs = [
         answer:
             "Are products on Afreebmart authentic?\n" +
             "\n" +
-            "Yes, Afreebmart partners with trusted suppliers, vendors and vendors to ensure that all products listed on our platform are authentic and of high quality.\n" +
+            "Yes, Afreebmart partners with trusted suppliers, and vendors to ensure that all products listed on our platform are authentic and of high quality.\n" +
             "\n" +
             "How can I return or exchange a product?\n" +
             "\n" +
-            "If you are not satisfied with your purchase, you cannot return your order because they are food items. However, you can be compensated by the vendor after reporting quality issues with your order thorough our complaint channel.",
+            "If you are not satisfied with your purchase, you cannot return your order because they are food items. However, you can be compensated by the vendor after reporting quality issues with your order through our complaint channel.",
     },
 
     {
@@ -49,7 +49,7 @@ const faqs = [
             "\n" +
             "What are the seller fees and commissions?\n" +
             "\n" +
-            "Afreebmart charges a [X%] commission on successful sales, in addition to any applicable transaction fees. Detailed fee structures are available in your seller dashboard.",
+            "Afreebmart charges a 5% commission on successful sales, in addition to any applicable transaction fees. Detailed fee structures are available in your seller dashboard.",
     },
 
     {
@@ -65,35 +65,35 @@ const faqs = [
     },
 
     {
-        question: "Group Purchase",
+        question: "Bulk Purchase",
         answer:
-            "What is a group purchase on Afreebmart?\n" +
+            "What is a bulk purchase on Afreebmart?\n" +
             "\n" +
-            "A group purchase on Afreebmart allows customers to join together with others to make bulk purchases of a specific product. This enables them to benefit from discounted prices or special offers that are only available for group purchases.\n" +
+            "A bulk purchase on Afreebmart allows customers to join together with others to make bulk purchases of a specific product. This enables them to benefit from discounted prices or special offers that are only available for bulk purchases.\n" +
             "\n" +
-            "How does a group purchase work?\n" +
+            "How does a bulk purchase work?\n" +
             "\n" +
-            "To initiate a group purchase, a customer creates a group and invites others to join. Once the required number of participants has joined the group, the purchase is confirmed, and all members receive the discounted price or special offer.\n" +
+            "To initiate a bulk purchase, a customer creates a bulk and invites others to join. Once the required number of participants has joined the bulk, the purchase is confirmed, and all members receive the discounted price or special offer.\n" +
             "\n" +
-            "Can anyone join a group purchase?\n" +
+            "Can anyone join a bulk purchase?\n" +
             "\n" +
-            "Yes, anyone with an Afreebmart account can join a group purchase, provided that they meet the criteria set by the group creator, such as minimum quantity or total order amount.\n" +
+            "Yes, anyone with an Afreebmart account can join a bulk purchase, provided that they meet the criteria set by the bulk creator, such as minimum quantity or total order amount.\n" +
             "\n" +
-            "How can I create or join a group purchase?\n" +
+            "How can I create or join a bulk purchase?\n" +
             "\n" +
-            "To create a group purchase, log into your Afreebmart account, navigate to the group purchase section, and follow the prompts to create a new group. To join an existing group purchase, simply accept the invitation or request to join from the group creator.\n" +
+            "To create a bulk purchase, log into your Afreebmart account, navigate to the bulk purchase section, and follow the prompts to create a new bulk. To join an existing bulk purchase, simply accept the invitation or request to join from the bulk creator.\n" +
             "\n" +
-            "What are the benefits of participating in a group purchase?\n" +
+            "What are the benefits of participating in a bulk purchase?\n" +
             "\n" +
-            "Participating in a group purchase allows customers to enjoy lower prices, bulk discounts, or exclusive deals that may not be available for individual purchases. It also fosters a sense of community and collaboration among buyers.\n" +
+            "Participating in a bulk purchase allows customers to enjoy lower prices, bulk discounts, or exclusive deals that may not be available for individual purchases. It also fosters a sense of community and collaboration among buyers.\n" +
             "\n" +
-            "Can I customize the terms of a group purchase?\n" +
+            "Can I customize the terms of a bulk purchase?\n" +
             "\n" +
-            "Yes, as the group creator, you can customize the terms of the group purchase, such as setting the minimum quantity, maximum participants, duration of the group, and any special conditions or requirements.\n" +
+            "Yes, as the bulk creator, you can customize the terms of the bulk purchase, such as setting the minimum quantity, maximum participants, duration of the bulk, and any special conditions or requirements.\n" +
             "\n" +
-            "How are payments handled in a group purchase?\n" +
+            "How are payments handled in a bulk purchase?\n" +
             "\n" +
-            "Payments for group purchases are typically collected from all participants once the group purchase is confirmed. Each participant is responsible for their share of the total purchase amount based on the agreed-upon terms.",
+            "Payments for bulk purchases are typically collected from all participants once the bulk purchase is confirmed. Each participant is responsible for their share of the total purchase amount based on the agreed-upon terms.",
     },
 
 ]

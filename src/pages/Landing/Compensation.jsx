@@ -16,7 +16,7 @@ const faqs = [
         question:"2.\n" +
             "Provide Details",
         answer:
-            "    Please provide detailed information about the item concern, including photos if possible.\n" +
+            "    Please provide detailed information about the referenced item, including photos if possible.\n" +
             "    Explain the issue you encountered and any concerns regarding safety or quality.",
     },
 

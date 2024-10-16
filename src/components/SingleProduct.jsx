@@ -117,9 +117,11 @@ export default function SingleProduct({ productId, productName }) {
                         <h3 className="text-sm font-medium text-gray-900">
                             <Link to={`/product/${encodeURIComponent(product.product_name)}`}>
                                 {/* Shorten product name on smaller screens */}
-                                {product.product_name.length > (window.innerWidth < 768 ? 10 : 15)
-                                    ? product.product_name.substring(0, window.innerWidth < 768 ? 10 : 15) + '...'
-                                    : product.product_name}
+                                <strong className="font-bold">
+                                    {product.product_name.length > (window.innerWidth < 768 ? 20 : 25)
+                                        ? product.product_name.substring(0, window.innerWidth < 768 ? 20 : 25) + '...'
+                                        : product.product_name}
+                                </strong>
                             </Link>
                         </h3>
                         <Link to={`/vendor/products/${product.vendor_id}`} className="mt-1 text-sm text-gray-500">
@@ -140,7 +142,7 @@ export default function SingleProduct({ productId, productName }) {
                         </button>
                     ) : (
                         product.group === "1" ? (
-                            <Link to={`/group-order`}>
+                            <Link to={`/group-orders`}>
                                 <button
                                     className="relative w-full flex items-center justify-center rounded-md border border-transparent bg-altBackground px-4 py-2 text-sm font-medium text-gray-900 hover:bg-newColor group">
                                     <p className="text-newColor group-hover:text-white">Group Product</p>

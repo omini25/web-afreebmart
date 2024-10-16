@@ -58,7 +58,9 @@ export default function OrderDetails( ) { // Accept orderId as a prop
         };
 
         fetchOrderDetails();
-    }, [orderId]); // Fetch details whenever orderId changes
+    }, [orderId]);
+
+    console.log(orderDetails)
 
 
     if (isLoading) return (
@@ -112,7 +114,8 @@ export default function OrderDetails( ) { // Accept orderId as a prop
                 </aside>
 
                 <main className="px-4 py-16 sm:px-6 lg:flex-auto lg:px-0 lg:py-20">
-                    <h1 className="text-3xl font-bold tracking-tight text-gray-900">{orderDetails.product_name} Order Details</h1>
+                    <h1 className="text-3xl font-bold tracking-tight text-gray-900">{orderDetails.quantity} {''} {orderDetails.product_name} Order
+                        Details</h1>
 
                     <div className="mt-2 border-b border-gray-200 pb-5 text-sm sm:flex sm:justify-between">
                         <dl className="flex">
@@ -142,27 +145,137 @@ export default function OrderDetails( ) { // Accept orderId as a prop
                         {/*</div>*/}
                     </div>
 
+
                     <section aria-labelledby="products-heading" className="mt-8">
                         <h2 id="products-heading" className="sr-only">
                             Product purchased
                         </h2>
 
                         <div className="space-y-24">
-
+                            {orderDetails.order_items ? (
+                                JSON.parse(orderDetails.order_items).map((item, index) => (
+                                    <div key={index}
+                                         className="grid grid-cols-1 text-sm sm:grid-cols-12 sm:grid-rows-1 sm:gap-x-6 md:gap-x-8 lg:gap-x-8">
+                                        <div className="sm:col-span-4 md:col-span-5 md:row-span-2 md:row-end-2">
+                                            <div
+                                                className="aspect-h-1 aspect-w-1 overflow-hidden rounded-lg bg-gray-50">
+                                                <img
+                                                    src={`${assetServer}/images/products/${item.image}`}
+                                                    alt={item.product_name}
+                                                    className="object-cover object-center"
+                                                />
+                                            </div>
+                                        </div>
+                                        <div className="mt-6 sm:col-span-7 sm:mt-0 md:row-end-1">
+                                            <h3 className="text-lg font-medium text-gray-900">
+                                                <a href="#">{item.quantity} {item.product_name}</a>
+                                            </h3>
+                                            <p className="mt-1 font-medium text-gray-900">${(item.price)}</p>
+                                            <p className="mt-3 text-gray-500">{item.description}</p>
+                                        </div>
+                                        <div className="sm:col-span-12 md:col-span-7">
+                                            <dl className="grid grid-cols-1 gap-y-8 border-b border-gray-200 py-8 sm:grid-cols-2 sm:gap-x-6 sm:py-6 md:py-10">
+                                                <div>
+                                                    <dt className="font-medium text-gray-900">Delivery address</dt>
+                                                    <dd className="mt-3 text-gray-500">
+                                                        <span className="block">{orderDetails.shipping_address}</span>
+                                                    </dd>
+                                                </div>
+                                                <div>
+                                                    <dt className="font-medium text-gray-900">Shipping updates</dt>
+                                                    <dd className="mt-3 space-y-3 text-gray-500">
+                                                        {/*<p>{orderDetails.email}</p>*/}
+                                                        <p>{orderDetails.user_phone}</p>
+                                                        {/*<button type="button"*/}
+                                                        {/*        className="font-medium text-primary hover:text-secondary">*/}
+                                                        {/*    Edit*/}
+                                                        {/*</button>*/}
+                                                    </dd>
+                                                </div>
+                                            </dl>
+                                            <p className="mt-6 font-medium text-gray-900 md:mt-10">
+                                                Updated on <time dateTime="2021-03-22">
+                                                {new Date(orderDetails.updated_at).toLocaleDateString('en-US', {
+                                                    month: 'numeric',
+                                                    day: 'numeric',
+                                                    year: 'numeric',
+                                                })}
+                                            </time>
+                                            </p>
+                                            <div className="mt-6">
+                                                <div className="overflow-hidden rounded-full bg-gray-200">
+                                                    <div
+                                                        className={`h-2 rounded-full ${
+                                                            orderDetails.status === 'Cancelled' ? 'bg-red-500' : 'bg-primary'
+                                                        }`}
+                                                        style={{
+                                                            width:
+                                                                orderDetails.status === 'cancelled'
+                                                                    ? '100%' // Full width for cancelled
+                                                                    : orderDetails.status === 'completed'
+                                                                        ? '100%' // Full width for delivered
+                                                                        : orderDetails.status === 'processing'
+                                                                            ? '66.66%' // Approximately 2/3 for shipped
+                                                                            :
+                                                                            orderDetails.status === 'Awaiting Vendor Processing' ||
+                                                                            orderDetails.status === 'pending'
+                                                                                ? '33.33%' // Approximately 1/3 for processing stages
+                                                                                : '12.5%', // Initial 1/8 width for Order placed
+                                                        }}
+                                                    />
+                                                </div>
+                                                <div
+                                                    className="mt-6 hidden grid-cols-4 font-medium text-gray-600 sm:grid">
+                                                    <div className="text-primary">Order placed</div>
+                                                    <div
+                                                        className={classNames(
+                                                            orderDetails.status === 'Awaiting Vendor Processing' ||
+                                                            orderDetails.status === 'pending'
+                                                                ? 'text-primary'
+                                                                : '',
+                                                            'text-center'
+                                                        )}
+                                                    >
+                                                        Processing
+                                                    </div>
+                                                    <div
+                                                        className={classNames(
+                                                            orderDetails.status === 'processing' ? 'text-primary' : '',
+                                                            'text-center'
+                                                        )}
+                                                    >
+                                                        Shipped
+                                                    </div>
+                                                    <div
+                                                        className={classNames(
+                                                            orderDetails.status === 'completed' ? 'text-primary' : '',
+                                                            'text-right'
+                                                        )}
+                                                    >
+                                                        Delivered
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))
+                            ) : (
+                                // ... your existing code for single product order ...
                                 <div
-
                                     className="grid grid-cols-1 text-sm sm:grid-cols-12 sm:grid-rows-1 sm:gap-x-6 md:gap-x-8 lg:gap-x-8"
                                 >
                                     <div className="sm:col-span-4 md:col-span-5 md:row-span-2 md:row-end-2">
                                         <div className="aspect-h-1 aspect-w-1 overflow-hidden rounded-lg bg-gray-50">
-                                            <img  src={`${assetServer}/images/products/${orderDetails.image}`}
-                                                  alt={orderDetails.product_name}
-                                                 className="object-cover object-center"/>
+                                            <img
+                                                src={`${assetServer}/images/products/${orderDetails.image}`}
+                                                alt={orderDetails.product_name}
+                                                className="object-cover object-center"
+                                            />
                                         </div>
                                     </div>
                                     <div className="mt-6 sm:col-span-7 sm:mt-0 md:row-end-1">
                                         <h3 className="text-lg font-medium text-gray-900">
-                                            <a href="#">{orderDetails.product_name}</a>
+                                            <a href="#">{orderDetails.quantity} {orderDetails.product_name}</a>
                                         </h3>
                                         <p className="mt-1 font-medium text-gray-900">${orderDetails.total_price}</p>
                                         <p className="mt-3 text-gray-500">{orderDetails.description}</p>
@@ -198,7 +311,7 @@ export default function OrderDetails( ) { // Accept orderId as a prop
                                         </p>
                                         <div className="mt-6">
                                             <div className="overflow-hidden rounded-full bg-gray-200">
-                                            <div
+                                                <div
                                                     className={`h-2 rounded-full ${
                                                         orderDetails.status === 'Cancelled' ? 'bg-red-500' : 'bg-primary'
                                                     }`}
@@ -251,7 +364,7 @@ export default function OrderDetails( ) { // Accept orderId as a prop
                                         </div>
                                     </div>
                                 </div>
-
+                            )}
                         </div>
                     </section>
 

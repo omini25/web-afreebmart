@@ -38,6 +38,8 @@ export default function Orders() {
     const user = JSON.parse(localStorage.getItem('user')) || {};
     const { addProductToCart } = useShoppingHooks();
     const navigate = useNavigate();
+    const [currentPage, setCurrentPage] = useState(1);
+    const [ordersPerPage] = useState(5);
 
     useEffect(() => {
         // Check if localStorage.isLoggedIn is true
@@ -64,7 +66,13 @@ export default function Orders() {
         fetchOrders();
     }, []);
 
-    console.log(orders)
+
+    const indexOfLastOrder = currentPage * ordersPerPage;
+    const indexOfFirstOrder = indexOfLastOrder - ordersPerPage;
+    const currentOrders = orders.slice(indexOfFirstOrder, indexOfLastOrder);
+
+    // Change page
+    const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
     if (isLoading) return (
         <div className="flex items-center justify-center h-screen">
@@ -77,26 +85,18 @@ export default function Orders() {
         </div>
     );
 
-    const handleBuyAgain = async (productName) => {
+    const handleBuyAgain = (product) => {
         try {
-            // 1. Fetch product details by name (you'll need an API endpoint for this)
-            const response = await axios.get(`${server}/product/${productName}`);
-            const product = response.data.product;
-
-            // 2. Add product to cart using the fetched details
             addProductToCart({
-                id: product.id,
+                id: product.product_id,
                 name: product.product_name,
                 price: product.price,
-                quantity: 1,
+                quantity: product.quantity,
                 image: `${assetServer}/images/products/${product.image}`,
             });
-
-            // 3. Optional: Display a success message to the user
             toast.success(`${product.product_name} added to cart!`);
         } catch (error) {
             console.error('Error adding product to cart:', error);
-            // Handle error appropriately (e.g., display an error message to the user)
         }
     };
 
@@ -152,7 +152,7 @@ export default function Orders() {
                         </h2>
                         <div className="mx-auto max-w-7xl sm:px-2 lg:px-8">
                             <div className="mx-auto max-w-2xl space-y-8 sm:px-4 lg:max-w-4xl lg:px-0">
-                                {orders.map((order) => (
+                                {currentOrders.sort((a, b) => new Date(b.created_at) - new Date(a.created_at)).map((order) => (
                                     <div
                                         key={order.id}
                                         className="border-b border-t border-gray-200 bg-white shadow-sm sm:rounded-lg sm:border"
@@ -182,7 +182,13 @@ export default function Orders() {
                                                 </div>
                                                 <div>
                                                     <dt className="font-medium text-gray-900">Total amount</dt>
-                                                    <dd className="mt-1 font-medium text-gray-900">${order.total_price}</dd>
+                                                    <dd className="mt-1 font-medium text-gray-900">
+                                                        ${
+                                                        order.order_items
+                                                            ? JSON.parse(order.order_items).reduce((sum, item) => sum + parseFloat(item.total_price), 0).toFixed(2)
+                                                            : order.total_price
+                                                    }
+                                                    </dd>
                                                 </div>
                                             </dl>
 
@@ -267,57 +273,115 @@ export default function Orders() {
                                                 <div className="flex items-center sm:items-start">
                                                     <div
                                                         className="h-20 w-20 flex-shrink-0 overflow-hidden rounded-lg bg-gray-200 sm:h-40 sm:w-40">
-                                                            <img
-                                                                src={`${assetServer}/images/products/${order.image}`}
-                                                                alt={order.product_name}
-                                                                className="h-full w-full object-cover object-center"
-                                                            />
-                                                        </div>
-                                                        <div className="ml-6 flex-1 text-sm">
-                                                            <div
-                                                                className="font-medium text-gray-900 sm:flex sm:justify-between">
-                                                                <h5>{order.product_name}</h5>
-                                                                <p className="mt-2 sm:mt-0">${order.price}</p>
+                                                        <img
+                                                            src={
+                                                                order.order_items
+                                                                    ? `${assetServer}/images/products/${JSON.parse(order.order_items)[0].image}`
+                                                                    : `${assetServer}/images/products/${order.image}`
+                                                            }
+                                                            alt={
+                                                                order.order_items
+                                                                    ? JSON.parse(order.order_items)[0].product_name
+                                                                    : order.product_name
+                                                            }
+                                                            className="h-full w-full object-cover object-center"
+                                                        />
+                                                    </div>
+                                                    <div className="ml-6 flex-1 text-sm">
+                                                        {order.order_items ? (
+                                                            JSON.parse(order.order_items).map((item, index) => (
+                                                                <div key={index}>
+                                                                    <div
+                                                                        className="font-medium text-gray-900 sm:flex sm:justify-between">
+                                                                        <h5>{item.quantity} x {item.product_name}</h5>
+                                                                        <p className="mt-2 sm:mt-0">${item.price}</p>
+                                                                    </div>
+                                                                    <p className="hidden text-gray-500 sm:mt-2 sm:block">
+                                                                        {item.description.length > 50 ? item.description.substring(0, 50) + "..." : item.description}
+                                                                    </p>
+                                                                </div>
+                                                            ))
+                                                        ) : (
+                                                            <div>
+                                                                <div
+                                                                    className="font-medium text-gray-900 sm:flex sm:justify-between">
+                                                                    <h5>{order.quantity} {''} {order.product_name}</h5>
+                                                                    <p className="mt-2 sm:mt-0">${order.price}</p>
+                                                                </div>
+                                                                <p className="hidden text-gray-500 sm:mt-2 sm:block">{order.description}</p>
                                                             </div>
-                                                            <p className="hidden text-gray-500 sm:mt-2 sm:block">{order.description}</p>
-                                                        </div>
+                                                        )}
+                                                    </div>
+                                                </div>
+
+                                                <div className="mt-6 sm:flex sm:justify-between">
+                                                    <div className="flex items-center">
+                                                        <CheckCircleIcon className="h-5 w-5 text-green-500"
+                                                                         aria-hidden="true"/>
+                                                        <p className="ml-2 text-sm font-medium text-gray-500">
+                                                            Delivery Status : {order.status}
+                                                        </p>
                                                     </div>
 
-                                                    <div className="mt-6 sm:flex sm:justify-between">
-                                                        <div className="flex items-center">
-                                                            <CheckCircleIcon className="h-5 w-5 text-green-500"
-                                                                             aria-hidden="true"/>
-                                                            <p className="ml-2 text-sm font-medium text-gray-500">
-                                                                Delivered on <time
-                                                                dateTime={order.deliveredDatetime}>{order.deliveredDate}</time>
-                                                            </p>
-                                                        </div>
-
-                                                        <div
-                                                            className="mt-6 flex items-center space-x-4 divide-x divide-gray-200 border-t border-gray-200 pt-4 text-sm font-medium sm:ml-4 sm:mt-0 sm:border-none sm:pt-0">
-                                                            <div className="flex flex-1 justify-center">
+                                                    <div
+                                                        className="mt-6 flex items-center space-x-4 divide-x divide-gray-200 border-t border-gray-200 pt-4 text-sm font-medium sm:ml-4 sm:mt-0 sm:border-none sm:pt-0">
+                                                        <div className="flex flex-1 justify-center">
+                                                            {order.order_items ? null : (
                                                                 <Link to={`/product/${(order.product_name)}`}
                                                                       className="whitespace-nowrap text-primary hover:text-secondary">
                                                                     View Product
                                                                 </Link>
-
-                                                            </div>
-                                                            <div className="flex flex-1 justify-center pl-4">
-                                                                <button
-                                                                    onClick={() => handleBuyAgain(order.product_name)}
-                                                                    className="whitespace-nowrap text-primary hover:text-secondary"
-                                                                >
-                                                                    Buy Again
-                                                                </button>
-                                                            </div>
+                                                            )}
+                                                        </div>
+                                                        <div className="flex flex-1 justify-center pl-4">
+                                                            <button
+                                                                onClick={() => {
+                                                                    if (order.order_items) {
+                                                                        JSON.parse(order.order_items).forEach(item => {
+                                                                            handleBuyAgain(item);
+                                                                        });
+                                                                    } else {
+                                                                        handleBuyAgain(order);
+                                                                    }
+                                                                }}
+                                                                className="whitespace-nowrap text-primary hover:text-secondary"
+                                                            >
+                                                                Buy Again
+                                                            </button>
                                                         </div>
                                                     </div>
-                                                </li>
+                                                </div>
+                                            </li>
                                             {/*))}*/}
                                         </ul>
                                     </div>
                                 ))}
                             </div>
+                        </div>
+
+                        {/* Pagination */}
+                        <div className="mt-6">
+                            <nav className="flex items-center justify-center">
+                                <ul className="inline-flex -space-x-px shadow-sm text-sm font-medium">
+                                    {Array(Math.ceil(orders.length / ordersPerPage))
+                                        .fill(null)
+                                        .map((_, index) => (
+                                            <li key={index}>
+                                                <button
+                                                    onClick={() => paginate(index + 1)}
+                                                    className={classNames(
+                                                        currentPage === index + 1
+                                                            ? 'bg-secondary text-white'
+                                                            : 'bg-white text-gray-700 hover:bg-gray-50',
+                                                        'inline-flex items-center border border-gray-300 px-2 py-1.5 leading-5'
+                                                    )}
+                                                >
+                                                    {index + 1}
+                                                </button>
+                                            </li>
+                                        ))}
+                                </ul>
+                            </nav>
                         </div>
                     </section>
                 </main>

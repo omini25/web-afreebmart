@@ -17,7 +17,7 @@ export function ReturnPolicy() {
                     <h2 className="text-2xl font-bold mb-2">Compensation for Substandard Items</h2>
                     <p className="mb-4">If you receive a product that is unsafe or unhealthy for consumption or use, we
                         encourage you to contact us immediately. Our customer support team will assist you in addressing
-                        the issue with the vendor.</p>
+                        the issue with the vendor. Complain must be made within 24hrs of product being delivered.</p>
 
                     <h2 className="text-2xl font-bold mb-2">Steps to Request Compensation:</h2>
                     <ul className="list-disc list-inside mb-4">

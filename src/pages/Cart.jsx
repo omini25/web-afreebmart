@@ -3,7 +3,9 @@ import { CheckIcon, ClockIcon, QuestionMarkCircleIcon, XMarkIcon } from '@heroic
 import { useNavigate } from 'react-router-dom'; // Import useNavigate
 import { useState, useEffect } from 'react'; // Import useState and useEffect
 import { useShoppingHooks } from '../redux/useShoppingHooks';
-import {assetServer} from "../assetServer.js"; // Import useShoppingHooks
+import { Link } from 'react-router-dom';
+import {assetServer} from "../assetServer.js";
+import {toast} from "react-toastify"; // Import useShoppingHooks
 
 export default function Cart() {
     const navigate = useNavigate(); // Initialize useNavigate
@@ -175,7 +177,8 @@ export default function Cart() {
                             <dl className="mt-6 space-y-4">
                                 <div className="flex items-center justify-between">
                                     <dt className="text-sm text-gray-600">Subtotal</dt>
-                                    <dd className="text-sm font-medium text-gray-900">${totalPrice.toFixed(2)}</dd> {/* Display the calculated total price */}
+                                    <dd className="text-sm font-medium text-gray-900">${totalPrice.toFixed(2)}</dd>
+                                    {/* Display the calculated total price */}
                                 </div>
                                 <div className="flex items-center justify-between border-t border-gray-200 pt-4">
                                     <dt className="flex items-center text-sm text-gray-600">
@@ -195,11 +198,13 @@ export default function Cart() {
                                             <QuestionMarkCircleIcon className="h-5 w-5" aria-hidden="true"/>
                                         </a>
                                     </dt>
-                                    <dd className="text-sm font-medium text-gray-900">${taxEstimate}</dd> {/* Display the calculated tax estimate */}
+                                    <dd className="text-sm font-medium text-gray-900">${taxEstimate}</dd>
+                                    {/* Display the calculated tax estimate */}
                                 </div>
                                 <div className="flex items-center justify-between border-t border-gray-200 pt-4">
                                     <dt className="text-base font-medium text-gray-900">Order total</dt>
-                                    <dd className="text-base font-medium text-gray-900">${totalOrderAmount.toFixed(2)}</dd> {/* Display the calculated total order amount */}
+                                    <dd className="text-base font-medium text-gray-900">${totalOrderAmount.toFixed(2)}</dd>
+                                    {/* Display the calculated total order amount */}
                                 </div>
                             </dl>
 
@@ -210,6 +215,23 @@ export default function Cart() {
                                     className="w-full rounded-md border border-transparent bg-primary px-4 py-3 text-base font-medium text-white shadow-sm hover:bg-secondary focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-gray-50"
                                 >
                                     Proceed To Checkout
+                                </button>
+                            </div>
+                            <div className="mt-6 flex justify-between">
+                                <Link to="/shop" className="text-sm font-medium text-primary hover:text-secondary">
+                                    Continue Shopping
+                                </Link>
+                                <button
+                                    type="button" // Add this attribute
+                                    onClick={() => {
+                                        localStorage.removeItem('cart');
+                                        setCartItems([]);
+                                        setOrderSummary({});
+                                        toast.success('Products in cart removed!');
+                                    }}
+                                    className="text-sm font-medium text-red-500 hover:text-red-700"
+                                >
+                                    Remove All
                                 </button>
                             </div>
                         </section>

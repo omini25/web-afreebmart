@@ -99,6 +99,71 @@ export default function Checkout() {
         setTip(tipAmount);
     };
 
+    const applyCoupon = async (couponCode, cartItems, userId) => {
+        try {
+            // Call external API to get coupon details
+            const response = await axios.get(`${server}/users/coupons/${couponCode}`);
+            const couponData = response.data;
+
+            if (!couponData) {
+                toast.error('Not a valid coupon');
+                return { isValid: false, discount: 0 };
+            }
+
+            const currentDate = new Date();
+            const startDate = new Date(couponData.start_date);
+            const endDate = new Date(couponData.end_date);
+
+            // Check if the coupon is within the valid date range
+            if (currentDate < startDate || currentDate > endDate) {
+                toast.error('Coupon is not valid at this time');
+                return { isValid: false, discount: 0 };
+            }
+
+            // Check if the coupon has expired based on quantity
+            if (couponData.quantity === 0) {
+                toast.error('Coupon has expired');
+                return { isValid: false, discount: 0 };
+            }
+
+            // Check if the coupon is active
+            if (couponData.status !== 'active') {
+                toast.error('Coupon has expired');
+                return { isValid: false, discount: 0 };
+            }
+
+            // Check customer limit
+            if (couponData.customer_limit && couponData.users.length >= couponData.customer_limit) {
+                if (couponData.users.includes(userId)) {
+                    toast.error('You have already used this coupon');
+                    return { isValid: false, discount: 0 };
+                }
+                toast.error('Coupon usage limit has been reached');
+                return { isValid: false, discount: 0 };
+            }
+
+            // Calculate discount
+            let totalDiscount = 0;
+            cartItems.forEach(item => {
+                if (couponData.vendor_id === null || item.vendor_id === couponData.vendor_id) {
+                    let itemDiscount = 0;
+                    if (couponData.discount_type === 'percentage') {
+                        itemDiscount = item.price * (couponData.discount / 100);
+                    } else if (couponData.discount_type === 'fixed') {
+                        itemDiscount = couponData.discount;
+                    }
+                    totalDiscount += itemDiscount * item.quantity;
+                }
+            });
+
+            return { isValid: true, discount: totalDiscount };
+        } catch (error) {
+            console.error('Error applying coupon:', error);
+            toast.error('Error applying coupon. Please try again.');
+            return { isValid: false, discount: 0 };
+        }
+    };
+
     const handleCouponSubmit = async (event) => {
         event.preventDefault();
         if (!selectedAddress) {
@@ -106,12 +171,29 @@ export default function Checkout() {
             return;
         }
         try {
-            const response = await axios.post(`${server}/apply-coupon`, { code: couponCode });
-            if (response.data.valid) {
-                setDiscount({ code: couponCode, amount: response.data.discount });
-                toast.success('Coupon applied successfully!');
-            } else {
-                toast.error('Invalid coupon code.');
+            const result = await applyCoupon(couponCode, cartItems, user.id);
+            if (result.isValid) {
+                setDiscount({ code: couponCode, amount: result.discount });
+
+                // Send POST request to reduce coupon quantity
+                try {
+                    const response = await axios.post(`${server}/users/coupons/${couponCode}/reduce/${user.id}`);
+
+                    if (response.status === 200) {
+                        toast.success('Coupon applied successfully!');
+                    } else {
+                        toast.warning('Coupon applied, but there was an issue updating its usage.');
+                    }
+                } catch (reductionError) {
+                    console.error('Failed to reduce coupon quantity:', reductionError);
+                    if (reductionError.response && reductionError.response.status === 400) {
+                        toast.error('Coupon has expired.');
+                    } else if (reductionError.response && reductionError.response.status === 404) {
+                        toast.error('Coupon not found.');
+                    } else {
+                        toast.warning('Coupon applied, but there was an issue updating its usage.');
+                    }
+                }
             }
         } catch (error) {
             console.error('Failed to apply coupon:', error);
@@ -133,8 +215,11 @@ export default function Checkout() {
             const response = await axios.post(`${server}/create-checkout-session`, {
                 productDetails,
                 user_id: user.id,
-                tip,
-                discount: discount.amount,
+                tip: parseFloat(tip).toFixed(2),
+                discount: parseFloat(discount.amount).toFixed(2),
+                discountCode: discount.code,
+                taxes: parseFloat(taxes).toFixed(2),
+                shipping_address: selectedAddress,
             });
 
             const { id: sessionId } = response.data;
@@ -391,8 +476,8 @@ export default function Checkout() {
                                         Discount
                                         <span
                                             className="ml-2 rounded-full bg-gray-200 px-2 py-0.5 text-xs tracking-wide text-gray-600">
-                                            {discount.code}
-                                        </span>
+                                        {discount.code}
+                                    </span>
                                     </dt>
                                     <dd className="text-gray-900">-${discount.amount.toFixed(2)}</dd>
                                 </div>
@@ -415,6 +500,7 @@ export default function Checkout() {
                                 <dd className="text-base">${total}</dd>
                             </div>
                         </dl>
+
                     </div>
                 </section>
 
@@ -653,7 +739,7 @@ export default function Checkout() {
                                     : 'bg-gray-300 cursor-not-allowed'
                             }`}
                         >
-                            {selectedAddress ? `Pay $${total}` : 'Select an address to proceed'}
+                            {selectedAddress ? `Proceed to Payment of  $${total}` : 'Select an address to proceed'}
                         </button>
                     </div>
                 </section>

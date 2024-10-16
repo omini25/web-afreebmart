@@ -22,68 +22,6 @@ import ProductReviews from "../../components/ProductReviews.jsx";
 import ProductRating from "../../components/ProductRating.jsx";
 
 
-const reviews = {
-    average: 4,
-    totalCount: 1624,
-    counts: [
-        { rating: 5, count: 1019 },
-        { rating: 4, count: 162 },
-        { rating: 3, count: 97 },
-        { rating: 2, count: 199 },
-        { rating: 1, count: 147 },
-    ],
-    featured: [
-        {
-            id: 1,
-            rating: 5,
-            content: `
-        <p>This is the bag of my dreams. I took it on my last vacation and was able to fit an absurd amount of snacks for the many long and hungry flights.</p>
-      `,
-            author: 'Emily Selman',
-            avatarSrc:
-                'https://images.unsplash.com/photo-1502685104226-ee32379fefbe?ixlib=rb-=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=8&w=256&h=256&q=80',
-        },
-        // More reviews...
-    ],
-}
-
-
-
-const license = {
-    href: '#',
-    summary:
-        'For personal and professional use. You cannot resell or redistribute these icons in their original or modified state.',
-    content: `
-    <h4>Overview</h4>
-    
-    <p>For personal and professional use. You cannot resell or redistribute these icons in their original or modified state.</p>
-    
-    <ul role="list">
-    <li>You\'re allowed to use the icons in unlimited projects.</li>
-    <li>Attribution is not required to use the icons.</li>
-    </ul>
-    
-    <h4>What you can do with it</h4>
-    
-    <ul role="list">
-    <li>Use them freely in your personal and professional work.</li>
-    <li>Make them your own. Change the colors to suit your project or brand.</li>
-    </ul>
-    
-    <h4>What you can\'t do with it</h4>
-    
-    <ul role="list">
-    <li>Don\'t be greedy. Selling or distributing these icons in their original or modified state is prohibited.</li>
-    <li>Don\'t be evil. These icons cannot be used on websites or applications that promote illegal or immoral beliefs or activities.</li>
-    </ul>
-  `,
-}
-
-
-function classNames(...classes) {
-    return classes.filter(Boolean).join(' ')
-}
-
 
 export default function ProductPage( ) {
     const { productName } = useParams();
@@ -94,6 +32,7 @@ export default function ProductPage( ) {
     const [selectedImage, setSelectedImage] = useState(0);
     const [isZoomed, setIsZoomed] = useState(false);
     const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+    const [relatedProducts, setRelatedProducts] = useState([]);
 
 
     const {
@@ -159,13 +98,18 @@ export default function ProductPage( ) {
     }, [productName]);
 
 
-
-
     useEffect(() => {
         const fetchProducts = async () => {
             try {
-                const response = await axios.get(`${server}/products`); // Replace with your API endpoint
-                setProducts(response.data.products);
+                setLoading(true);
+                const response = await axios.get(`${server}/products`);
+
+                // Filter products for "active" status
+                const activeProducts = response.data.products.filter(
+                    (product) => product.status === 'active'
+                );
+
+                setProducts(activeProducts);
             } catch (error) {
                 console.error('Error fetching products:', error);
             } finally {
@@ -175,6 +119,18 @@ export default function ProductPage( ) {
 
         fetchProducts();
     }, []);
+
+
+    useEffect(() => {
+        if (product && products.length > 0) {
+            const filtered = products
+                .filter((p) => p.id !== product.id)
+                .sort(() => 0.5 - Math.random())
+                .slice(0, 4);
+            setRelatedProducts(filtered);
+        }
+    }, [product, products]);
+
 
     const handleWishlist = (e) => {
         e.preventDefault();
@@ -299,7 +255,7 @@ export default function ProductPage( ) {
                                             </button>
                                         ) : (
                                             product.group === "1" ? (
-                                                <Link to={`/group-order`}>
+                                                <Link to={`/group-orders`}>
                                                     <button
                                                         className="flex w-full items-center justify-center rounded-md border border-transparent bg-primary px-8 py-3 text-base font-medium text-white hover:bg-secondary focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-gray-50">
                                                         Create or Join Group
@@ -411,32 +367,22 @@ export default function ProductPage( ) {
 
 
 
-                        {loading ? (
-                            <div className="animate-pulse bg-gray-200 h-64 w-64 rounded-lg"></div>
-                        ) : (
-                            products && products.length > 0 && (
-                                <section aria-labelledby="related-heading"
-                                         className="mt-10 border-t border-gray-200 px-4 py-16 sm:px-0">
-                                    <h2 id="related-heading" className="text-xl font-bold text-gray-900">
-                                        Customers also bought
-                                    </h2>
+                        {!loading && relatedProducts.length > 0 && (
+                            <section aria-labelledby="related-heading" className="mt-10 border-t border-gray-200 px-4 py-16 sm:px-0">
+                                <h2 id="related-heading" className="text-xl font-bold text-gray-900">
+                                    Customers also bought
+                                </h2>
 
-                                    <div
-                                        className="mt-8 grid grid-cols-2 sm:grid-cols-2 gap-y-12 gap-x-4 sm:gap-x-6 lg:grid-cols-4 xl:gap-x-8">
-                                        {products
-                                            .sort(() => 0.5 - Math.random())
-                                            .filter((p) => p.id !== product.id)
-                                            .slice(0, 4)
-                                            .map((product) => (
-                                                <SingleProduct
-                                                    key={product.id}
-                                                    productId={product.id}
-                                                    productName={product.product_name}
-                                                />
-                                            ))}
-                                    </div>
-                                </section>
-                            )
+                                <div className="mt-8 grid grid-cols-2 sm:grid-cols-2 gap-y-12 gap-x-4 sm:gap-x-6 lg:grid-cols-4 xl:gap-x-8">
+                                    {relatedProducts.map((product) => (
+                                        <SingleProduct
+                                            key={product.id}
+                                            productId={product.id}
+                                            productName={product.product_name}
+                                        />
+                                    ))}
+                                </div>
+                            </section>
                         )}
                     </div>
                 </main>

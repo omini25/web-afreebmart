@@ -12,7 +12,7 @@ export const Hero = () => {
     const heroData = [
         {
             image: wbImage,
-            title: 'Your Go To For Fast and Fresh Groceries',
+            title: 'Your Go-to Platform for Fast and Fresh Groceries',
             description: 'Better ingredients, better food, and beverages, at low prices',
             buttonText: 'Shop Now',
             mobileImage: main1,

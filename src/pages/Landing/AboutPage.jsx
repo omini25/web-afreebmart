@@ -49,7 +49,7 @@ export default function AboutPage() {
                                 {/* Text content */}
                                 <div>
                                     <h1 className="max-w-2xl text-4xl font-bold tracking-tight text-gray-900 sm:text-4xl">
-                                        Delivery Options and Timeline at Afreebmart
+                                        Afreebmart
                                     </h1>
                                     <div className="mt-6 max-w-xl">
                                         <p className="text-lg leading-8 text-gray-600">
@@ -81,7 +81,7 @@ export default function AboutPage() {
                         <div className="mt-6 flex flex-col gap-x-8 gap-y-20 lg:flex-row">
                             <div className="lg:w-full lg:max-w-2xl lg:flex-auto">
                                 <p className="text-xl leading-8 text-gray-600">
-                                    At Afreebmart, we believe in eliminating barriers and connecting you directly with
+                                    We are on a mission to eliminate all barriers and connect you directly with
                                     the source of your food. Our primary objective is to empower suppliers and vendors
                                     by providing them with a platform to showcase their products and connect with
                                     consumers without the interference of middlemen. By doing so, we aim to reduce

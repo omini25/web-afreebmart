@@ -55,7 +55,7 @@ export default function QuickView({ productName, open, setOpen }) {
     };
 
     const handleQuantityChange = (value) => {
-        setQuantity(Math.max(1, value)); // Ensure quantity is at least 1
+        setQuantity(Math.max(1, value));
     };
 
     if (!product) {
@@ -163,7 +163,7 @@ export default function QuickView({ productName, open, setOpen }) {
                                                                     </button>
                                                                 ) : (
                                                                     product.group === "1" ? (
-                                                                        <Link to={`/group-order/${product.id}`}>
+                                                                        <Link to={`/group-orders`}>
                                                                             <button
                                                                                 className="mt-2 flex w-full items-center justify-center rounded-md border border-gray-300 px-8 py-3 text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-secondary focus:ring-offset-2 focus:ring-offset-gray-200"
                                                                             >

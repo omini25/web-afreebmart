@@ -4,6 +4,7 @@ import ProductListing from "../components/ProductListing.jsx";
 import Footer from "../components/Footer.jsx";
 import BulkProductListing from "../components/BulkProductListing.jsx";
 import {Categories} from "../components/Categories.jsx";
+import {Blog} from "../components/Blog.jsx";
 
 
 export default function Index() {
@@ -40,6 +41,7 @@ export default function Index() {
             <BulkProductListing />
 
 
+            {/*<Blog />*/}
 
 
             <Footer/>
