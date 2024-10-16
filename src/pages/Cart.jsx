@@ -52,7 +52,9 @@ export default function Cart() {
                 return total + parseFloat(product.price.replace('$', '')) * product.quantity;
             }, 0);
             const newTaxEstimate = (newTotalPrice * 0.05).toFixed(2);
-            const newTotalOrderAmount = newTotalPrice + parseFloat(newTaxEstimate) + 5.99;
+            const newTotalOrderAmount = cartItems.length > 0
+                ? newTotalPrice + parseFloat(newTaxEstimate) + 4.99
+                : 0;
 
             setTotalPrice(newTotalPrice);
             setTaxEstimate(newTaxEstimate);
@@ -188,7 +190,9 @@ export default function Cart() {
                                             <QuestionMarkCircleIcon className="h-5 w-5" aria-hidden="true"/>
                                         </a>
                                     </dt>
-                                    <dd className="text-sm font-medium text-gray-900">$5.99</dd>
+                                    <dd className="text-sm font-medium text-gray-900">
+                                        {cartItems.length > 0 ? '$4.99' : '$0.00'}
+                                    </dd>
                                 </div>
                                 <div className="flex items-center justify-between border-t border-gray-200 pt-4">
                                     <dt className="flex text-sm text-gray-600">
@@ -210,9 +214,14 @@ export default function Cart() {
 
                             <div className="mt-6">
                                 <button
-                                    type="button" // Change to button type
-                                    onClick={handleCheckout} // Add onClick handler
-                                    className="w-full rounded-md border border-transparent bg-primary px-4 py-3 text-base font-medium text-white shadow-sm hover:bg-secondary focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-gray-50"
+                                    type="button"
+                                    onClick={handleCheckout}
+                                    disabled={cartItems.length === 0}
+                                    className={`w-full rounded-md border border-transparent px-4 py-3 text-base font-medium text-white shadow-sm 
+                                         ${cartItems.length === 0
+                                        ? 'bg-gray-400 cursor-not-allowed' 
+                                        : 'bg-primary hover:bg-secondary focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-gray-50'
+                                    }`}
                                 >
                                     Proceed To Checkout
                                 </button>

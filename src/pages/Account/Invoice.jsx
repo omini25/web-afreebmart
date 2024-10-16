@@ -128,7 +128,7 @@ export default function Invoice() {
                     ],
                     // ['Tip', '', '', `$${invoices.order.tip || '0.00'}`],
                     ['Taxes (5%)', '', '', `$${(invoices.order.total_price * 0.05).toFixed(2)}`],
-                    ['Shipping', '', '', '$5.99'],
+                    ['Shipping', '', '', '$4.99'],
                 ];
 
                 autoTable(doc, {
@@ -384,7 +384,7 @@ export default function Invoice() {
                                                 <div className="truncate font-medium text-gray-900">Delivery Fees</div>
                                             </td>
                                             <td className="hidden py-5 pl-8 pr-0 text-right align-top tabular-nums text-gray-700 sm:table-cell">
-                                                $ 5.99
+                                                $ 4.99
                                             </td>
                                             <td className="hidden py-5 pl-8 pr-0 text-right align-top tabular-nums text-gray-700 sm:table-cell">
                                                 1

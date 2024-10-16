@@ -29,8 +29,10 @@ export default function Checkout() {
 
     const subtotal = cartItems.reduce((total, product) => total + parseFloat(product.price) * product.quantity, 0).toFixed(2);
     const taxes = (subtotal * 0.05).toFixed(2);
-    const shipping = 5.99;
-    const total = (parseFloat(subtotal) + parseFloat(taxes) + shipping + parseFloat(tip) - discount.amount).toFixed(2);
+    const shipping = 4.99;
+    const total = cartItems.length > 0
+        ? (parseFloat(subtotal) + parseFloat(taxes) + shipping + parseFloat(tip) - discount.amount).toFixed(2)
+        : '0.00';
 
     useEffect(() => {
         if (localStorage.getItem('isLoggedIn') === 'false') {
@@ -368,7 +370,7 @@ export default function Checkout() {
                                         </div>
                                         <div className="flex justify-between">
                                             <dt>Shipping</dt>
-                                            <dd className="text-gray-900">${shipping}</dd>
+                                            <dd className="text-gray-900">{cartItems.length > 0 ? '$' + shipping : '$0.00'}</dd>
                                         </div>
                                     </dl>
                                 </Disclosure.Panel>
@@ -488,10 +490,10 @@ export default function Checkout() {
                             </div>
                             <div className="flex justify-between">
                                 <dt>Shipping</dt>
-                                <dd className="text-gray-900">${shipping}</dd>
+                                <dd className="text-gray-900">{cartItems.length > 0 ? '$' + shipping : '$0.00'}</dd>
                             </div>
                             <div className="flex justify-between">
-                                <dt>Tip</dt>
+                            <dt>Tip</dt>
                                 <dd className="text-gray-900">${tip.toFixed(2)}</dd>
                             </div>
                             <div

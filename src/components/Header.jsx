@@ -1318,10 +1318,13 @@ export default function Header() {
                                                                 )}
 
                                                                 <Link to="/checkout">
-                                                                    <button
-                                                                        className="mt-4 w-full bg-newColor text-white py-2 px-4 rounded-md hover:bg-primary-dark">
-                                                                        Checkout
-                                                                    </button>
+                                                                    {cartProducts.length > 0 && (
+                                                                        <button
+                                                                            className="mt-4 w-full bg-newColor text-white py-2 px-4 rounded-md hover:bg-primary-dark"
+                                                                        >
+                                                                            Checkout
+                                                                        </button>
+                                                                    )}
                                                                 </Link>
                                                                 <p className="mt-6 text-center">
                                                                     <a href="/cart"
