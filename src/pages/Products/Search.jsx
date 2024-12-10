@@ -24,12 +24,10 @@ export default function Search() {
     const [sortOption, setSortOption] = useState('popularity')
 
 
-    console.log(useParams())
-
     useEffect(() => {
-        fetchCategories()
-        fetchAllProducts()
-    }, [])
+        fetchCategories();
+        fetchAllProducts();
+    }, [searchTerm]);
 
     const fetchCategories = async () => {
         try {
@@ -44,20 +42,23 @@ export default function Search() {
 
     const fetchAllProducts = async () => {
         try {
-            const response = await axios.get(`${server}/product-search/${searchTerm}`)
-            if (Array.isArray(response.data.product)) {
-                setAllProducts(response.data.product)
+            const response = await axios.get(`${server}/products`); // Fetch all products
+            if (Array.isArray(response.data.products)) {
+                // Filter products on the client-side
+                const filteredProducts = response.data.products.filter(product =>
+                    product.product_name.toLowerCase().includes(searchTerm.toLowerCase())
+                );
+                setAllProducts(filteredProducts);
             } else {
-                console.error('Unexpected API response structure:', response.data)
-                setAllProducts([]) // Set to empty array if response is not as expected
+                console.error('Unexpected API response structure:', response.data);
+                setAllProducts([]);
             }
         } catch (error) {
-            console.error('Error fetching products:', error)
-            setAllProducts([]) // Set to empty array in case of error
+            console.error('Error fetching products:', error);
+            setAllProducts([]);
         }
-    }
+    };
 
-    console.log(searchTerm)
 
     const filters = useMemo(() => [
         {
@@ -345,13 +346,20 @@ export default function Search() {
                                 Products
                             </h2>
 
-                            <div
-                                className="grid grid-cols-2 gap-y-4 gap-x-6 sm:gap-x-6 sm:gap-y-10 lg:grid-cols-4 lg:gap-x-8">
-                                {filteredAndSortedProducts.map((product) => (
-                                    <SingleProduct key={product.id} productId={product.id}
-                                                   productName={product.product_name}/>
-                                ))}
-                            </div>
+                            {/* Display products or "not found" message */}
+                            {filteredAndSortedProducts.length > 0 ? (
+                                <div
+                                    className="grid grid-cols-2 gap-y-4 gap-x-6 sm:gap-x-6 sm:gap-y-10 lg:grid-cols-4 lg:gap-x-8">
+                                    {filteredAndSortedProducts.map((product) => (
+                                        <SingleProduct key={product.id} productId={product.id}
+                                                       productName={product.product_name}/>
+                                    ))}
+                                </div>
+                            ) : (
+                                <div className="text-center py-10">
+                                    <p className="text-gray-500">No products found matching your search.</p>
+                                </div>
+                            )}
                         </section>
                     </div>
                 </main>

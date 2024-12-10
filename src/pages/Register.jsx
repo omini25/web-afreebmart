@@ -9,6 +9,8 @@ import {toast} from "react-toastify";
 import afreeblogo from '../assets/images/afreemart-logo.png';
 
 export default function Register() {
+    const navigate = useNavigate();
+
     const [formData, setFormData] = useState({
         name: '',
         email: '',
@@ -18,16 +20,12 @@ export default function Register() {
     });
 
     useEffect(() => {
-        // Check if localStorage.isLoggedIn is true
         if (localStorage.getItem('isLoggedIn') === 'true') {
-            // Redirect to /dashboard
             navigate('/dashboard');
-            // Show a toast notification
             toast.success('You are already logged in!');
         }
-    }, []);
-    
-    const navigate = useNavigate();
+    }, [navigate]);
+
 
     const dispatch = useDispatch();
 
@@ -50,8 +48,13 @@ export default function Register() {
                 // 2. THEN navigate AFTER state updates
                 navigate('/');
             }
-        } catch (error) {
+        }  catch (error) {
             console.error('Registration failed:', error);
+            if (error.response && error.response.data && error.response.data.message) {
+                toast.error(error.response.data.message); // Display server error
+            } else {
+                toast.error('Registration failed. Please try again later.');
+            }
         }
     };
 
@@ -185,17 +188,17 @@ export default function Register() {
                         </form>
 
                         <div>
-                            <div className="relative mt-10">
-                                <div className="absolute inset-0 flex items-center" aria-hidden="true">
-                                    <div className="w-full border-t border-gray-200"/>
-                                </div>
-                                <div className="relative flex justify-center text-sm font-medium leading-6">
-                                    <span className="bg-white px-6 text-gray-900">Or continue with</span>
-                                </div>
-                            </div>
+                            {/*<div className="relative mt-10">*/}
+                            {/*    <div className="absolute inset-0 flex items-center" aria-hidden="true">*/}
+                            {/*        <div className="w-full border-t border-gray-200"/>*/}
+                            {/*    </div>*/}
+                            {/*    <div className="relative flex justify-center text-sm font-medium leading-6">*/}
+                            {/*        <span className="bg-white px-6 text-gray-900">Or continue with</span>*/}
+                            {/*    </div>*/}
+                            {/*</div>*/}
 
                             <div className="mt-6 grid grid-cols-2 gap-4">
-                                <GoogleLoginButton/>
+                                {/*<GoogleLoginButton/>*/}
 
                                 {/*<a*/}
                                 {/*    href="#"*/}

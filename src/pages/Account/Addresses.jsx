@@ -47,7 +47,7 @@ export default function Addresses() {
             // Show a toast notification
             toast.warning('You need to login to access the page');
         }
-    }, []);
+    }, [navigate]);
 
     const handleEditAddress = (address) => {
         setEditingAddress(address);
@@ -221,11 +221,11 @@ export default function Addresses() {
                                                 className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
                                                 Postal Code
                                             </th>
-                                            <th scope="col"
-                                                className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
-                                                Status
-                                            </th>
-                                            <th scope="col" className="relative py-3.5 pl-3 pr-4 sm:pr-0">
+                                            {/*<th scope="col"*/}
+                                            {/*    className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">*/}
+                                            {/*    Status*/}
+                                            {/*</th>*/}
+                                            <th scope="col" className="relative   pr-4 sm:pr-0">
                                                 <span className="sr-only">Edit</span>
                                             </th>
                                         </tr>
@@ -235,20 +235,20 @@ export default function Addresses() {
                                             <tr key={person.id}>
                                                 <td className="whitespace-nowrap px-3 py-5 text-sm text-gray-500">
                                                     <div className="text-gray-900">{person.address}</div>
-                                                    <div className="mt-1 text-gray-500">{person.street}</div>
+                                                    {/*<div className="mt-1 text-gray-500">{person.street}</div>*/}
                                                 </td>
                                                 <td className="whitespace-nowrap px-3 py-5 text-sm text-gray-500">
                                                     <div className="text-gray-900">{person.city}</div>
                                                 </td>
                                                 <td className="whitespace-nowrap px-3 py-5 text-sm text-gray-500">{person.zip_code}</td>
-                                                <td className="whitespace-nowrap px-3 py-5 text-sm text-gray-500">
-                                                  <span
-                                                      className={`inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset ${person.is_default === 1
-                                                          ? 'bg-green-50 text-green-700 ring-green-600/20'
-                                                          : 'bg-orange-50 text-orange-700 ring-orange-600/20'}`}>
-                                                    {person.is_default === 1 ? 'Main' : 'Not Main'}
-                                                  </span>
-                                                </td>
+                                                {/*<td className="whitespace-nowrap px-3 py-5 text-sm text-gray-500">*/}
+                                                {/*  <span*/}
+                                                {/*      className={`inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset ${person.is_default === 1*/}
+                                                {/*          ? 'bg-green-50 text-green-700 ring-green-600/20'*/}
+                                                {/*          : 'bg-orange-50 text-orange-700 ring-orange-600/20'}`}>*/}
+                                                {/*    {person.is_default === 1 ? 'Main' : 'Not Main'}*/}
+                                                {/*  </span>*/}
+                                                {/*</td>*/}
                                                 <td className="relative whitespace-nowrap py-5 pl-3 pr-4 text-right text-sm font-medium sm:pr-0">
                                                     <button
                                                         onClick={() => handleEditAddress(person)}

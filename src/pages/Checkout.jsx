@@ -9,14 +9,14 @@ import {Link, useNavigate} from "react-router-dom";
 import {server} from "../Server.js";
 import {assetServer} from "../assetServer.js";
 
-const stripePromise = loadStripe('pk_test_51K4bVzCT7v0Ax3ZCQUKpDk4gTPZ6UuWcJlMpNULOujrGRhsEL4IPAdeZ7KwDXIFEcJ5sLTxm3r2DMCUaQYWbLl2W00W13HDVPl');
+const stripePromise = loadStripe('pk_live_51K4bVzCT7v0Ax3ZCld6Fi5eQvlXJkhps7e7BGeyfWKDVDwUfhUjkJARWJWfkJDF0eWyFeFXTST27YnsfJHvjlfQt00CekSbV63');
 
 export default function Checkout() {
     const [cartItems, setCartItems] = useState(JSON.parse(localStorage.getItem('cart')) || []);
     const [addresses, setAddresses] = useState([]);
     const [selectedAddress, setSelectedAddress] = useState(null);
     const [showAddressForm, setShowAddressForm] = useState(false);
-    const [newAddress, setNewAddress] = useState({ country: 'USA', address: '', street: '', city: '', state: '', zip_code: '' });
+    const [newAddress, setNewAddress] = useState({ country: 'USA', address: '', city: '', state: '', zip_code: '' });
     const [sameAsBilling, setSameAsBilling] = useState(true);
     const [billingAddress, setBillingAddress] = useState(null);
     // const [selectedCountry, setSelectedCountry] = useState('');
@@ -27,9 +27,11 @@ export default function Checkout() {
     const user = JSON.parse(localStorage.getItem('user')) || {};
     const navigate = useNavigate();
 
+    console.log(cartItems)
+
     const subtotal = cartItems.reduce((total, product) => total + parseFloat(product.price) * product.quantity, 0).toFixed(2);
-    const taxes = (subtotal * 0.05).toFixed(2);
-    const shipping = 4.99;
+    const taxes = (subtotal * 0.01).toFixed(2);
+    const shipping = 0.00;
     const total = cartItems.length > 0
         ? (parseFloat(subtotal) + parseFloat(taxes) + shipping + parseFloat(tip) - discount.amount).toFixed(2)
         : '0.00';
@@ -88,7 +90,7 @@ export default function Checkout() {
             setShowAddressForm(false);
             toast.success('Address added successfully!');
             window.location.reload();
-            // setNewAddress({ country: 'USA', address: '', street: '', city: '', state: '', zip_code: '' });
+            // setNewAddress({ country: 'USA', address: '', city: '', state: '', zip_code: '' });
 
         } catch (error) {
             console.error('Failed to add address:', error);
@@ -207,6 +209,9 @@ export default function Checkout() {
         event.preventDefault();
         try {
             const productDetails = cartItems.map((item) => ({
+                id: item.id,
+                product_id: item.product_id,
+                variation_id: item.variation_id,
                 name: item.product_name,
                 totalPrice: item.price,
                 quantity: item.quantity,
@@ -340,12 +345,12 @@ export default function Checkout() {
                                                 onChange={handleTipChange}
                                                 className="block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm"
                                             />
-                                            <button
-                                                type="submit"
-                                                className="rounded-md bg-gray-200 px-4 text-sm font-medium text-gray-600 hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-gray-50"
-                                            >
-                                                Add
-                                            </button>
+                                            {/*<button*/}
+                                            {/*    type="submit"*/}
+                                            {/*    className="rounded-md bg-gray-200 px-4 text-sm font-medium text-gray-600 hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-gray-50"*/}
+                                            {/*>*/}
+                                            {/*    Add*/}
+                                            {/*</button>*/}
                                         </div>
                                     </form>
 
@@ -521,9 +526,9 @@ export default function Checkout() {
                                         className={`border p-4 rounded-md cursor-pointer ${selectedAddress?.id === address.id ? 'border-blue-500' : 'border-gray-300'}`}
                                         onClick={() => handleAddressSelect(address)}
                                     >
-                                        <p>{address.address}, {address.street}</p>
+                                        <p>{address.address}</p>
                                         <p>{address.city}, {address.state} {address.zip_code}</p>
-                                        <p>{address.country}</p>
+                                        {/*<p>{address.country}</p>*/}
                                         {address.is_default === 1 &&
                                             <span className="text-sm text-primary">Main Address</span>}
                                     </div>
@@ -552,14 +557,14 @@ export default function Checkout() {
                                 {/*    <option value="USA">United States</option>*/}
                                 {/*    <option value="Canada">Canada</option>*/}
                                 {/*</select>*/}
-                                <input
-                                    id="country"
-                                    name="country"
-                                    type="text"
-                                    value="USA"
-                                    readOnly
-                                    className="w-full p-2 border rounded bg-gray-100"
-                                />
+                                {/*<input*/}
+                                {/*    id="country"*/}
+                                {/*    name="country"*/}
+                                {/*    type="text"*/}
+                                {/*    value="USA"*/}
+                                {/*    readOnly*/}
+                                {/*    className="w-full p-2 border rounded bg-gray-100"*/}
+                                {/*/>*/}
 
                                 <input
                                     type="text"
@@ -570,15 +575,15 @@ export default function Checkout() {
                                     className="w-full p-2 border rounded"
                                     required
                                 />
-                                <input
-                                    type="text"
-                                    name="street"
-                                    placeholder="Street"
-                                    value={newAddress.street}
-                                    onChange={(e) => setNewAddress({...newAddress, street: e.target.value})}
-                                    className="w-full p-2 border rounded"
-                                    required
-                                />
+                                {/*<input*/}
+                                {/*    type="text"*/}
+                                {/*    name="street"*/}
+                                {/*    placeholder="Street"*/}
+                                {/*    value={newAddress.street}*/}
+                                {/*    onChange={(e) => setNewAddress({...newAddress, street: e.target.value})}*/}
+                                {/*    className="w-full p-2 border rounded"*/}
+                                {/*    required*/}
+                                {/*/>*/}
                                 <input
                                     type="text"
                                     name="city"

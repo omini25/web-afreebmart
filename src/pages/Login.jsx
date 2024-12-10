@@ -12,14 +12,11 @@ export default function Login() {
     const navigate = useNavigate();
 
     useEffect(() => {
-        // Check if localStorage.isLoggedIn is true
         if (localStorage.getItem('isLoggedIn') === 'true') {
-            // Redirect to /dashboard
             navigate('/dashboard');
-            // Show a toast notification
             toast.success('You are already logged in!');
         }
-    }, []);
+    }, [navigate]);
 
     const [formData, setFormData] = useState({
         email: '',
@@ -40,21 +37,19 @@ export default function Login() {
         e.preventDefault();
         try {
             const response = await axios.post(`${server}/login`, formData);
-            console.log(response.data);
             if (response.data) {
-                const role = response.data.user.role || response.data.user?.user?.role; // Get role safely
-                if (role === 'vendor' || role === 'admin') {
-                    toast.error("Can't login as vendor or admin.");
-                    return; // Stop login process
-                } else {
-                    dispatch(setUser(response.data.user));
-                    localStorage.setItem('user', JSON.stringify(response.data.user));
-                    localStorage.setItem('isLoggedIn', 'true');
-                    navigate('/dashboard');
-                }
+                dispatch(setUser(response.data.user));
+                localStorage.setItem('user', JSON.stringify(response.data.user));
+                localStorage.setItem('isLoggedIn', 'true');
+                navigate('/dashboard');
             }
         } catch (error) {
             console.error('Login failed:', error);
+            if (error.response && error.response.data && error.response.data.message) {
+                toast.error(error.response.data.message);
+            } else {
+                toast.error('Login failed. Please try again later.');
+            }
         }
     };
 
@@ -154,14 +149,14 @@ export default function Login() {
                         </form>
 
                         <div>
-                            <div className="relative mt-10">
-                                <div className="absolute inset-0 flex items-center" aria-hidden="true">
-                                    <div className="w-full border-t border-gray-200"/>
-                                </div>
-                                <div className="relative flex justify-center text-sm font-medium leading-6">
-                                    <span className="bg-white px-6 text-gray-900">Or continue with</span>
-                                </div>
-                            </div>
+                            {/*<div className="relative mt-10">*/}
+                            {/*    <div className="absolute inset-0 flex items-center" aria-hidden="true">*/}
+                            {/*        <div className="w-full border-t border-gray-200"/>*/}
+                            {/*    </div>*/}
+                            {/*    <div className="relative flex justify-center text-sm font-medium leading-6">*/}
+                            {/*        <span className="bg-white px-6 text-gray-900">Or continue with</span>*/}
+                            {/*    </div>*/}
+                            {/*</div>*/}
 
                             <div className="mt-6 grid grid-cols-2 gap-4">
                                 {/*<a*/}
@@ -189,7 +184,7 @@ export default function Login() {
                                 {/*    <span className="text-sm font-semibold leading-6">Google</span>*/}
                                 {/*</a>*/}
 
-                                <GoogleLoginButton />
+                                {/*<GoogleLoginButton />*/}
 
                                 {/*<a*/}
                                 {/*    href="#"*/}

@@ -45,8 +45,8 @@ export default function Header() {
 
 
     const handleSearchSubmit = () => {
-        setSearchModalOpen(false); // Close the modal
-        navigate(`/search/${searchTerm}`); // Navigate to the search page
+        setSearchModalOpen(false);
+        navigate(`/search/${searchTerm}`);
     };
 
     const handleRemoveFromCart = (productId) => {

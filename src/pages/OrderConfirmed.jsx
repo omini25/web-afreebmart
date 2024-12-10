@@ -26,7 +26,7 @@ export default function OrderConfirmed() {
             // Show a toast notification
             toast.warning('You need to login to access the page');
         }
-    }, []);
+    }, [navigate]);
 
     useEffect(() => {
         if (sessionId) {

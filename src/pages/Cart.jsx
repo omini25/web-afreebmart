@@ -43,7 +43,6 @@ export default function Cart() {
         setCartItems(updatedCartItems);
     };
 
-    console.log(cartItems);
 
     // Update total price, tax estimate, and total order amount in real-time
     useEffect(() => {

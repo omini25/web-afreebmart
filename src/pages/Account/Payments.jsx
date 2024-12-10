@@ -45,7 +45,7 @@ export default function Payments() {
             // Show a toast notification
             toast.warning('You need to login to access the page');
         }
-    }, []);
+    }, [navigate]);
 
 
     useEffect(() => {
@@ -62,6 +62,7 @@ export default function Payments() {
 
         fetchPlans();
     }, []);
+
 
     // Get current items for the page
     const indexOfLastItem = currentPage * itemsPerPage;
@@ -145,7 +146,7 @@ export default function Payments() {
                                         scope="col"
                                         className="hidden px-3 py-3.5 text-left text-sm font-semibold text-gray-900 lg:table-cell"
                                     >
-                                        Product
+                                        Order
                                     </th>
                                     <th
                                         scope="col"
@@ -190,7 +191,7 @@ export default function Payments() {
                                                 'hidden px-3 py-3.5 text-sm text-gray-500 lg:table-cell'
                                             )}
                                         >
-                                            {plan.order && plan.order.product_name ? plan.order.product_name : null}
+                                            {plan.order_id}
 
                                         </td>
                                         <td
@@ -225,7 +226,7 @@ export default function Payments() {
                                                 <button
                                                     type="button"
                                                     className={`inline-flex items-center rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 ${!plan.order || !plan.order.product_name ? 'disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-white' : ''}`}
-                                                    disabled={!plan.order || !plan.order.product_name}
+                                                    // disabled={!plan.order || !plan.order.product_name}
                                                 >
                                                     Invoice <span className="sr-only">, {plan.id}</span>
                                                 </button>

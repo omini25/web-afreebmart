@@ -49,7 +49,7 @@ export default function Orders() {
             // Show a toast notification
             toast.warning('You need to login to access the page');
         }
-    }, []);
+    }, [navigate]);
 
     useEffect(() => {
         const fetchOrders = async () => {
@@ -183,11 +183,7 @@ export default function Orders() {
                                                 <div>
                                                     <dt className="font-medium text-gray-900">Total amount</dt>
                                                     <dd className="mt-1 font-medium text-gray-900">
-                                                        ${
-                                                        order.order_items
-                                                            ? JSON.parse(order.order_items).reduce((sum, item) => sum + parseFloat(item.total_price), 0).toFixed(2)
-                                                            : order.total_price
-                                                    }
+                                                        ${order.total_price}
                                                     </dd>
                                                 </div>
                                             </dl>
@@ -274,34 +270,13 @@ export default function Orders() {
                                                     <div
                                                         className="h-20 w-20 flex-shrink-0 overflow-hidden rounded-lg bg-gray-200 sm:h-40 sm:w-40">
                                                         <img
-                                                            src={
-                                                                order.order_items
-                                                                    ? `${assetServer}/images/products/${JSON.parse(order.order_items)[0].image}`
-                                                                    : `${assetServer}/images/products/${order.image}`
-                                                            }
-                                                            alt={
-                                                                order.order_items
-                                                                    ? JSON.parse(order.order_items)[0].product_name
-                                                                    : order.product_name
-                                                            }
+                                                            src={`${assetServer}/images/products/${order.image}`}
+                                                            alt={order.product_name}
                                                             className="h-full w-full object-cover object-center"
                                                         />
                                                     </div>
                                                     <div className="ml-6 flex-1 text-sm">
-                                                        {order.order_items ? (
-                                                            JSON.parse(order.order_items).map((item, index) => (
-                                                                <div key={index}>
-                                                                    <div
-                                                                        className="font-medium text-gray-900 sm:flex sm:justify-between">
-                                                                        <h5>{item.quantity} x {item.product_name}</h5>
-                                                                        <p className="mt-2 sm:mt-0">${item.price}</p>
-                                                                    </div>
-                                                                    <p className="hidden text-gray-500 sm:mt-2 sm:block">
-                                                                        {item.description.length > 50 ? item.description.substring(0, 50) + "..." : item.description}
-                                                                    </p>
-                                                                </div>
-                                                            ))
-                                                        ) : (
+
                                                             <div>
                                                                 <div
                                                                     className="font-medium text-gray-900 sm:flex sm:justify-between">
@@ -310,7 +285,7 @@ export default function Orders() {
                                                                 </div>
                                                                 <p className="hidden text-gray-500 sm:mt-2 sm:block">{order.description}</p>
                                                             </div>
-                                                        )}
+
                                                     </div>
                                                 </div>
 
@@ -326,24 +301,14 @@ export default function Orders() {
                                                     <div
                                                         className="mt-6 flex items-center space-x-4 divide-x divide-gray-200 border-t border-gray-200 pt-4 text-sm font-medium sm:ml-4 sm:mt-0 sm:border-none sm:pt-0">
                                                         <div className="flex flex-1 justify-center">
-                                                            {order.order_items ? null : (
-                                                                <Link to={`/product/${(order.product_name)}`}
-                                                                      className="whitespace-nowrap text-primary hover:text-secondary">
-                                                                    View Product
-                                                                </Link>
-                                                            )}
+                                                            <Link to={`/product/${(order.product_name)}`}
+                                                                  className="whitespace-nowrap text-primary hover:text-secondary">
+                                                                View Product
+                                                            </Link>
                                                         </div>
                                                         <div className="flex flex-1 justify-center pl-4">
                                                             <button
-                                                                onClick={() => {
-                                                                    if (order.order_items) {
-                                                                        JSON.parse(order.order_items).forEach(item => {
-                                                                            handleBuyAgain(item);
-                                                                        });
-                                                                    } else {
-                                                                        handleBuyAgain(order);
-                                                                    }
-                                                                }}
+                                                                onClick={() => handleBuyAgain(order)}
                                                                 className="whitespace-nowrap text-primary hover:text-secondary"
                                                             >
                                                                 Buy Again

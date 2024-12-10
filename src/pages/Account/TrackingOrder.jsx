@@ -56,7 +56,7 @@ export default function TrackingOrder() {
             // Show a toast notification
             toast.warning('You need to login to access the page');
         }
-    }, []);
+    }, [navigate]);
 
 
     return (

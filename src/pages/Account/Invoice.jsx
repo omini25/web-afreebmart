@@ -48,7 +48,7 @@ export default function Invoice() {
             // Show a toast notification
             toast.warning('You need to login to access the page');
         }
-    }, []);
+    }, [navigate]);
 
 
 
@@ -56,117 +56,123 @@ export default function Invoice() {
         const fetchInvoices = async () => {
             try {
                 const response = await axios.get(`${server}/users/payments/details/${invoiceId}`);
-                setInvoices(response.data); // Assuming API returns an array of invoices
+                setInvoices(response.data);
+                console.log("Response Data:", response.data);  // Log the entire response data
+                console.log("invoices state:", invoices); // Log the state after setting it
             } catch (error) {
                 console.error('Error fetching invoices:', error);
+                // Add error handling if necessary. Set a loading state or error message.
             } finally {
                 setIsLoading(false);
             }
         };
-
         fetchInvoices();
-    }, []);
+    }, [invoiceId]);
+
+    console.log(invoices)
 
     const handleDownloadReceipt = () => {
-        const doc = new jsPDF();
-
-        // Load the image
-        const img = new Image();
-        img.crossOrigin = "Anonymous";  // Handle CORS issues
-        img.onload = () => {
-            try {
-                // Convert image to Base64
-                const base64Logo = getBase64Image(img);
-
-                // Set font
-                doc.setFont('Helvetica');
-
-                // Add receipt title
-                doc.setFontSize(22);
-                doc.setTextColor(44, 62, 80);
-                doc.text('Afreebmart Receipt', 105, 20, { align: 'center' });
-
-                // Add the Base64 encoded image to the PDF
-                if (base64Logo) {
-                    doc.addImage(base64Logo, 'PNG', 10, 10, 30, 15);
-                } else {
-                    console.warn('Logo could not be added to the PDF');
-                }
-
-                // Add invoice details
-                doc.setFontSize(10);
-                doc.setTextColor(52, 73, 94);
-                doc.text(`Invoice ID: ${invoiceId}`, 10, 40);
-                doc.text(`Issued on: ${new Date(invoices.order.created_at).toLocaleDateString()}`, 10, 45);
-                doc.text(`Paid on: ${new Date(invoices.payment.created_at).toLocaleDateString()}`, 10, 50);
-
-                // Add separator line
-                doc.setDrawColor(189, 195, 199);
-                doc.line(10, 55, 200, 55);
-
-                // Add customer details
-                doc.setFontSize(12);
-                doc.setTextColor(44, 62, 80);
-                doc.text('Billed To:', 10, 65);
-                doc.setFontSize(10);
-                doc.setTextColor(52, 73, 94);
-                doc.text(`${invoices.order.user_name}`, 10, 70);
-                doc.text(`${invoices.order.shipping_address}`, 10, 75);
-
-                // Add order details
-                doc.setFontSize(14);
-                doc.setTextColor(44, 62, 80);
-                doc.text('Order Summary', 105, 90, { align: 'center' });
-
-                const headers = [['Product', 'Price', 'Quantity', 'Total']];
-                const data = [
-                    [
-                        invoices.order.product_name,
-                        `$${invoices.order.price}`,
-                        invoices.order.quantity,
-                        `$${(invoices.order.price * invoices.order.quantity).toFixed(2)}`,
-                    ],
-                    // ['Tip', '', '', `$${invoices.order.tip || '0.00'}`],
-                    ['Taxes (5%)', '', '', `$${(invoices.order.total_price * 0.05).toFixed(2)}`],
-                    ['Shipping', '', '', '$4.99'],
-                ];
-
-                autoTable(doc, {
-                    head: headers,
-                    body: data,
-                    startY: 95,
-                    theme: 'striped',
-                    headStyles: { fillColor: [52, 152, 219], textColor: 255 },
-                    bodyStyles: { textColor: 50 },
-                    alternateRowStyles: { fillColor: [241, 245, 249] },
-                });
-
-                // Add total amount
-                doc.setFontSize(12);
-                doc.setTextColor(44, 62, 80);
-                doc.setFont('Helvetica', 'bold');
-                doc.text(`Total: $${invoices.payment.total_cost}`, 190, doc.lastAutoTable.finalY + 10, { align: 'right' });
-
-                // Add footer
-                doc.setFontSize(8);
-                doc.setTextColor(127, 140, 141);
-                doc.text('Thank you for your purchase!', 105, 280, { align: 'center' });
-                doc.text('For any questions, please contact support@afreebmart.com', 105, 285, { align: 'center' });
-
-                // Save and download the PDF
-                doc.save(`Afreebmart_Receipt_${invoiceId}.pdf`);
-            } catch (error) {
-                console.error('Error generating PDF:', error);
-                toast.error('Failed to generate receipt. Please try again.');
+        try {
+            // Check if orders array exists and is not empty
+            if (!invoices || !invoices.orders || invoices.orders.length === 0) {
+                toast.error('No order details available.');
+                return;
             }
-        };
-        img.onerror = () => {
-            console.error('Error loading logo image:', logoUrl);
-            toast.error('Failed to load logo for the receipt.');
-            // Generate PDF without logo
-            handleDownloadReceiptWithoutLogo();
-        };
-        img.src = logoUrl;
+
+            const doc = new jsPDF();
+
+            // Set font
+            doc.setFont('Helvetica');
+
+            // Add receipt title
+            doc.setFontSize(22);
+            doc.setTextColor(44, 62, 80);
+            doc.text('Afreebmart Receipt', 105, 20, { align: 'center' });
+
+            // Add invoice details
+            doc.setFontSize(10);
+            doc.setTextColor(52, 73, 94);
+            doc.text(`Invoice ID: ${invoices.payment.id || 'N/A'}`, 10, 40);
+
+            // Safely handle date parsing
+            const createdAt = invoices.payment?.created_at
+                ? new Date(invoices.payment.created_at).toLocaleDateString()
+                : 'N/A';
+
+            doc.text(`Issued on: ${createdAt}`, 10, 45);
+            doc.text(`Paid on: ${createdAt}`, 10, 50);
+
+            // Add separator line
+            doc.setDrawColor(189, 195, 199);
+            doc.line(10, 55, 200, 55);
+
+            // Add customer details
+            doc.setFontSize(12);
+            doc.setTextColor(44, 62, 80);
+            doc.text('Billed To:', 10, 65);
+            doc.setFontSize(10);
+            doc.setTextColor(52, 73, 94);
+
+            // Safely access customer details
+            doc.text(`User: ${invoices?.orders?.[0]?.user_name || 'N/A'}`, 10, 70);
+
+            // Add order details
+            doc.setFontSize(14);
+            doc.setTextColor(44, 62, 80);
+            doc.text('Order Summary', 105, 90, { align: 'center' });
+
+            // Prepare data for multiple orders
+            const headers = [['Product', 'Price', 'Quantity', 'Total']];
+            const data = invoices.orders.map(order => [
+                order.product_name || 'Unknown Product',
+                `$${(typeof order.price === 'number' ? order.price : parseFloat(order.price) || 0).toFixed(2)}`, // Convert to number if needed
+                order.quantity || 0,
+                `$${( (typeof order.price === 'number' ? order.price : parseFloat(order.price) || 0 )* (order.quantity || 0)).toFixed(2)}` // Use parseFloat and handle non-numeric price
+            ]);
+
+            // Add taxes and shipping as separate rows
+            const taxes = invoices.orders.reduce((total, order) =>
+                total + ((typeof order.price === 'number' ? order.price : parseFloat(order.price) || 0 )* (order.quantity || 0) * 0.05), 0);
+
+            data.push(
+                ['Taxes (5%)', '', '', `$${taxes.toFixed(2)}`],
+                ['Shipping', '', '', '$4.99']
+            );
+
+            // Create table
+            autoTable(doc, {
+                head: headers,
+                body: data,
+                startY: 95,
+                theme: 'striped',
+                headStyles: { fillColor: [52, 152, 219], textColor: 255 },
+                bodyStyles: { textColor: 50 },
+                alternateRowStyles: { fillColor: [241, 245, 249] },
+            });
+
+            // Calculate total amount
+            const subtotal = invoices.orders.reduce((total, order) =>
+                total + ((order.price || 0) * (order.quantity || 0)), 0);
+            const totalWithTaxesAndShipping = subtotal + taxes + 4.99;
+
+            // Add total amount
+            doc.setFontSize(12);
+            doc.setTextColor(44, 62, 80);
+            doc.setFont('Helvetica', 'bold');
+            doc.text(`Total: $${totalWithTaxesAndShipping.toFixed(2)}`, 190, doc.lastAutoTable.finalY + 10, { align: 'right' });
+
+            // Add footer
+            doc.setFontSize(8);
+            doc.setTextColor(127, 140, 141);
+            doc.text('Thank you for your purchase!', 105, 280, { align: 'center' });
+            doc.text('For any questions, please contact support@afreebmart.com', 105, 285, { align: 'center' });
+
+            // Save and download the PDF
+            doc.save(`Afreebmart_Receipt_${invoices.payment.id || 'receipt'}.pdf`);
+        } catch (error) {
+            console.error('Error generating PDF:', error);
+            toast.error('Failed to generate receipt. Please try again.');
+        }
     };
 
 // Helper function to generate PDF without logo
@@ -251,12 +257,14 @@ export default function Invoice() {
                                     <dl className="flex flex-wrap">
                                         <div className="flex-auto pl-6 pt-6">
                                             <dt className="text-sm font-semibold leading-6 text-gray-900">Amount</dt>
-                                            <dd className="mt-1 text-base font-semibold leading-6 text-gray-900">${invoices.payment.total_cost}.00</dd>
+                                            <dd className="mt-1 text-base font-semibold leading-6 text-gray-900">
+                                                ${invoices?.payment?.total_cost || 0} {/* Use optional chaining and provide a default */}
+                                            </dd>
                                         </div>
                                         <div className="flex-none self-end px-6 pt-4">
-                                            <dt className="sr-only">Status</dt>
+                                        <dt className="sr-only">Status</dt>
                                             <dd className="rounded-md bg-green-50 px-2 py-1 text-xs font-medium text-green-600 ring-1 ring-inset ring-green-600/20">
-                                                {invoices.payment.payment_status}
+                                                {invoices?.payment?.payment_status || 'N/A'}
                                             </dd>
                                         </div>
                                         <div
@@ -265,16 +273,18 @@ export default function Invoice() {
                                                 <span className="sr-only">Client</span>
                                                 <UserCircleIcon className="h-6 w-5 text-gray-400" aria-hidden="true"/>
                                             </dt>
-                                            <dd className="text-sm font-medium leading-6 text-gray-900">{invoices.order.user_name}</dd>
+                                            <dd className="text-sm font-medium leading-6 text-gray-900">
+                                                {invoices?.orders?.length > 0 ? invoices.orders[0].user_name : "N/A"}
+                                            </dd>
                                         </div>
                                         <div className="mt-4 flex w-full flex-none gap-x-4 px-6">
                                             <dt className="flex-none">
-                                                <span className="sr-only">Date Created</span>
+                                            <span className="sr-only">Date Created</span>
                                                 <CalendarDaysIcon className="h-6 w-5 text-gray-400" aria-hidden="true"/>
                                             </dt>
                                             <dd className="text-sm leading-6 text-gray-500">
                                                 <time
-                                                    dateTime="2023-01-31">{new Date(invoices.payment.created_at).toLocaleDateString('en-US', {
+                                                    dateTime="2023-01-31">{new Date(invoices?.payment?.created_at || 'N/A').toLocaleDateString('en-US', {
                                                     month: 'long',
                                                     day: 'numeric',
                                                     year: 'numeric'
@@ -286,7 +296,7 @@ export default function Invoice() {
                                                 <span className="sr-only">Status</span>
                                                 <CreditCardIcon className="h-6 w-5 text-gray-400" aria-hidden="true"/>
                                             </dt>
-                                            <dd className="text-sm leading-6 text-gray-500">Paid with</dd>
+                                            <dd className="text-sm leading-6 text-gray-500">Paid with - {invoices?.payment?.payment_method || 'N/A'}</dd>
                                         </div>
                                     </dl>
                                     <div className="mt-6 border-t border-gray-900/5 px-6 py-6">
@@ -309,14 +319,30 @@ export default function Invoice() {
                                         <dt className="inline text-gray-500">Issued on</dt>
                                         {' '}
                                         <dd className="inline text-gray-700">
-                                            <time dateTime="2023-23-01">{new Date(invoices.order.created_at).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</time>
+                                            <time dateTime="2023-23-01">
+                                                {Array.isArray(invoices.order) && invoices.order.length > 0
+                                                    ? new Date(invoices.order[0].created_at).toLocaleDateString('en-US', {
+                                                        month: 'long',
+                                                        day: 'numeric',
+                                                        year: 'numeric'
+                                                    })
+                                                    : invoices?.order?.created_at
+                                                        ? new Date(invoices.order.created_at).toLocaleDateString('en-US', {
+                                                            month: 'long',
+                                                            day: 'numeric',
+                                                            year: 'numeric'
+                                                        })
+                                                        : ''}
+                                                {/* Provide a default value or placeholder if invoices.order or created_at is missing/invalid */}
+                                            </time>
                                         </dd>
                                     </div>
                                     <div className="mt-2 sm:mt-0 sm:pl-4">
                                         <dt className="inline text-gray-500">Paid on</dt>
                                         {' '}
                                         <dd className="inline text-gray-700">
-                                            <time dateTime="2023-31-01">{new Date(invoices.payment.created_at).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</time>
+                                            <time
+                                                dateTime="2023-31-01">{new Date(invoices?.payment?.created_at || 'N/A').toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</time>
                                         </dd>
                                     </div>
                                     <div className="mt-6 border-t border-gray-900/5 pt-6 sm:pr-4">
@@ -331,10 +357,11 @@ export default function Invoice() {
                                     <div className="mt-8 sm:mt-6 sm:border-t sm:border-gray-900/5 sm:pl-4 sm:pt-6">
                                         <dt className="font-semibold text-gray-900">To</dt>
                                         <dd className="mt-2 text-gray-500">
-                                            <span
-                                                className="font-medium text-gray-900">{invoices.order.user_name}</span>
+                                            <span className="font-medium text-gray-900">
+                                              {invoices?.orders?.length > 0 ? invoices.orders[0].user_name : "N/A"}
+                                            </span>
                                             <br/>
-                                            {invoices.order.shipping_address}
+                                            {invoices?.orders && invoices.orders.length > 0 ? invoices.orders[0].shipping_address : "N/A"}
 
                                         </dd>
                                     </div>
@@ -365,45 +392,47 @@ export default function Invoice() {
                                     </tr>
                                     </thead>
                                     <tbody>
-                                        <tr  className="border-b border-gray-100">
+                                    {invoices?.orders?.map((order, index) => (
+                                        <tr key={index} className="border-b border-gray-100">
                                             <td className="max-w-0 px-0 py-5 align-top">
-                                                <div className="truncate font-medium text-gray-900">{invoices.order.product_name}</div>
-                                                <div className="truncate text-gray-500">{invoices.order.description}</div>
+                                                <div
+                                                    className="truncate font-medium text-gray-900">{order.product_name}</div>
+                                                <div className="truncate text-gray-500">{order.description}</div>
                                             </td>
                                             <td className="hidden py-5 pl-8 pr-0 text-right align-top tabular-nums text-gray-700 sm:table-cell">
-                                                ${invoices.order.price}
+                                                ${order.price}
                                             </td>
                                             <td className="hidden py-5 pl-8 pr-0 text-right align-top tabular-nums text-gray-700 sm:table-cell">
-                                                {invoices.order.quantity}
+                                                {order.quantity}
                                             </td>
-                                            <td className="py-5 pl-8 pr-0 text-right align-top tabular-nums text-gray-700">${(invoices.order.price * invoices.order.quantity).toFixed(2)}</td>
+                                            <td className="py-5 pl-8 pr-0 text-right align-top tabular-nums text-gray-700">
+                                                ${(order.price * order.quantity).toFixed(2)}
+                                            </td>
                                         </tr>
+                                    )) || (
+                                        <tr> {/* Display a message if there are no orders */}
+                                            <td colSpan="4" className="text-center py-5">No orders found for this
+                                                invoice.
+                                            </td>
+                                        </tr>
+                                    )}
+                                    </tbody>
+                                    <tbody>
+                                    <tr className="border-b border-gray-100">
+                                        <td className="max-w-0 px-0 py-5 align-top">
+                                            <div className="truncate font-medium text-gray-900">Delivery Fees</div>
+                                        </td>
+                                        <td className="hidden py-5 pl-8 pr-0 text-right align-top tabular-nums text-gray-700 sm:table-cell">
+                                            $ 5.99
+                                        </td>
+                                        <td className="hidden py-5 pl-8 pr-0 text-right align-top tabular-nums text-gray-700 sm:table-cell">
+                                            1
+                                        </td>
+                                        <td className="py-5 pl-8 pr-0 text-right align-top tabular-nums text-gray-700">$
+                                            5.99
+                                        </td>
+                                    </tr>
 
-                                        <tr  className="border-b border-gray-100">
-                                            <td className="max-w-0 px-0 py-5 align-top">
-                                                <div className="truncate font-medium text-gray-900">Delivery Fees</div>
-                                            </td>
-                                            <td className="hidden py-5 pl-8 pr-0 text-right align-top tabular-nums text-gray-700 sm:table-cell">
-                                                $ 4.99
-                                            </td>
-                                            <td className="hidden py-5 pl-8 pr-0 text-right align-top tabular-nums text-gray-700 sm:table-cell">
-                                                1
-                                            </td>
-                                            <td className="py-5 pl-8 pr-0 text-right align-top tabular-nums text-gray-700">$ 5.99</td>
-                                        </tr>
-
-                                        <tr  className="border-b border-gray-100">
-                                            <td className="max-w-0 px-0 py-5 align-top">
-                                                <div className="truncate font-medium text-gray-900">Tax</div>
-                                            </td>
-                                            <td className="hidden py-5 pl-8 pr-0 text-right align-top tabular-nums text-gray-700 sm:table-cell">
-                                                ${invoices.order.price * 0.05}
-                                            </td>
-                                            <td className="hidden py-5 pl-8 pr-0 text-right align-top tabular-nums text-gray-700 sm:table-cell">
-                                                5%
-                                            </td>
-                                            <td className="py-5 pl-8 pr-0 text-right align-top tabular-nums text-gray-700"> ${invoices.order.price * 0.05}</td>
-                                        </tr>
                                     </tbody>
                                     <tfoot>
                                     <tr>
@@ -417,21 +446,26 @@ export default function Invoice() {
                                         >
                                             Subtotal
                                         </th>
-                                        <td className="pb-0 pl-8 pr-0 pt-6 text-right tabular-nums text-gray-900">${invoices.order.total_cost}</td>
+                                        <td className="pb-0 pl-8 pr-0 pt-6 text-right tabular-nums text-gray-900">
+                                            $
+                                            {(
+                                                invoices?.orders?.reduce((total, order) => total + order.price * order.quantity, 0) + 5.99 || 0
+                                            ).toFixed(2)}
+                                        </td>
                                     </tr>
-                                    {/*<tr>*/}
-                                    {/*    <th scope="row" className="pt-4 font-normal text-gray-700 sm:hidden">*/}
-                                    {/*        Tax*/}
-                                    {/*    </th>*/}
-                                    {/*    <th*/}
-                                    {/*        scope="row"*/}
-                                    {/*        colSpan={3}*/}
-                                    {/*        className="hidden pt-4 text-right font-normal text-gray-700 sm:table-cell"*/}
-                                    {/*    >*/}
-                                    {/*        Tax*/}
-                                    {/*    </th>*/}
-                                    {/*    <td className="pb-0 pl-8 pr-0 pt-4 text-right tabular-nums text-gray-900">{invoice.tax}</td>*/}
-                                    {/*</tr>*/}
+                                    <tr>
+                                        <th scope="row" className="pt-4 font-normal text-gray-700 sm:hidden">
+                                        Tax
+                                        </th>
+                                        <th
+                                            scope="row"
+                                            colSpan={3}
+                                            className="hidden pt-4 text-right font-normal text-gray-700 sm:table-cell"
+                                        >
+                                            Tax
+                                        </th>
+                                        <td className="pb-0 pl-8 pr-0 pt-4 text-right tabular-nums text-gray-900">${(invoices?.orders?.reduce((totalTax, order) => totalTax + (order.price * order.quantity), 0) * 0.05 || 0).toFixed(2)}</td>
+                                    </tr>
                                     <tr>
                                         <th scope="row" className="pt-4 font-semibold text-gray-900 sm:hidden">
                                             Total
@@ -444,7 +478,7 @@ export default function Invoice() {
                                             Total
                                         </th>
                                         <td className="pb-0 pl-8 pr-0 pt-4 text-right font-semibold tabular-nums text-gray-900">
-                                            ${invoices.payment.total_cost}
+                                            ${invoices?.payment?.total_cost || 0}
                                         </td>
                                     </tr>
                                     </tfoot>

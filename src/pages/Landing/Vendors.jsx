@@ -7,30 +7,52 @@ import {server} from "../../Server.js";
 import {BuildingStorefrontIcon} from "@heroicons/react/24/outline/index.js";
 import {createChat} from "../../api.js";
 import {toast} from "react-toastify";
-
+import { useNavigate } from 'react-router-dom';
 
 export default function Vendors() {
     const [vendors, setVendors] = useState([]);
+    const navigate = useNavigate();
     const user = JSON.parse(localStorage.getItem('user')) || {};
     const userId = user.id;
 
     useEffect(() => {
-        // Replace with your actual API endpoint
         axios.get(`${server}/vendors`)
             .then(response => {
                 setVendors(response.data);
             })
-            .catch(error => console.error('Error fetching vendors:', error));
+            .catch(error => {
+                console.error('Error fetching vendors:', error);
+                toast.error('Failed to load vendors');
+            });
     }, []);
 
+    console.log(vendors)
+    console.log(user)
+
     const handleCreateChat = async (vendorId) => {
+        if (!userId) {
+            toast.error('You must be logged in to message the vendor.');
+            return;
+        }
+
         try {
-            // Pass vendorId directly within the array
-            await createChat('From User', 'Hello!', [vendorId]);
-            toast('Chat request sent. You will see the chat if the vendor accepts.');
+            const response = await createChat({
+                vendor_id: vendorId,
+                user_id: userId
+            });
+
+
+            if (response.data.success) {
+                toast.success(response.data.message);
+                const chatRoomId = response.data.data.id;
+                navigate(`/messages/${chatRoomId}`);
+            } else {
+                toast.error(response.data.message);
+            }
         } catch (error) {
             console.error('Error creating chat:', error);
-            toast.error('Failed to send message. Please try again later.');
+            const errorMessage = error.response?.data?.message || 'Failed to create chat. Please try again.';
+            toast.error(errorMessage);
         }
     };
 
@@ -66,7 +88,7 @@ export default function Vendors() {
                                             onClick={(e) => {
                                                 e.preventDefault(); // Prevent default mailto behavior
                                                 if (user && userId) {
-                                                    handleCreateChat(vendor.user_id);
+                                                    handleCreateChat(vendor.id);
                                                 } else {
                                                     toast.error('You must be logged in to message the vendor.');
                                                 }

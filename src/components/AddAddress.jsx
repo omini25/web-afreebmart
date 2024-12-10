@@ -14,7 +14,7 @@ export function AddAddress({ onSubmit }) {
         const newAddressData = {
             country: "USA",
             address: addressNumber,
-            street: street,
+            // street: street,
             city: city,
             state: state,
             zip_code: zipCode,
@@ -25,12 +25,12 @@ export function AddAddress({ onSubmit }) {
 
     return (
         <>
-            <form onSubmit={handleFormSubmit} className="space-y-6 mx-3">
-                <div className="border-b border-gray-900/10 pb-12">
+            <form onSubmit={handleFormSubmit} className="space-y-6 mx-3 mt-12">
+                <div className="border-b border-gray-900/10 pb-12 mt-12">
                     <h2 className="text-base font-semibold leading-7 text-gray-900">Add a new address</h2>
 
                     <div className="mt-5 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
-                        <div className="sm:col-span-3">
+                        <div className="sm:col-span-3 hidden">
                             <label htmlFor="address" className="block text-sm font-medium leading-6 text-gray-900">
                                 Country
                             </label>
@@ -47,9 +47,9 @@ export function AddAddress({ onSubmit }) {
                             </div>
                         </div>
 
-                        <div className="sm:col-span-3">
+                        <div className="sm:col-span-6">
                             <label htmlFor="address" className="block text-sm font-medium leading-6 text-gray-900">
-                                Address Number
+                                Address
                             </label>
                             <div className="mt-2">
                                 <input
@@ -65,23 +65,23 @@ export function AddAddress({ onSubmit }) {
                         </div>
 
 
-                        <div className="col-span-full">
-                            <label htmlFor="street"
-                                   className="block text-sm font-medium leading-6 text-gray-900">
-                                Street address
-                            </label>
-                            <div className="mt-2">
-                                <input
-                                    id="street"
-                                    name="street"
-                                    type="text"
-                                    autoComplete="street"
-                                    value={street}
-                                    onChange={(e) => setStreet(e.target.value)}
-                                    className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-primary sm:text-sm sm:leading-6"
-                                />
-                            </div>
-                        </div>
+                        {/*<div className="col-span-full">*/}
+                        {/*    <label htmlFor="street"*/}
+                        {/*           className="block text-sm font-medium leading-6 text-gray-900">*/}
+                        {/*        Street address*/}
+                        {/*    </label>*/}
+                        {/*    <div className="mt-2">*/}
+                        {/*        <input*/}
+                        {/*            id="street"*/}
+                        {/*            name="street"*/}
+                        {/*            type="text"*/}
+                        {/*            autoComplete="street"*/}
+                        {/*            value={street}*/}
+                        {/*            onChange={(e) => setStreet(e.target.value)}*/}
+                        {/*            className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-primary sm:text-sm sm:leading-6"*/}
+                        {/*        />*/}
+                        {/*    </div>*/}
+                        {/*</div>*/}
 
                         <div className="sm:col-span-2 sm:col-start-1">
                             <label htmlFor="city" className="block text-sm font-medium leading-6 text-gray-900">
@@ -138,9 +138,9 @@ export function AddAddress({ onSubmit }) {
 
 
                 <div className="mt-6 flex items-center justify-end gap-x-6">
-                    <button type="button" className="text-sm font-semibold leading-6 text-gray-900">
-                        Cancel
-                    </button>
+                    {/*<button type="button" className="text-sm font-semibold leading-6 text-gray-900">*/}
+                    {/*    Cancel*/}
+                    {/*</button>*/}
                     <button
                         type="submit"
                         className="rounded-md bg-primary px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-secondary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"

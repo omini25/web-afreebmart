@@ -65,7 +65,7 @@ export default function GroupOrders() {
             // Show a toast notification
             toast.warning('You need to login to access the page');
         }
-    }, []);
+    }, [navigate]);
 
     const fetchOrders = async () => {
         try {
@@ -508,7 +508,7 @@ export default function GroupOrders() {
                                                             </dd>
 
                                                             <div className="mt-5">
-                                                                {product.users_count === 5 && (
+                                                                {product.users_count === 2 && (
                                                                     <button
                                                                         onClick={() => handleAddToCart(product.product_details?.product_name)}
                                                                         className="relative w-full flex items-center justify-center rounded-md border border-transparent bg-altBackground px-4 py-2 text-sm font-medium text-gray-900 hover:bg-newColor group"
@@ -551,11 +551,11 @@ export default function GroupOrders() {
                                                         </div>
                                                         <div
                                                             className={classNames(product.users_count >= 2 ? 'text-primary' : '', 'text-center')}>
-                                                            Halfway There
+                                                            Nice
                                                         </div>
                                                         <div
                                                             className={classNames(product.users_count >= 5 ? 'text-primary' : '', 'text-right')}>
-                                                            Group Completed
+                                                            Group Progressing
                                                         </div>
                                                     </div>
                                                 </div>

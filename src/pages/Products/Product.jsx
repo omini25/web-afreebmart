@@ -25,6 +25,7 @@ import ProductRating from "../../components/ProductRating.jsx";
 
 export default function ProductPage( ) {
     const { productName } = useParams();
+    const user = JSON.parse(localStorage.getItem('user')) || {};
     const [product, setProduct] = useState(null);
     const [products, setProducts] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -33,6 +34,10 @@ export default function ProductPage( ) {
     const [isZoomed, setIsZoomed] = useState(false);
     const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
     const [relatedProducts, setRelatedProducts] = useState([]);
+
+    // Variations handling
+    const [allVariations, setAllVariations] = useState([]);
+    const [selectedVariation, setSelectedVariation] = useState(null);
 
 
     const {
@@ -59,14 +64,48 @@ export default function ProductPage( ) {
     }, [updateQuantity]);
 
     const handleAddToCart = (e) => {
-        e.preventDefault(); // Prevent form submission
-        addProductToCart({ ...product, quantity: parseInt(quantity) });
-        toast.success(`${quantity} ${product.product_name}${quantity > 1 ? 's' : ''} added to cart!`);
+        e.preventDefault();
+
+        const cartProduct = selectedVariation
+            ? {
+                ...selectedVariation,
+                product_name: `${product.product_name} - ${selectedVariation.name}`,
+                image: (() => {
+                    try {
+                        const images = JSON.parse(selectedVariation.images);
+                        if (Array.isArray(images) && images.length > 0) {
+                            return images[0];
+                        }
+                    } catch (e) {
+                        if (Array.isArray(selectedVariation.images) && selectedVariation.images.length > 0) {
+                            return selectedVariation.images[0]
+                        }
+                    }
+                    //if no variation image, use main image if available
+                    return product?.image && Array.isArray(product.image) && product.image.length > 0 ? product.image[0] : null;
+                })(),
+                quantity,
+                variation_id: selectedVariation.id, // Add variation ID here
+                product_id: product.id, // Ensure main product ID is also included for variations
+
+            }
+            : {
+                ...product,
+                image: product?.image && Array.isArray(product.image) && product.image.length > 0 ? product.image[0] : null,
+                quantity,
+                product_id: product.id,
+
+            };
+
+        addProductToCart(cartProduct);
+        toast.success(`${quantity} ${cartProduct.product_name}${quantity > 1 ? 's' : ''} added to cart!`);
     };
+
 
     const handleRemoveFromCart = (e) => {
         e.preventDefault();
-        removeProductFromCart(product.id);
+        const productIdToRemove = selectedVariation ? selectedVariation.id : product.id;
+        removeProductFromCart(productIdToRemove);
         toast.success(`${product.product_name} removed from cart!`);
     };
 
@@ -74,10 +113,28 @@ export default function ProductPage( ) {
         const newQuantity = parseInt(e.target.value);
         if (newQuantity > 0) {
             setQuantity(newQuantity);
-            if (cartItems.some(item => item.id === product.id)) {
-                updateCartProductQuantity(product.id, newQuantity);
+            if (cartItems.some(item => item.id === (selectedVariation ? selectedVariation.id : product.id))) {
+                updateCartProductQuantity(selectedVariation ? selectedVariation.id : product.id, newQuantity);
             }
         }
+    };
+
+    // Prepare variations with main product as first variation
+    const prepareVariations = (fetchedProduct) => {
+        const mainProductVariation = {
+            id: fetchedProduct.id,
+            name: 'Main Product',
+            price: fetchedProduct.group === "1" ? fetchedProduct.group_price : fetchedProduct.price,
+            images: fetchedProduct.image || [],
+            stock: fetchedProduct.stock || 0,
+            sku: fetchedProduct.sku || '',
+        };
+
+        const otherVariations = fetchedProduct.variations || [];
+        const combinedVariations = [mainProductVariation, ...otherVariations];
+
+        setAllVariations(combinedVariations);
+        setSelectedVariation(mainProductVariation);
     };
 
     useEffect(() => {
@@ -85,7 +142,11 @@ export default function ProductPage( ) {
             try {
                 setLoading(true);
                 const response = await axios.get(`${server}/product/${encodeURIComponent(productName)}`);
-                setProduct(response.data.product);
+                const fetchedProduct = response.data.product;
+
+                setProduct(fetchedProduct);
+                prepareVariations(fetchedProduct);
+
                 setLoading(false);
             } catch (error) {
                 console.error('Error fetching product:', error);
@@ -96,6 +157,7 @@ export default function ProductPage( ) {
 
         fetchProduct();
     }, [productName]);
+
 
 
     useEffect(() => {
@@ -131,6 +193,26 @@ export default function ProductPage( ) {
         }
     }, [product, products]);
 
+    const handleVariationSelect = (variation) => {
+        setSelectedVariation(variation);
+        setSelectedImage(0); // Reset to first image of variation
+    };
+
+    const getCurrentImages = () => {
+        // Priority: Variation images, then product images
+        return selectedVariation?.images || product?.image || [];
+    };
+
+    const getCurrentPrice = () => {
+        return selectedVariation?.price ||
+            (product?.group === "1" ? product.group_price : product.price);
+    };
+
+    const isItemInCart = () => {
+        const idToCheck = selectedVariation ? selectedVariation.id : product.id;
+        return cartItems.some(item => item.id === idToCheck);  // Corrected ID check
+    };
+
 
     const handleWishlist = (e) => {
         e.preventDefault();
@@ -143,7 +225,7 @@ export default function ProductPage( ) {
                 id: product.id,
                 name: product.product_name,
                 price: product.price,
-                image: `${assetServer}/images/products/${product.image}`,
+                image: Array.isArray(product.image) && product.image.length > 0 ? `${assetServer}/images/products/${product.image[0]}` : `${assetServer}/images/products/${product.image}`,
             });
             toast.success(`${product.product_name} added to wishlist!`);
         }
@@ -181,64 +263,72 @@ export default function ProductPage( ) {
             <Header/>
 
             <div className="bg-white">
-
-
                 <main className="mx-auto max-w-7xl sm:px-6 sm:pt-16 lg:px-8">
                     <div className="mx-auto max-w-2xl lg:max-w-none">
-                        {/* Product */}
                         <div className="lg:grid lg:grid-cols-2 lg:items-start lg:gap-x-8">
                             {/* Image gallery */}
                             <div className="flex flex-col">
                                 <div
-                                    className="aspect-w-1 aspect-h-1 w-full overflow-hidden rounded-lg"
+                                    className="aspect-w-1 aspect-h-1 w-full overflow-hidden rounded-lg relative"
                                     onMouseEnter={handleMouseEnter}
                                     onMouseLeave={handleMouseLeave}
                                     onMouseMove={handleMouseMove}
                                 >
-                                    <img
-                                        // src={`${assetServer}/images/products/${product.image[selectedImage]}`}
-                                        src={`${assetServer}/images/products/${product.image}`}
-                                        alt={product.product_name}
-                                        className={`w-full h-full object-cover transition-transform duration-200 ${isZoomed ? 'scale-150' : ''}`}
-                                        style={isZoomed ? {
-                                            transformOrigin: `${mousePosition.x}% ${mousePosition.y}%`
-                                        } : {}}
-                                    />
+                                    {getCurrentImages().length > 0 ? (
+                                        <>
+                                            <img
+                                                src={`${assetServer}/images/products/${getCurrentImages()[selectedImage]}`}
+                                                alt={product.product_name}
+                                                className={`w-full h-full object-cover transition-transform duration-200 ${isZoomed ? 'scale-150' : ''}`}
+                                                style={isZoomed ? { transformOrigin: `${mousePosition.x}% ${mousePosition.y}%` } : {}}
+                                            />
+                                            {(product?.quantity <= 0) && (
+                                                <div className="absolute inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center text-white text-xl font-bold">
+                                                    Out of Stock
+                                                </div>
+                                            )}
+                                        </>
+                                    ) : (
+                                        <div className="w-full h-full bg-gray-200 animate-pulse rounded-lg"></div>
+                                    )}
                                 </div>
-                                {/*<div className="mt-4 grid grid-cols-4 gap-2">*/}
-                                {/*    {product.image.map((image, index) => (*/}
-                                {/*        <img*/}
-                                {/*            key={index}*/}
-                                {/*            src={`${assetServer}/images/products/${image}`}*/}
-                                {/*            alt={`${product.product_name} - Image ${index + 1}`}*/}
-                                {/*            className={`cursor-pointer rounded-md ${selectedImage === index ? 'ring-2 ring-indigo-500' : ''}`}*/}
-                                {/*            onClick={() => setSelectedImage(index)}*/}
-                                {/*        />*/}
-                                {/*    ))}*/}
-                                {/*</div>*/}
+
+
+
+                                {/* Image Thumbnails */}
+                                <div className="mt-4 grid grid-cols-4 gap-2">
+                                    {getCurrentImages().map((image, index) => (
+                                        <div key={index} className="relative">
+                                            <img
+                                                src={`${assetServer}/images/products/${image}`}
+                                                alt={`${product.product_name} - Image ${index + 1}`}
+                                                className={`cursor-pointer rounded-md ${selectedImage === index ? 'ring-2 ring-indigo-500' : ''}`}
+                                                onClick={() => setSelectedImage(index)}
+                                            />
+                                        </div>
+                                    ))}
+                                </div>
                             </div>
 
                             {/* Product info */}
                             <div className="mt-10 px-4 sm:mt-16 sm:px-0 lg:mt-0">
-                                <h1 className="text-3xl font-bold tracking-tight text-gray-900">{product.product_name}</h1>
+                                <h1 className="text-3xl font-bold tracking-tight text-gray-900">
+                                    {selectedVariation
+                                        ? `${product.product_name} - ${selectedVariation.name}`
+                                        : product.product_name
+                                    }
+                                </h1>
 
                                 <div className="mt-3">
                                     <h2 className="sr-only">Product information</h2>
                                     <p className="text-3xl tracking-tight text-primary">
-                                        ${product.group === "1" ? product.group_price : product.price}
+                                        ${getCurrentPrice()}
                                     </p>
-                                </div>
-
-                                {/* Reviews */}
-                                <ProductRating productId={product.id} />
-
-                                <div className="mt-6">
-                                    <h3 className="sr-only">Description</h3>
-
-                                    <div
-                                        className="space-y-6 text-base text-gray-700"
-                                        dangerouslySetInnerHTML={{__html: product.description}}
-                                    />
+                                    {/*{selectedVariation && (*/}
+                                    {/*    <p className="text-sm text-gray-500">*/}
+                                    {/*        Stock: {selectedVariation.stock} available*/}
+                                    {/*    </p>*/}
+                                    {/*)}*/}
                                 </div>
 
                                 <form className="mt-6">
@@ -246,23 +336,22 @@ export default function ProductPage( ) {
 
                                     <div className="mt-10 flex">
 
-                                        {cartItems.some(item => item.id === product.id) ? (
-                                            <button
-                                                onClick={handleRemoveFromCart}
-                                                className="flex w-full items-center justify-center rounded-md border border-transparent bg-red-600 px-8 py-3 text-base font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 focus:ring-offset-gray-50"
-                                            >
-                                                Remove from Cart
-                                            </button>
-                                        ) : (
-                                            product.group === "1" ? (
-                                                <Link to={`/group-orders`}>
-                                                    <button
-                                                        className="flex w-full items-center justify-center rounded-md border border-transparent bg-primary px-8 py-3 text-base font-medium text-white hover:bg-secondary focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-gray-50">
-                                                        Create or Join Group
-                                                        <span className="sr-only">, {product.product_name}</span>
-                                                    </button>
-                                                </Link>
-                                            ) : (
+                                        {product.group !== "1" && (
+                                            isItemInCart() ? (
+                                                <button
+                                                    onClick={handleRemoveFromCart}
+                                                    className="flex w-full items-center justify-center rounded-md border border-transparent bg-red-600 px-8 py-3 text-base font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 focus:ring-offset-gray-50"
+                                                >
+                                                    Remove from Cart
+                                                </button>
+                                            ) : (product?.quantity <= 0) ? (// Out of stock condition
+                                                <button
+                                                    disabled
+                                                    className="relative w-full flex items-center justify-center rounded-md border border-gray-300 bg-gray-200 px-4 py-2 text-sm font-medium text-gray-400 cursor-not-allowed"
+                                                >
+                                                    Out of Stock
+                                                </button>
+                                            ) : (// Add to cart button (when in stock and not in cart)
                                                 <button
                                                     onClick={handleAddToCart}
                                                     className="flex w-full items-center justify-center rounded-md border border-transparent bg-primary px-8 py-3 text-base font-medium text-white hover:bg-secondary focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-gray-50"
@@ -271,6 +360,55 @@ export default function ProductPage( ) {
                                                 </button>
                                             )
                                         )}
+                                        <div className="">
+                                            {product.group === "1" && (
+                                                <>
+                                                    <Link to={`/group-orders`}>
+                                                        <button
+                                                            className="flex w-full items-center justify-center rounded-md border border-transparent bg-primary px-8 py-3 text-base font-medium text-white hover:bg-secondary focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-gray-50 mb-5">
+                                                            Create or Join Group
+                                                            <span className="sr-only">, {product.product_name}</span>
+                                                        </button>
+                                                    </Link>
+                                                </>
+                                            )}
+                                            {product.group === "1" && (
+                                                <>
+                                                    <Link to={`/group-orders`}>
+                                                        <button
+                                                            className="flex w-full items-center justify-center rounded-md border border-transparent bg-primary px-8 py-3 text-base font-medium text-white hover:bg-secondary focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-gray-50 mb-5"
+                                                            disabled={product?.quantity <= 0}
+                                                        >
+                                                            Create or Join Group
+                                                            <span className="sr-only">, {product.product_name}</span>
+                                                        </button>
+                                                    </Link>
+                                                    {/* Conditionally render remove or add to cart button */}
+                                                    {cartItems.some(item => item.id === product.id) ? (
+                                                        <button
+                                                            onClick={handleRemoveFromCart}
+                                                            className="flex w-full items-center justify-center rounded-md border border-transparent bg-red-600 px-8 py-3 text-base font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 focus:ring-offset-gray-50"
+                                                        >
+                                                            Remove from Cart
+                                                        </button>
+                                                    ) : (product?.quantity <= 0) ? ( // Check stock for both product and variation
+                                                        <button
+                                                            disabled
+                                                            className="relative w-full flex items-center justify-center rounded-md border border-gray-300 bg-gray-200 px-4 py-2 text-sm font-medium text-gray-400 cursor-not-allowed"
+                                                        >
+                                                            Out of Stock
+                                                        </button>
+                                                    ) : (
+                                                        <button
+                                                            onClick={handleAddToCart}
+                                                            className="flex w-full items-center justify-center rounded-md border border-transparent bg-primary px-8 py-3 text-base font-medium text-white hover:bg-secondary focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-gray-50"
+                                                        >
+                                                            Add to cart
+                                                        </button>
+                                                    )}
+                                                </>
+                                            )}
+                                        </div>
 
                                         <div className="flex items-center ml-4">
                                             <button
@@ -323,7 +461,7 @@ export default function ProductPage( ) {
                                         className="mx-auto mt-14 max-w-2xl sm:mt-16 lg:col-span-3 lg:row-span-2 lg:row-end-2 lg:mt-0 lg:max-w-none">
 
                                         <div className="mt-10 border-t border-gray-200 pt-10">
-                                        <h3 className="text-sm font-medium text-gray-900">Details</h3>
+                                            <h3 className="text-sm font-medium text-gray-900">Details</h3>
                                             <div className="prose prose-sm mt-4 text-gray-500">
                                                 <ul role="list">
                                                     <li>Category: <Link to={`/category/${product.category}`}
@@ -342,16 +480,39 @@ export default function ProductPage( ) {
                                             </div>
                                         </div>
 
-                                        {/*<div className="mt-10 border-t border-gray-200 pt-10">*/}
-                                        {/*    <h3 className="text-sm font-medium text-gray-900">License</h3>*/}
-                                        {/*    <p className="mt-4 text-sm text-gray-500">*/}
-                                        {/*        {license.summary}{' '}*/}
-                                        {/*        <a href={license.href}*/}
-                                        {/*           className="font-medium text-indigo-600 hover:text-indigo-500">*/}
-                                        {/*            Read full license*/}
-                                        {/*        </a>*/}
-                                        {/*    </p>*/}
-                                        {/*</div>*/}
+                                        <div className="mt-10 border-t border-gray-200 pt-10">
+                                            {/* Variation Selector */}
+                                            <div>
+                                                <h3 className="text-sm font-medium text-gray-900 mb-2">Select
+                                                    Variation</h3>
+                                                <div className="flex flex-wrap gap-2">
+                                                    {allVariations.map((variation) => (
+                                                        <button
+                                                            key={variation.id}
+                                                            onClick={() => handleVariationSelect(variation)}
+                                                            className={`px-3 py-1 border rounded-md text-sm ${
+                                                                selectedVariation?.id === variation.id
+                                                                    ? 'bg-primary text-white'
+                                                                    : 'bg-white text-gray-600'
+                                                            }`}
+                                                        >
+                                                            {variation.name}
+                                                        </button>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        {user && ( // Conditionally render based on user login
+                                            <div className="mt-10 border-t border-gray-200 pt-10">
+                                                <h3 className="text-sm font-medium text-gray-900">Contact Vendor</h3>
+                                                <Link to={`/messages?vendorId=${product.vendor_id}`}>
+                                                    <button className="mt-4 bg-primary text-white px-4 py-2 rounded-md">
+                                                        Message Vendor
+                                                    </button>
+                                                </Link>
+                                            </div>
+                                        )}
 
                                         <div className="mt-10 border-t border-gray-200 pt-10">
                                             <h3 className="text-sm font-medium text-gray-900">Share</h3>
@@ -366,14 +527,15 @@ export default function ProductPage( ) {
                         <ProductReviews productId={product.id} vendorId={product.vendor_id}/>
 
 
-
                         {!loading && relatedProducts.length > 0 && (
-                            <section aria-labelledby="related-heading" className="mt-10 border-t border-gray-200 px-4 py-16 sm:px-0">
+                            <section aria-labelledby="related-heading"
+                                     className="mt-10 border-t border-gray-200 px-4 py-16 sm:px-0">
                                 <h2 id="related-heading" className="text-xl font-bold text-gray-900">
                                     Customers also bought
                                 </h2>
 
-                                <div className="mt-8 grid grid-cols-2 sm:grid-cols-2 gap-y-12 gap-x-4 sm:gap-x-6 lg:grid-cols-4 xl:gap-x-8">
+                                <div
+                                    className="mt-8 grid grid-cols-2 sm:grid-cols-2 gap-y-12 gap-x-4 sm:gap-x-6 lg:grid-cols-4 xl:gap-x-8">
                                     {relatedProducts.map((product) => (
                                         <SingleProduct
                                             key={product.id}

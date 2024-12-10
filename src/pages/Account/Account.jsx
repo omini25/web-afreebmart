@@ -53,7 +53,7 @@ export default function Account() {
             // Show a toast notification
             toast.warning('You need to login to access the page');
         }
-    }, []);
+    }, [navigate]);
 
 
     const handleSubmit = async (event) => {
@@ -331,6 +331,7 @@ export default function Account() {
                     </div>
                 </main>
             </div>
+
         </>
     )
 }

@@ -66,7 +66,7 @@ const App = () => {
                 <Route path="/email-confirmation" element={<EmailConfirmation />} />
                 <Route path="/category/:categoryName" element={<MainShop />} />
                 <Route path="/subcategory/:subcategoryName" element={<SubCategory />} />
-                <Route path="/search/:searchTerm" element={<MainShop />} />
+                <Route path="/search/:searchTerm" element={<Search />} />
                 <Route path="/orders" element={<Orders />} />
                 <Route path="/order/:orderId" element={<OrderDetails />} />
                 <Route path="/payments" element={<Payments />} />

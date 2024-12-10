@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import React, {useState, useEffect, useRef} from 'react';
 import { HeartIcon, EyeIcon, ShoppingCartIcon } from '@heroicons/react/24/outline';
 import { HeartIcon as HeartIconSolid } from '@heroicons/react/24/solid';
 import axios from 'axios';
@@ -13,6 +13,34 @@ export default function SingleProduct({ productId, productName }) {
     const [product, setProduct] = useState(null);
     const [quantity, setQuantity] = useState(1)
     const [showQuickView, setShowQuickView] = useState(false);
+    const [selectedImage, setSelectedImage] = useState(0);
+    const [autoPlay, setAutoPlay] = useState(false); // Initialize autoPlay to false
+    const [mouseOver, setMouseOver] = useState(false);
+    const intervalRef = useRef(null);
+
+    useEffect(() => {
+        if (mouseOver && product?.image?.length > 1) { // Only autoplay on hover
+            intervalRef.current = setInterval(() => {
+                setSelectedImage(prevIndex => (prevIndex + 1) % product.image.length);
+            }, 5000);
+        } else {
+            clearInterval(intervalRef.current); // Clear interval if not hovering
+        }
+
+        return () => clearInterval(intervalRef.current); // Cleanup on unmount/dependency change
+    }, [mouseOver, product?.image]); // Dependency array includes mouseOver and product.image
+
+    const handleMouseEnter = () => {
+        setMouseOver(true);  // Start autoplay only on mouse enter
+        setAutoPlay(true);
+    };
+
+    const handleMouseLeave = () => {
+        setMouseOver(false); // Stop autoplay on mouse leave
+        setAutoPlay(false)
+    };
+
+
     const {
         cartItems,
         wishlistItems,
@@ -40,6 +68,7 @@ export default function SingleProduct({ productId, productName }) {
         fetchProduct();
     }, [productId, productName]);
 
+
     if (!product) {
         return <div className="animate-pulse bg-gray-200 h-64 w-64 rounded-lg"></div>;
     }
@@ -50,7 +79,12 @@ export default function SingleProduct({ productId, productName }) {
     };
 
     const handleAddToCart = () => {
-        addProductToCart({ ...product, quantity });
+        addProductToCart({
+            ...product,
+            image: Array.isArray(product.image) && product.image.length > 0 ? product.image[0] : product.image,
+            quantity,
+            product_id: product.id,
+        });
         toast.success(`${product.product_name} added to cart!`);
     };
 
@@ -70,7 +104,7 @@ export default function SingleProduct({ productId, productName }) {
                 id: product.id,
                 name: product.product_name,
                 price: product.price,
-                image: `${assetServer}/images/products/${product.image}`,
+                image: Array.isArray(product.image) && product.image.length > 0 ? `${assetServer}/images/products/${product.image[0]}` : `${assetServer}/images/products/${product.image}`,
             });
             toast.success(`${product.product_name} added to wishlist!`);
         }
@@ -80,12 +114,45 @@ export default function SingleProduct({ productId, productName }) {
 
     return (
         <div className="group relative">
-            <div className="relative w-full sm:w-52 h-52 sm:h-52 overflow-hidden">
-                <img
-                    src={`${assetServer}/images/products/${product.image}`}
-                    alt={product.product_name}
-                    className="w-full h-full object-cover object-center transition-all duration-300 ease-in-out group-hover:scale-105"
-                />
+            <div className="relative w-full h-52 sm:h-64 overflow-hidden">
+                <div
+                    className="relative w-full h-96 overflow-hidden"
+                    onMouseEnter={handleMouseEnter}
+                    onMouseLeave={handleMouseLeave}
+
+                >
+                    {product?.image && Array.isArray(product.image) && product.image.length > 0 ? (
+                        <>
+                            <img
+                                src={`${assetServer}/images/products/${product.image[selectedImage]}`}
+                                alt={product.product_name}
+                                className="w-full h-full object-cover object-center transition-all duration-300 ease-in-out group-hover:scale-105"
+                            />
+                            {product.quantity <= 0 && ( // Conditional overlay
+                                <div className="absolute inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center text-white text-xl font-bold">
+                                    Out of Stock
+                                </div>
+                            )}
+                            {/* Image selector buttons (optional) */}
+                            <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 p-2 flex justify-center">
+                                {product.image.map((_, index) => (
+                                    <button
+                                        key={index}
+                                        onClick={() => {
+                                            setSelectedImage(index);
+                                            setAutoPlay(false);
+                                        }}
+                                        className={`w-4 h-4 rounded-full mx-1 ${selectedImage === index ? 'bg-white' : 'bg-gray-300'}`}
+                                        disabled={product.quantity <= 0} //Disable image select if out of stock
+                                    />
+                                ))}
+                            </div>
+                        </>
+                    ) : (
+                        <div className="w-full h-full bg-gray-200 animate-pulse rounded-lg"></div>
+                    )}
+                </div>
+
                 <div
                     className="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                     <div className="flex space-x-4">
@@ -134,32 +201,37 @@ export default function SingleProduct({ productId, productName }) {
                     </p>
                 </div>
                 <div className="mt-2">
-                    {cartItems.some(item => item.id === product.id) ? (
-                        <button onClick={handleRemoveFromCart}
-                                className="relative w-full flex items-center justify-center rounded-md border border-transparent bg-secondary px-4 py-2 text-sm font-medium text-gray-900 hover:bg-primary">
-                            Remove from cart
-                            <span className="sr-only">, {product.product_name}</span>
-                        </button>
-                    ) : (
-                        product.group === "1" ? (
-                            <Link to={`/group-orders`}>
-                                <button
-                                    className="relative w-full flex items-center justify-center rounded-md border border-transparent bg-altBackground px-4 py-2 text-sm font-medium text-gray-900 hover:bg-newColor group">
-                                    <p className="text-newColor group-hover:text-white">Group Product</p>
-                                    <span className="sr-only">, {product.product_name}</span>
-                                </button>
-                            </Link>
+
+                    {product.group !== "1" && (
+                        product.quantity <= 0 ? ( // Check if out of stock
+                            <button
+                                disabled // Disable the button
+                                className="relative w-full flex items-center justify-center rounded-md border border-gray-300 bg-gray-200 px-4 py-2 text-sm font-medium text-gray-400 cursor-not-allowed" // Grayed-out styling
+                            >
+                                Out of Stock
+                                <span className="sr-only">, {product.product_name}</span>
+                            </button>
+                        ) : cartItems.some(item => item.id === product.id) ? (//Check if item is in cart and show remove button else show add to cart
+                            <button
+                                onClick={handleRemoveFromCart}
+                                className="relative w-full flex items-center justify-center rounded-md border border-transparent bg-secondary px-4 py-2 text-sm font-medium text-gray-900 hover:bg-primary"
+                            >
+                                Remove from cart
+                                <span className="sr-only">, {product.product_name}</span>
+                            </button>
                         ) : (
                             <button
                                 onClick={handleAddToCart}
                                 className="relative w-full flex items-center justify-center rounded-md border border-transparent bg-altBackground px-4 py-2 text-sm font-medium text-gray-900 hover:bg-newColor group"
                             >
-                                <ShoppingCartIcon className="h-5 w-5 mr-2 text-newColor group-hover:text-white" aria-hidden="true"/>
+                                <ShoppingCartIcon className="h-5 w-5 mr-2 text-newColor group-hover:text-white" aria-hidden="true" />
                                 <p className="text-newColor group-hover:text-white">Add to cart</p>
                                 <span className="sr-only">, {product.product_name}</span>
                             </button>
                         )
                     )}
+                    {/* Rest of the component code */}
+
                 </div>
             </div>
 

@@ -2,15 +2,15 @@ import {useEffect, useState} from 'react'
 import {
     CreditCardIcon,
     CubeIcon,
-    MapPinIcon, RectangleGroupIcon,
+    MapPinIcon,
+    RectangleGroupIcon,
     UserCircleIcon,
 } from '@heroicons/react/24/outline'
 import Header from "../../components/Header.jsx";
 import {toast} from "react-toastify";
 import {useNavigate} from "react-router-dom";
-import { getChats, getMessages, sendMessage, createChat } from '../../api.js';
+import { getChats, getMessages, sendMessage } from '../../api.js';
 import {ChatBubbleBottomCenterIcon} from "@heroicons/react/24/outline/index.js";
-
 
 const secondaryNavigation = [
     { name: 'Dashboard', href: '/dashboard', icon: UserCircleIcon, current: false },
@@ -34,30 +34,43 @@ export default function Messages() {
     const [selectedChat, setSelectedChat] = useState(null);
     const [messages, setMessages] = useState([]);
     const [newMessage, setNewMessage] = useState('');
-    const [showModal, setShowModal] = useState(false);
-    const [newChatUserId, setNewChatUserId] = useState('');
-
 
     useEffect(() => {
         fetchChats();
     }, []);
 
+    useEffect(() => {
+        const searchParams = new URLSearchParams(window.location.search);
+        const vendorIdFromQuery = searchParams.get('vendorId');
+
+        if (vendorIdFromQuery) {
+            const existingChat = chats.find(chat =>
+                chat.participants.some(participant => participant.user_id === vendorIdFromQuery)
+            );
+
+            if (existingChat) {
+                handleChatSelect(existingChat);
+            }
+        }
+    }, [chats]);
+
     const fetchChats = async () => {
         try {
             const response = await getChats();
-            setChats(response.data.threads);
+            setChats(response.data);
         } catch (error) {
             console.error('Error fetching chats:', error);
+            toast.error('Failed to load chats');
         }
     };
 
-
-    const fetchMessages = async (threadId) => {
+    const fetchMessages = async (chatRoomId) => {
         try {
-            const response = await getMessages(threadId);
-            setMessages(response.data.messages);
+            const response = await getMessages(chatRoomId);
+            setMessages(response.data.messages.data);
         } catch (error) {
             console.error('Error fetching messages:', error);
+            toast.error('Failed to load messages');
         }
     };
 
@@ -66,26 +79,16 @@ export default function Messages() {
         fetchMessages(chat.id);
     };
 
-
     const handleSendMessage = async () => {
+        if (!newMessage.trim()) return;
+
         try {
             await sendMessage(selectedChat.id, newMessage);
             setNewMessage('');
             fetchMessages(selectedChat.id);
         } catch (error) {
             console.error('Error sending message:', error);
-        }
-    };
-
-    const handleCreateChat = async () => {
-        try {
-            await createChat('From Admin', 'Hello!', [newChatUserId]);
-            setShowModal(false);
-            setNewChatUserId('');
-            fetchChats();
-            toast('Chat request sent. You will see the chat if the user accepts.');
-        } catch (error) {
-            console.error('Error creating chat:', error);
+            toast.error('Failed to send message');
         }
     };
 
@@ -126,17 +129,7 @@ export default function Messages() {
                 <main className="px-4 py-16 sm:px-6 lg:flex-auto lg:px-0 lg:py-20">
                     <div className="border-b border-gray-200 pb-5 sm:flex sm:items-center sm:justify-between">
                         <h3 className="text-base font-semibold leading-6 text-gray-900">Messages</h3>
-                        {/*<div className="mt-3 sm:ml-4 sm:mt-0">*/}
-                        {/*    <button*/}
-                        {/*        type="button"*/}
-                        {/*        className="inline-flex items-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50"*/}
-                        {/*        onClick={() => setShowModal(true)}*/}
-                        {/*    >*/}
-                        {/*        Start New Chat*/}
-                        {/*    </button>*/}
-                        {/*</div>*/}
                     </div>
-
 
                     <div className="flex w-full h-full shadow-lg rounded-3xl">
                         <section className="flex flex-col pt-3 w-4/12 bg-gray-50 h-full overflow-y-scroll">
@@ -156,14 +149,16 @@ export default function Messages() {
                                         onClick={() => handleChatSelect(chat)}
                                     >
                                         <div className="flex justify-between items-center">
-                                            <h3 className="text-lg font-semibold">{chat.subject}</h3>
+                                            <h3 className="text-lg font-semibold">
+                                                {chat.participants.find(p => p.user_id !== userId)?.user?.name || 'Chat'}
+                                            </h3>
                                             <p className={`text-md ${selectedChat && selectedChat.id === chat.id ? 'text-white' : 'text-gray-400'}`}>
                                                 {new Date(chat.updated_at).toLocaleString()}
                                             </p>
                                         </div>
                                         <div
                                             className={`text-md italic ${selectedChat && selectedChat.id === chat.id ? 'text-white' : 'text-gray-400'}`}>
-                                            {chat.latest_message ? chat.latest_message.body : 'No messages yet'}
+                                            {chat.last_message?.content || 'No messages yet'}
                                         </div>
                                     </li>
                                 ))}
@@ -183,9 +178,11 @@ export default function Messages() {
                                                 />
                                             </div>
                                             <div className="flex flex-col">
-                                                <h3 className="font-semibold text-lg">{selectedChat.subject}</h3>
+                                                <h3 className="font-semibold text-lg">
+                                                    {selectedChat.participants.find(p => p.user_id !== userId)?.user?.name || 'Chat'}
+                                                </h3>
                                                 <p className="text-light text-gray-400">
-                                                    {selectedChat?.participants?.length} participants
+                                                    {selectedChat.participants.length} participants
                                                 </p>
                                             </div>
                                         </div>
@@ -195,22 +192,22 @@ export default function Messages() {
                                         {messages.map((message) => (
                                             <div
                                                 key={message.id}
-                                                className={`mb-4 ${message.user.id === userId ? 'text-right' : 'text-left'}`}
+                                                className={`mb-4 ${message.user_id === userId ? 'text-right' : 'text-left'}`}
                                             >
                                                 <p className="font-semibold">{message.user.name}</p>
-                                                <p className="bg-gray-100 p-2 rounded-lg inline-block">{message.body}</p>
+                                                <p className="bg-gray-100 p-2 rounded-lg inline-block">{message.content}</p>
                                             </div>
                                         ))}
                                     </div>
 
                                     <section className="mt-6 border rounded-xl bg-gray-50 mb-3">
-                                              <textarea
-                                                  className="w-full bg-gray-50 p-2 rounded-xl"
-                                                  placeholder="Type your reply here..."
-                                                  rows={3}
-                                                  value={newMessage}
-                                                  onChange={(e) => setNewMessage(e.target.value)}
-                                              />
+                                        <textarea
+                                            className="w-full bg-gray-50 p-2 rounded-xl"
+                                            placeholder="Type your reply here..."
+                                            rows={3}
+                                            value={newMessage}
+                                            onChange={(e) => setNewMessage(e.target.value)}
+                                        />
                                         <div className="flex items-center justify-between p-2">
                                             <button className="h-6 w-6 text-gray-400">
                                                 <svg
@@ -243,36 +240,6 @@ export default function Messages() {
                             )}
                         </section>
                     </div>
-
-                    {showModal && (
-                        <div
-                            className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full flex items-center justify-center">
-                            <div className="relative p-5 border w-96 shadow-lg rounded-md bg-white">
-                                <h3 className="text-lg font-medium leading-6 text-gray-900 mb-4">Start New Chat</h3>
-                                <input
-                                    type="text"
-                                    className="w-full p-2 mb-4 border rounded"
-                                    placeholder="Enter user ID"
-                                    value={newChatUserId}
-                                    onChange={(e) => setNewChatUserId(e.target.value)}
-                                />
-                                <div className="flex justify-end">
-                                    <button
-                                        className="bg-primary text-white px-4 py-2 rounded mr-2"
-                                        onClick={handleCreateChat}
-                                    >
-                                        Create Chat
-                                    </button>
-                                    <button
-                                        className="bg-gray-300 text-gray-800 px-4 py-2 rounded"
-                                        onClick={() => setShowModal(false)}
-                                    >
-                                        Cancel
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    )}
                 </main>
             </div>
         </>
